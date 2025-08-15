@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel/CSV 转 JSON 转换器</title>
+    <!-- SheetJS 库用于处理 Excel 文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: #ff6b6b;
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.1);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            margin-right: 15px;
+            border-radius: 2px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ff6b6b;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            background: #fff8f8;
+            border-color: #ff5252;
+        }
+
+        .upload-area.dragover {
+            background: #ffe8e8;
+            border-color: #f44336;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .csv-preview {
+            max-height: 300px;
+            overflow: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background: white;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .csv-table th,
+        .csv-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .csv-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .config-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .config-label {
+            min-width: 120px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .config-input {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .config-select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 0.9em;
+            min-width: 150px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px 0 0;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .result-area {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .result-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1em;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .copy-area {
+            position: relative;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        .json-preview {
+            max-height: 500px;
+            overflow: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+        }
+
+        .json-key {
+            color: #63b3ed;
+        }
+
+        .json-string {
+            color: #68d391;
+        }
+
+        .json-number {
+            color: #fbb6ce;
+        }
+
+        .json-boolean {
+            color: #f6ad55;
+        }
+
+        .json-null {
+            color: #a0aec0;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px 0 0;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #dc3545;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+            margin: 20px 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Excel/CSV 转 JSON 转换器</h1>
+            <p>轻松将 Excel (.xls/.xlsx) 或 CSV 表格数据转换为 JSON 格式</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 文件上传区域 -->
+            <div class="section">
+                <h2>📁 上传 Excel/CSV 文件</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📤</div>
+                    <h3>拖拽文件到此处或点击上传</h3>
+                    <p>支持 .csv, .xls, .xlsx 格式文件</p>
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        选择文件
+                    </button>
+                    <input type="file" id="fileInput" class="file-input" accept=".csv,.xls,.xlsx" />
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <strong>文件信息：</strong>
+                    <div id="fileName"></div>
+                    <div id="fileSize"></div>
+                </div>
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <!-- 工作表选择（仅 Excel 文件显示） -->
+                <div class="config-section" id="sheetSelection" style="display: none;">
+                    <h3>📋 选择工作表</h3>
+                    <div class="config-row">
+                        <label class="config-label">工作表：</label>
+                        <select id="sheetSelect" class="config-select" onchange="loadSelectedSheet()">
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 数据预览 -->
+                <div class="csv-preview" id="csvPreview"></div>
+                
+                <!-- 转换配置 -->
+                <div class="config-section" id="configSection">
+                    <h3>🔧 转换配置</h3>
+                    <div class="config-row">
+                        <label class="config-label">分隔符：</label>
+                        <select id="delimiter" class="config-select">
+                            <option value=",">逗号 (,)</option>
+                            <option value=";">分号 (;)</option>
+                            <option value="\t">制表符 (Tab)</option>
+                            <option value="|">管道符 (|)</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <label class="config-label">编码格式：</label>
+                        <select id="encoding" class="config-select">
+                            <option value="utf-8">UTF-8</option>
+                            <option value="gbk">GBK</option>
+                            <option value="gb2312">GB2312</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <label class="config-label">输出格式：</label>
+                        <select id="outputFormat" class="config-select">
+                            <option value="array">数组格式 [{}]</option>
+                            <option value="object">对象格式 {data: []}</option>
+                            <option value="strapi">Strapi 格式</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <label class="config-label">数据类型：</label>
+                        <select id="dataType" class="config-select">
+                            <option value="auto">自动检测</option>
+                            <option value="string">全部字符串</option>
+                            <option value="typed">强类型转换</option>
+                        </select>
+                    </div>
+                    
+                    <button class="convert-btn" onclick="convertToJSON()">🔄 开始转换</button>
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+                <div class="success-message" id="successMessage"></div>
+            </div>
+
+            <!-- 转换结果区域 -->
+            <div class="result-area" id="resultArea">
+                <div class="section">
+                    <h2>📊 转换结果</h2>
+                    
+                    <!-- 统计信息 -->
+                    <div class="stats" id="stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="recordCount">0</div>
+                            <div class="stat-label">记录数量</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="fieldCount">0</div>
+                            <div class="stat-label">字段数量</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="jsonSize">0 KB</div>
+                            <div class="stat-label">JSON 大小</div>
+                        </div>
+                    </div>
+
+                    <!-- 选项卡 -->
+                    <div class="result-tabs">
+                        <button class="tab-btn active" onclick="switchTab('formatted')">🎨 格式化预览</button>
+                        <button class="tab-btn" onclick="switchTab('raw')">📝 原始 JSON</button>
+                    </div>
+
+                    <!-- 格式化预览选项卡 -->
+                    <div class="tab-content active" id="formattedTab">
+                        <div class="json-preview" id="jsonFormattedPreview"></div>
+                        <button class="download-btn" onclick="downloadJSON()">⬇️ 下载 JSON 文件</button>
+                        <button class="copy-btn" onclick="copyToClipboard('jsonFormattedPreview')" style="position: relative; margin-left: 10px;">📋 复制</button>
+                    </div>
+
+                    <!-- 原始 JSON 选项卡 -->
+                    <div class="tab-content" id="rawTab">
+                        <div class="copy-area">
+                            <button class="copy-btn" onclick="copyToClipboard('jsonRawContent')">📋 复制</button>
+                            <pre id="jsonRawContent" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; max-height: 500px; overflow: auto;"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let csvData = [];
+        let jsonData = '';
+        let csvHeaders = [];
+        let workbook = null;
+        let currentFileType = '';
+        let currentFileName = '';
+
+        // 初始化事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // 文件拖拽处理
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // 文件输入变化处理
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFile(e.target.files[0]);
+                }
+            });
+        });
+
+        // 处理文件
+        function handleFile(file) {
+            hideMessages();
+            hideSheetSelection();
+            
+            // 验证文件类型
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.csv') && !fileName.endsWith('.xls') && !fileName.endsWith('.xlsx')) {
+                showError('请选择 CSV、XLS 或 XLSX 格式的文件！');
+                return;
+            }
+
+            currentFileName = file.name;
+            currentFileType = getFileType(fileName);
+
+            // 显示文件信息
+            showFileInfo(file);
+            showProgress();
+
+            // 根据文件类型选择读取方式
+            if (currentFileType === 'csv') {
+                readCSVFile(file);
+            } else {
+                readExcelFile(file);
+            }
+        }
+
+        // 获取文件类型
+        function getFileType(fileName) {
+            if (fileName.endsWith('.csv')) return 'csv';
+            if (fileName.endsWith('.xls')) return 'xls';
+            if (fileName.endsWith('.xlsx')) return 'xlsx';
+            return 'unknown';
+        }
+
+        // 读取 CSV 文件
+        function readCSVFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    updateProgress(50);
+                    const csvText = e.target.result;
+                    parseCSV(csvText);
+                    updateProgress(100);
+                    setTimeout(() => {
+                        hideProgress();
+                        showSuccess('CSV 文件解析成功！');
+                        showConfig();
+                        showDataPreview();
+                    }, 500);
+                } catch (error) {
+                    hideProgress();
+                    showError('CSV 文件解析错误：' + error.message);
+                }
+            };
+
+            reader.onerror = function() {
+                hideProgress();
+                showError('文件读取失败！');
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // 读取 Excel 文件
+        function readExcelFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    updateProgress(25);
+                    
+                    // 使用 SheetJS 解析 Excel 文件
+                    const data = new Uint8Array(e.target.result);
+                    workbook = XLSX.read(data, { type: 'array' });
+                    
+                    updateProgress(50);
+                    
+                    // 显示工作表选择
+                    populateSheetSelection();
+                    showSheetSelection();
+                    
+                    // 默认加载第一个工作表
+                    if (workbook.SheetNames.length > 0) {
+                        loadSheet(workbook.SheetNames[0]);
+                    }
+                    
+                    updateProgress(100);
+                    setTimeout(() => {
+                        hideProgress();
+                        showSuccess('Excel 文件解析成功！');
+                        showConfig();
+                        showDataPreview();
+                    }, 500);
+                } catch (error) {
+                    hideProgress();
+                    showError('Excel 文件解析错误：' + error.message);
+                }
+            };
+
+            reader.onerror = function() {
+                hideProgress();
+                showError('文件读取失败！');
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 填充工作表选择下拉框
+        function populateSheetSelection() {
+            const sheetSelect = document.getElementById('sheetSelect');
+            sheetSelect.innerHTML = '';
+            
+            workbook.SheetNames.forEach((sheetName, index) => {
+                const option = document.createElement('option');
+                option.value = sheetName;
+                option.textContent = sheetName;
+                if (index === 0) option.selected = true;
+                sheetSelect.appendChild(option);
+            });
+        }
+
+        // 加载选中的工作表
+        function loadSelectedSheet() {
+            const sheetSelect = document.getElementById('sheetSelect');
+            const selectedSheet = sheetSelect.value;
+            if (selectedSheet) {
+                loadSheet(selectedSheet);
+                showDataPreview();
+            }
+        }
+
+        // 加载指定工作表
+        function loadSheet(sheetName) {
+            if (!workbook || !workbook.Sheets[sheetName]) {
+                showError('工作表不存在：' + sheetName);
+                return;
+            }
+
+            try {
+                // 将工作表转换为 JSON 格式
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                    header: 1,  // 使用数组格式，第一行作为表头
+                    defval: ''  // 空单元格使用空字符串
+                });
+
+                if (jsonData.length === 0) {
+                    throw new Error('工作表为空');
+                }
+
+                // 提取表头
+                csvHeaders = jsonData[0].map(header => String(header || ''));
+                
+                // 转换数据为对象格式
+                csvData = [];
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    const record = {};
+                    
+                    for (let j = 0; j < csvHeaders.length; j++) {
+                        const value = row[j];
+                        record[csvHeaders[j]] = value !== undefined ? String(value) : '';
+                    }
+                    
+                    // 只添加非空行
+                    const hasData = Object.values(record).some(val => val.trim() !== '');
+                    if (hasData) {
+                        csvData.push(record);
+                    }
+                }
+
+            } catch (error) {
+                showError('加载工作表失败：' + error.message);
+            }
+        }
+
+        // 解析 CSV
+        function parseCSV(csvText) {
+            const delimiter = document.getElementById('delimiter').value;
+            const lines = csvText.trim().split('\n');
+            
+            if (lines.length === 0) {
+                throw new Error('CSV 文件为空');
+            }
+
+            // 解析表头
+            csvHeaders = parseCSVLine(lines[0], delimiter);
+            
+            // 解析数据行
+            csvData = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    const values = parseCSVLine(lines[i], delimiter);
+                    const record = {};
+                    
+                    for (let j = 0; j < csvHeaders.length; j++) {
+                        record[csvHeaders[j]] = values[j] || '';
+                    }
+                    csvData.push(record);
+                }
+            }
+        }
+
+        // 解析 CSV 行（处理引号和转义）
+        function parseCSVLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++; // 跳过下一个引号
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === delimiter && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current.trim());
+            return result;
+        }
+
+        // 显示数据预览
+        function showDataPreview() {
+            const preview = document.getElementById('csvPreview');
+            
+            if (csvData.length === 0) {
+                preview.innerHTML = '<p>没有数据可预览</p>';
+                preview.style.display = 'block';
+                return;
+            }
+
+            let html = '<table class="csv-table"><thead><tr>';
+            
+            // 表头
+            for (const header of csvHeaders) {
+                html += `<th title="${header}">${header}</th>`;
+            }
+            html += '</tr></thead><tbody>';
+
+            // 数据行（只显示前 50 行）
+            const displayData = csvData.slice(0, 50);
+            for (const record of displayData) {
+                html += '<tr>';
+                for (const header of csvHeaders) {
+                    const value = record[header] || '';
+                    const displayValue = value.length > 30 ? value.substring(0, 30) + '...' : value;
+                    html += `<td title="${value.replace(/"/g, '&quot;')}">${displayValue}</td>`;
+                }
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+
+            if (csvData.length > 50) {
+                html += `<p style="text-align: center; margin-top: 15px; color: #6c757d;">
+                    显示前 50 条记录，共 ${csvData.length.toLocaleString()} 条记录
+                </p>`;
+            }
+
+            preview.innerHTML = html;
+            preview.style.display = 'block';
+        }
+
+        // 转换为 JSON
+        function convertToJSON() {
+            if (csvData.length === 0) {
+                showError('没有数据可转换');
+                return;
+            }
+
+            hideMessages();
+            showProgress();
+
+            try {
+                updateProgress(25);
+                
+                // 数据类型处理
+                const dataType = document.getElementById('dataType').value;
+                let processedData = csvData.map(record => {
+                    const newRecord = {};
+                    for (const [key, value] of Object.entries(record)) {
+                        newRecord[key] = processValue(value, dataType);
+                    }
+                    return newRecord;
+                });
+
+                updateProgress(50);
+
+                // 输出格式处理
+                const outputFormat = document.getElementById('outputFormat').value;
+                let result;
+                
+                switch (outputFormat) {
+                    case 'array':
+                        result = processedData;
+                        break;
+                    case 'object':
+                        result = { data: processedData };
+                        break;
+                    case 'strapi':
+                        result = {
+                            version: 2,
+                            data: {
+                                'api::data.data': {}
+                            }
+                        };
+                        processedData.forEach((item, index) => {
+                            result.data['api::data.data'][index + 1] = {
+                                id: index + 1,
+                                ...item,
+                                createdAt: new Date().toISOString(),
+                                updatedAt: new Date().toISOString(),
+                                publishedAt: new Date().toISOString()
+                            };
+                        });
+                        break;
+                }
+
+                updateProgress(75);
+
+                jsonData = JSON.stringify(result, null, 2);
+                
+                updateProgress(100);
+                
+                setTimeout(() => {
+                    hideProgress();
+                    showSuccess('JSON 转换成功！');
+                    updateStats(csvData.length, csvHeaders.length, jsonData.length);
+                    updateJSONPreview(jsonData);
+                    showResults();
+                }, 500);
+
+            } catch (error) {
+                hideProgress();
+                showError('转换错误：' + error.message);
+            }
+        }
+
+        // 处理数值类型
+        function processValue(value, dataType) {
+            if (dataType === 'string') {
+                return value;
+            }
+            
+            if (dataType === 'auto' || dataType === 'typed') {
+                // 空值处理
+                if (value === '' || value === 'null' || value === 'NULL') {
+                    return dataType === 'typed' ? null : '';
+                }
+                
+                // 布尔值处理
+                if (value.toLowerCase() === 'true') return true;
+                if (value.toLowerCase() === 'false') return false;
+                
+                // 数字处理
+                if (dataType === 'typed') {
+                    const num = Number(value);
+                    if (!isNaN(num) && value.trim() !== '') {
+                        return num;
+                    }
+                }
+            }
+            
+            return value;
+        }
+
+        // 更新统计信息
+        function updateStats(recordCount, fieldCount, size) {
+            document.getElementById('recordCount').textContent = recordCount.toLocaleString();
+            document.getElementById('fieldCount').textContent = fieldCount;
+            document.getElementById('jsonSize').textContent = (size / 1024).toFixed(1) + ' KB';
+        }
+
+        // 更新 JSON 预览
+        function updateJSONPreview(json) {
+            // 格式化预览（带语法高亮）
+            const formatted = syntaxHighlight(json);
+            document.getElementById('jsonFormattedPreview').innerHTML = formatted;
+            
+            // 原始文本
+            document.getElementById('jsonRawContent').textContent = json;
+        }
+
+        // JSON 语法高亮
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // 切换选项卡
+        function switchTab(tabName) {
+            // 更新按钮状态
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 更新内容显示
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            let text;
+            
+            if (elementId === 'jsonFormattedPreview') {
+                text = jsonData;
+            } else {
+                text = element.textContent || element.innerText;
+            }
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ 已复制';
+                btn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '#28a745';
+                }, 2000);
+            }).catch(function(err) {
+                alert('复制失败，请手动选择文本复制');
+            });
+        }
+
+        // 下载 JSON 文件
+        function downloadJSON() {
+            if (!jsonData) {
+                showError('没有可下载的数据');
+                return;
+            }
+
+            // 根据原文件名生成 JSON 文件名
+            let filename = 'converted_data.json';
+            if (currentFileName) {
+                const nameWithoutExt = currentFileName.replace(/\.(csv|xls|xlsx)$/i, '');
+                filename = nameWithoutExt + '.json';
+            }
+
+            const blob = new Blob([jsonData], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 显示文件信息
+        function showFileInfo(file) {
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            
+            fileName.textContent = `文件名：${file.name}`;
+            fileSize.textContent = `文件大小：${(file.size / 1024).toFixed(1)} KB`;
+            fileInfo.style.display = 'block';
+        }
+
+        // 显示配置区域
+        function showConfig() {
+            document.getElementById('configSection').style.display = 'block';
+        }
+
+        // 显示工作表选择
+        function showSheetSelection() {
+            document.getElementById('sheetSelection').style.display = 'block';
+        }
+
+        // 隐藏工作表选择
+        function hideSheetSelection() {
+            document.getElementById('sheetSelection').style.display = 'none';
+        }
+
+        // 显示/隐藏进度条
+        function showProgress() {
+            document.getElementById('progressBar').style.display = 'block';
+            updateProgress(0);
+        }
+
+        function hideProgress() {
+            document.getElementById('progressBar').style.display = 'none';
+        }
+
+        function updateProgress(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        // 显示结果区域
+        function showResults() {
+            document.getElementById('resultArea').style.display = 'block';
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 消息处理
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
