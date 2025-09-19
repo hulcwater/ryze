@@ -1,0 +1,3209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DREO AI客服演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            height: 200vh; /* 模拟长页面用于测试滚动 */
+        }
+
+        /* 模拟DREO Support页面头部 */
+        .header {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-info {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* AI客服悬浮按钮 */
+        .ai-chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .ai-chat-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .ai-chat-button.active {
+            background: #ff6b6b;
+        }
+
+        .ai-chat-button .icon {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .ai-chat-button.active .icon::before {
+            content: '✕';
+            font-size: 24px;
+        }
+
+        .ai-chat-button:not(.active) .icon::before {
+            content: '🎧';
+            font-size: 18px;
+        }
+
+        .ai-chat-button:not(.active) .icon::after {
+            content: 'AI';
+            font-size: 9px;
+            margin-top: 1px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        /* 对话框 */
+        .chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 560px;
+            height: 800px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .chat-widget.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 对话框头部 */
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .more-menu {
+            position: relative;
+        }
+
+        .more-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .more-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .more-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            min-width: 120px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .more-dropdown.show {
+            display: block;
+        }
+
+        .more-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .more-option:hover {
+            background: #f8f9fa;
+        }
+
+        /* 对话区域 */
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .welcome-message {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .question-categories {
+            margin-top: 20px;
+        }
+
+        .category-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .category-item {
+            background: white;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .category-item:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .category-arrow {
+            transition: transform 0.2s ease;
+            color: #999;
+        }
+
+        .category-item.expanded .category-arrow {
+            transform: rotate(90deg);
+        }
+
+        .subcategories {
+            margin-top: 8px;
+            margin-left: 16px;
+            display: none;
+        }
+
+        .subcategories.show {
+            display: block;
+        }
+
+        .subcategory-item {
+            background: #f8f9fa;
+            border: none;
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .subcategory-item:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        /* 消息样式 */
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+        }
+
+        .message.ai .message-content {
+            background: white;
+            border: 1px solid #e0e6ed;
+            margin-left: 8px;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            margin-right: 8px;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .message.ai .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #333;
+            color: white;
+        }
+
+        /* 可点击的示例问题样式 */
+        .example-question {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+            display: inline-block;
+            margin: 2px 0;
+        }
+
+        .example-question:hover {
+            color: #5a6fd8;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        /* 产品对比表格样式 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .comparison-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e6ed;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .comparison-table .feature-name {
+            background: #f8f9fa !important;
+            font-weight: bold;
+            text-align: left;
+            color: #333;
+        }
+
+        .pros-cons-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .pros-cons-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .pros-item {
+            color: #28a745;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .cons-item {
+            color: #dc3545;
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        /* 产品推荐卡片样式 */
+        .product-card {
+            background: white;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .product-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 0 12px 0 12px;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .product-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 4px 4px 0 0;
+        }
+
+
+        /* 输入区域 */
+        .chat-input {
+            padding: 16px;
+            border-top: 1px solid #e0e6ed;
+            background: white;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 8px 16px;
+        }
+
+        .input-field {
+            flex: 1;
+            border: none;
+            background: none;
+            outline: none;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .send-button {
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .send-button:hover {
+            background: #5a6fd8;
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 点赞/踩按钮样式 */
+        .feedback-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+            justify-content: flex-end;
+        }
+
+        .feedback-button {
+            background: none;
+            border: 1px solid #e0e6ed;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #666;
+            min-width: 60px;
+            justify-content: center;
+        }
+
+        .feedback-button:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .feedback-button.liked {
+            background: #e8f5e8;
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .feedback-button.disliked {
+            background: #ffe6e6;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .feedback-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback-button.disabled:hover {
+            background: none;
+            border-color: #e0e6ed;
+            color: #666;
+        }
+
+        .feedback-text {
+            font-size: 11px;
+            color: #999;
+            margin-right: 8px;
+        }
+
+        .feedback-success {
+            background: #e8f5e8;
+            color: #28a745;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .chat-widget {
+                width: calc(100vw - 20px);
+                right: 10px;
+                bottom: 90px;
+                height: calc(100vh - 120px);
+            }
+            
+            .ai-chat-button {
+                right: 20px;
+                bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 模拟DREO Support页面内容 -->
+    <div class="header">
+        <div class="logo">DREO Support</div>
+    </div>
+
+    <div class="content">
+        <div class="demo-info">
+            <h1>AI客服演示页面</h1>
+            <p>这是一个模拟的DREO Support页面，右下角有AI客服功能。您可以：</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>点击右下角的AI客服按钮开始对话</li>
+                <li>选择预设的问题类型或直接输入问题</li>
+                <li>使用右上角的"更多"菜单重新开始对话</li>
+                <li>滚动页面测试按钮的固定位置效果</li>
+            </ul>
+        </div>
+
+        <div style="height: 1000px; background: linear-gradient(45deg, #f0f2f5, #ffffff); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #999;">
+            <h2>滚动页面测试AI客服按钮固定位置效果</h2>
+        </div>
+    </div>
+
+    <!-- AI客服悬浮按钮 -->
+    <button class="ai-chat-button" id="chatButton">
+        <span class="icon"></span>
+    </button>
+
+    <!-- AI客服对话框 -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <div class="chat-title">DREO AI助手</div>
+            <div class="more-menu">
+                <button class="more-button" id="moreButton">⋯</button>
+                <div class="more-dropdown" id="moreDropdown">
+                    <div class="more-option" id="resetChat">重新对话</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="welcome-message">
+                <div class="ai-avatar">AI</div>
+                <div>
+                    <strong>您好！欢迎使用DREO智能客服助手！</strong><br>
+                    我可以帮助您解决产品咨询和售后支持问题。您可以：
+                    <ul style="margin: 8px 0 0 16px;">
+                        <li>选择下方的常见问题类型</li>
+                        <li>直接在输入框中描述您的问题</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="question-categories">
+                <div class="category-title">常见问题分类</div>
+                
+                <div class="category-item" data-category="产品咨询">
+                    <span>🛍️ 产品咨询</span>
+                    <span class="category-arrow">▶</span>
+                </div>
+                <div class="subcategories">
+                    <div class="subcategory-item" data-question="产品信息与功能咨询">
+                        📋 产品信息与功能咨询
+                    </div>
+                    <div class="subcategory-item" data-question="购买决策">
+                        🤔 购买决策
+                    </div>
+                </div>
+
+                <div class="category-item" data-category="售后支持">
+                    <span>🔧 售后支持</span>
+                    <span class="category-arrow">▶</span>
+                </div>
+                <div class="subcategories">
+                    <div class="subcategory-item" data-question="产品故障诊断">
+                        🔍 产品故障诊断
+                    </div>
+                    <div class="subcategory-item" data-question="软件问题">
+                        💻 软件问题
+                    </div>
+                    <div class="subcategory-item" data-question="产品维护">
+                        🧽 产品维护
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-container">
+                <input type="text" class="input-field" id="messageInput" placeholder="请输入您的问题...">
+                <button class="send-button" id="sendButton">
+                    <span>➤</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 问题类型数据
+        const questionData = {
+            "产品信息与功能咨询": {
+                description: "查询产品参数、核心功能、智能特性和兼容性信息等",
+                examples: [
+                    "Nomad One塔扇尺寸/重量/耗电量是多少?",
+                    "DR-HHM003S加湿器加湿效果如何？",
+                    "DREO的智能产品支持哪些语音助手?",
+                    "Nomad One塔扇产品的噪音水平如何?"
+                ]
+            },
+            "购买决策": {
+                description: "产品推荐、型号对比、安装要求咨询等",
+                examples: [
+                    "DR-HHM002S和DR-HHM003S加湿器的主要区别?",
+                    "DR-HHM002S和DR-HHM003S哪款加湿器适合婴儿房间?"
+                ]
+            },
+            "产品故障诊断": {
+                description: "解决开机、网络连接、物理故障和传感器异常等问题",
+                examples: [
+                    "暖风机插电无反应怎么办?",
+                    "产品配网失败如何解决?",
+                    "塔扇有异响是什么原因?",
+                    "Wi-Fi频繁掉线怎么处理?"
+                ]
+            },
+            "软件问题": {
+                description: "解决App问题、设备连接和功能异常等",
+                examples: [
+                    "设备显示离线如何处理?",
+                    "语音控制无响应？",
+                    "状态不同步问题？"
+                ]
+            },
+            "产品维护": {
+                description: "产品清洁保养、配件更换、定期维护和使用寿命优化等",
+                examples: [
+                    "加湿器多久需要清洁一次?",
+                    "如何清洁风扇叶片和过滤网?",
+                    "什么时候需要更换配件?",
+                    "如何延长产品使用寿命?"
+                ]
+            }
+        };
+
+        // DOM元素
+        const chatButton = document.getElementById('chatButton');
+        const chatWidget = document.getElementById('chatWidget');
+        const chatBody = document.getElementById('chatBody');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const moreButton = document.getElementById('moreButton');
+        const moreDropdown = document.getElementById('moreDropdown');
+        const resetChat = document.getElementById('resetChat');
+
+
+        // 切换对话框显示/隐藏
+        chatButton.addEventListener('click', () => {
+            const isActive = chatButton.classList.contains('active');
+            if (isActive) {
+                chatWidget.classList.remove('show');
+                chatButton.classList.remove('active');
+                moreDropdown.classList.remove('show');
+            } else {
+                chatWidget.classList.add('show');
+                chatButton.classList.add('active');
+            }
+        });
+
+        // 更多菜单切换
+        moreButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            moreDropdown.classList.toggle('show');
+        });
+
+        // 点击其他地方关闭更多菜单
+        document.addEventListener('click', () => {
+            moreDropdown.classList.remove('show');
+        });
+
+        // 重新对话
+        resetChat.addEventListener('click', () => {
+            resetChatContent();
+            moreDropdown.classList.remove('show');
+        });
+
+        // 重置聊天内容
+        function resetChatContent() {
+            // 重新生成初始的聊天内容
+            chatBody.innerHTML = `
+                <div class="welcome-message">
+                    <div class="ai-avatar">AI</div>
+                    <div>
+                        <strong>您好！欢迎使用DREO智能客服助手！</strong><br>
+                        我可以帮助您解决产品咨询和售后支持问题。您可以：
+                        <ul style="margin: 8px 0 0 16px;">
+                            <li>选择下方的常见问题类型</li>
+                            <li>直接在输入框中描述您的问题</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="question-categories">
+                    <div class="category-title">常见问题分类</div>
+                    
+                    <div class="category-item" data-category="产品咨询">
+                        <span>🛍️ 产品咨询</span>
+                        <span class="category-arrow">▶</span>
+                    </div>
+                    <div class="subcategories">
+                        <div class="subcategory-item" data-question="产品信息与功能咨询">
+                            📋 产品信息与功能咨询
+                        </div>
+                        <div class="subcategory-item" data-question="购买决策">
+                            🤔 购买决策
+                        </div>
+                    </div>
+
+                    <div class="category-item" data-category="售后支持">
+                        <span>🔧 售后支持</span>
+                        <span class="category-arrow">▶</span>
+                    </div>
+                    <div class="subcategories">
+                        <div class="subcategory-item" data-question="产品故障诊断">
+                            🔍 产品故障诊断
+                        </div>
+                        <div class="subcategory-item" data-question="软件问题">
+                            💻 软件问题
+                        </div>
+                        <div class="subcategory-item" data-question="产品维护">
+                            🧽 产品维护
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 重新绑定事件监听器
+            bindCategoryEvents();
+
+            // 清空输入框
+            messageInput.value = '';
+            
+            // 重置发送按钮状态
+            sendButton.disabled = true;
+
+            // 滚动到顶部
+            chatBody.scrollTop = 0;
+        }
+
+        // 绑定分类事件
+        function bindCategoryEvents() {
+            // 重新绑定分类展开/收起事件
+            chatBody.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const subcategories = item.nextElementSibling;
+                    const isExpanded = item.classList.contains('expanded');
+                    
+                    // 收起所有其他分类
+                    chatBody.querySelectorAll('.category-item').forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('expanded');
+                            otherItem.nextElementSibling.classList.remove('show');
+                        }
+                    });
+                    
+                    // 切换当前分类
+                    if (isExpanded) {
+                        item.classList.remove('expanded');
+                        subcategories.classList.remove('show');
+                    } else {
+                        item.classList.add('expanded');
+                        subcategories.classList.add('show');
+                    }
+                });
+            });
+
+            // 重新绑定子分类点击事件
+            chatBody.querySelectorAll('.subcategory-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const questionType = item.dataset.question;
+                    handleQuestionSelection(questionType);
+                });
+            });
+        }
+
+        // 初始化时绑定分类事件
+        bindCategoryEvents();
+
+        // 处理问题类型选择
+        function handleQuestionSelection(questionType) {
+            const data = questionData[questionType];
+            if (data) {
+                addMessage('user', `我想了解：${questionType}`);
+                
+                setTimeout(() => {
+                    // 创建带有可点击示例问题的消息
+                    addMessageWithClickableExamples(questionType, data);
+                }, 1000);
+            }
+        }
+
+        // 添加带有可点击示例问题的消息
+        function addMessageWithClickableExamples(questionType, data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // 创建文本内容
+            const textPart = document.createElement('div');
+            textPart.style.whiteSpace = 'pre-line';
+            textPart.textContent = `关于${questionType}，我可以为您提供以下帮助：\n\n${data.description}\n\n常见问题：`;
+            messageContent.appendChild(textPart);
+            
+            // 创建可点击的示例问题列表
+            data.examples.forEach((example, index) => {
+                const exampleDiv = document.createElement('div');
+                exampleDiv.style.margin = '8px 0';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.textContent = `${index + 1}. `;
+                
+                const questionSpan = document.createElement('span');
+                questionSpan.className = 'example-question';
+                questionSpan.textContent = example;
+                questionSpan.onclick = () => {
+                    addMessage('user', example);
+                    setTimeout(() => {
+                        addDetailedResponseWithResources(example);
+                    }, 1000);
+                };
+                
+                exampleDiv.appendChild(numberSpan);
+                exampleDiv.appendChild(questionSpan);
+                messageContent.appendChild(exampleDiv);
+            });
+            
+            // 添加结尾文本
+            const endText = document.createElement('div');
+            endText.style.whiteSpace = 'pre-line';
+            endText.style.marginTop = '12px';
+            endText.textContent = '请告诉我您的具体问题，我会为您详细解答！';
+            messageContent.appendChild(endText);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                messageInput.value = '';
+                
+                // 检测是否需要转人工
+                if (isRequestForHumanAgent(message)) {
+                    setTimeout(() => {
+                        addHumanAgentResponse();
+                    }, 1000);
+                } else if (isDissatisfiedWithService(message)) {
+                    // 用户对AI服务表示不满
+                    setTimeout(() => {
+                        addDissatisfiedResponse(message);
+                    }, 1000);
+                } else if (isOrderRelatedInquiry(message)) {
+                    // 订单相关问题（退/换货、申请优惠）
+                    setTimeout(() => {
+                        addOrderInquiryResponse(message);
+                    }, 1000);
+                } else if (isProductComparison(message)) {
+                    // 产品对比回复
+                    setTimeout(() => {
+                        addProductComparisonResponse(message);
+                    }, 1000);
+                } else if (isGreeting(message)) {
+                    // 礼貌性问好
+                    setTimeout(() => {
+                        addGreetingResponse();
+                    }, 1000);
+                } else if (isOtherBrandQuestion(message)) {
+                    // 其他品牌问题
+                    setTimeout(() => {
+                        addOtherBrandResponse(message);
+                    }, 1000);
+                } else if (isProductRecommendationRequest(message)) {
+                    // 产品推荐请求
+                    setTimeout(() => {
+                        addProductRecommendationResponse(message);
+                    }, 1000);
+                } else if (isImprovementSuggestion(message)) {
+                    // 用户改进建议
+                    setTimeout(() => {
+                        addImprovementSuggestionResponse(message);
+                    }, 1000);
+                } else if (isThankfulForSolution(message)) {
+                    // 用户表达感谢（问题已解决）
+                    setTimeout(() => {
+                        addThankfulResponse(message);
+                    }, 1000);
+                } else if (!isDreoRelatedQuestion(message)) {
+                    // 非DREO相关问题
+                    setTimeout(() => {
+                        addNonDreoResponse(message);
+                    }, 1000);
+                } else {
+                    // 检查是否为复杂技术问题或知识库外问题
+                    if (isComplexOrUnknownQuestion(message)) {
+                        // 未找到对应解决方案
+                        setTimeout(() => {
+                            addNoSolutionFoundResponse(message);
+                        }, 1000);
+                    } else {
+                        // 模拟AI回复
+                        setTimeout(() => {
+                            const responses = [
+                                "感谢您的问题！我正在为您查找相关信息...",
+                                "根据您的描述，我建议您可以尝试以下解决方案...",
+                                "这是一个很好的问题！让我为您详细解答...",
+                                "我理解您的困扰，这里有一些可能的解决方法..."
+                            ];
+                            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                            addMessage('ai', randomResponse);
+                        }, 1500);
+                    }
+                }
+            }
+        }
+
+        // 检测是否为订单相关问题（退/换货、申请优惠）
+        function isOrderRelatedInquiry(message) {
+            const orderKeywords = [
+                // 退货相关
+                '退货', '退款', '退回', '退掉', '不要了', '想退',
+                '申请退货', '如何退货', '退货流程', '退货政策',
+                '退货条件', '退货时间', '退货期限', 
+                
+                // 换货相关
+                '换货', '更换', '调换', '换一个', '重新发',
+                '申请换货', '如何换货', '换货流程', '换货政策',
+                '换货条件', '换新的', '换别的',
+                
+                // 优惠相关
+                '优惠', '打折', '折扣', '降价', '便宜', '减价',
+                '优惠券', '折扣码', '优惠码', '促销码', '代金券',
+                '申请优惠', '申请折扣', '有优惠吗', '有折扣吗',
+                '优惠活动', '促销活动', '特价', '活动价',
+                '会员优惠', '新用户优惠', '首购优惠', 
+                
+                // 订单状态相关
+                '订单状态', '订单查询', '物流查询', '发货了吗',
+                '什么时候发货', '快递信息', '配送时间',
+                '订单号', '追踪订单', '查看订单'
+            ];
+
+            const orderPatterns = [
+                '不想要了', '买错了', '不合适', '不满意',
+                '质量有问题', '有瑕疵', '有问题', '坏了',
+                '用不了', '不好用', '效果不好', '不符合预期',
+                '尺寸不对', '颜色不对', '型号不对', '款式不对',
+                '能便宜点吗', '有没有优惠', '价格能降吗', '能打折吗',
+                '什么时候有活动', '有促销吗', '会降价吗'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查订单关键词
+            const hasOrderKeywords = orderKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 检查订单模式
+            const hasOrderPatterns = orderPatterns.some(pattern => 
+                lowerMessage.includes(pattern.toLowerCase())
+            );
+
+            return hasOrderKeywords || hasOrderPatterns;
+        }
+
+        // 检测是否为复杂或知识库外问题
+        function isComplexOrUnknownQuestion(message) {
+            const complexKeywords = [
+                // 复杂技术问题
+                '集成', '兼容', '协议', '接口', '算法', '架构', '驱动', '固件',
+                '认证', '标准', '规范', '测试', '校准', '调试', '开发',
+                '二次开发', '定制', 'SDK', 'API', '开源', '源码',
+                
+                // 深度技术参数
+                '功率因数', '谐波', '电磁兼容', '辐射', '传导', '静电',
+                'EMC', 'EMI', 'CE', 'FCC', 'UL', 'CCC', 'RoHS',
+                '分贝值', 'dB', '频谱', '滤波', '信噪比', 'SNR',
+                
+                // 专业维修问题
+                '电路板', '主板', '芯片', '传感器', '电机', '变频',
+                '电容', '电阻', '晶体管', '集成电路', 'PCB', 'IC',
+                '焊接', '更换', '拆解', '组装', '维修手册',
+                
+                // 高级功能需求
+                '自动化', '智能学习', '机器学习', 'AI训练', '语音识别',
+                '图像识别', '环境学习', '模式识别', '预测分析',
+                '数据挖掘', '云计算', '边缘计算', 'IoT平台',
+                
+                // 批量或商用需求
+                '批量', '采购', '招标', '代理', '经销', '分销',
+                '项目', '工程', '集成商', '系统集成', 'B2B',
+                '商用', '工业级', '定制化', '个性化',
+                
+                // 第三方集成
+                'HomeKit', 'Google Assistant', 'Amazon Alexa',
+                'SmartThings', 'Zigbee', 'Z-Wave', 'Thread',
+                'Matter', 'Home Assistant', '小米', '华为'
+            ];
+
+            const specificTechnicalQuestions = [
+                // 具体型号的深度技术问题
+                '内部结构', '工作原理', '控制逻辑', '传感原理',
+                '加热原理', '制冷原理', '净化原理', '电机类型',
+                '风道设计', '气流组织', '热交换', '除湿原理',
+                
+                // 详细规格参数
+                '输入电压范围', '启动电流', '待机功耗', '最大功耗',
+                '工作温度范围', '存储温度', '湿度范围', '海拔高度',
+                '绝缘等级', '防护等级', 'IP等级', '抗震等级',
+                
+                // 环境适应性
+                '高原使用', '极地使用', '热带使用', '沙漠使用',
+                '海边使用', '工厂环境', '医院使用', '实验室',
+                
+                // 特殊应用场景
+                '车载使用', '船舶使用', '飞机使用', '户外使用',
+                '防爆环境', '洁净室', '无尘室', '恒温恒湿'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含复杂关键词
+            const hasComplexKeywords = complexKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 检查是否包含专业技术问题
+            const hasSpecificTechnical = specificTechnicalQuestions.some(question => 
+                lowerMessage.includes(question.toLowerCase())
+            );
+            
+            // 检查是否为非常具体的型号技术问题
+            const hasModelWithTechnical = (
+                (lowerMessage.includes('dr-') || lowerMessage.includes('nomad')) &&
+                (lowerMessage.includes('原理') || lowerMessage.includes('构造') || 
+                 lowerMessage.includes('内部') || lowerMessage.includes('电路') ||
+                 lowerMessage.includes('技术') || lowerMessage.includes('参数表') ||
+                 lowerMessage.includes('规格书') || lowerMessage.includes('说明书下载'))
+            );
+            
+            // 检查问题长度和复杂性 (超长且包含多个技术词汇)
+            const isComplexLongQuestion = (
+                message.length > 100 && 
+                (message.match(/[？?]/g) || []).length >= 2 &&
+                (complexKeywords.filter(keyword => 
+                    lowerMessage.includes(keyword.toLowerCase())).length >= 2)
+            );
+            
+            return hasComplexKeywords || hasSpecificTechnical || hasModelWithTechnical || isComplexLongQuestion;
+        }
+
+        // 检测是否请求转人工
+        function isRequestForHumanAgent(message) {
+            const keywords = [
+                '转人工', '人工客服', '人工服务', '真人客服', '联系客服',
+                '工单', '投诉', '申请退换', '退货', '换货', '退款',
+                '不满意', '解决不了', '没有解决', '还是不行',
+                '要求赔偿', '质量问题', '故障严重', '紧急问题', '人工', '人工支持'
+            ];
+            
+            const lowerMessage = message.toLowerCase();
+            return keywords.some(keyword => 
+                lowerMessage.includes(keyword) || 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+        }
+
+        // 检测是否为产品对比询问
+        function isProductComparison(message) {
+            const comparisonKeywords = [
+                '对比', '比较', '区别', '差异', '不同', '哪个好', '推荐哪款',
+                '选择', '优缺点', '优劣', 'vs', 'VS', '和', '与'
+            ];
+            
+            const productKeywords = [
+                'DR-HHM002S', 'DR-HHM003S', 'Nomad One', '加湿器', '塔扇', 
+                '空气净化器', '风扇', '暖风机', '除湿机'
+            ];
+            
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含对比关键词和产品关键词
+            const hasComparison = comparisonKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            const hasProduct = productKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 或者检查是否包含多个产品型号
+            const productMatches = productKeywords.filter(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            return (hasComparison && hasProduct) || productMatches.length >= 2;
+        }
+
+        // 检测是否为礼貌性问好
+        function isGreeting(message) {
+            const greetingKeywords = [
+                'hello', 'hi', 'hey', '你好', '您好', '早上好', '下午好', '晚上好',
+                '早安', '晚安', '好的', '谢谢', '感谢', '再见', '拜拜',
+                '第一次', '初次', '开始', '咨询'
+            ];
+
+            const lowerMessage = message.toLowerCase().trim();
+            
+            // 检查是否为简单的问好
+            if (lowerMessage.length <= 10) {
+                return greetingKeywords.some(keyword => 
+                    lowerMessage.includes(keyword.toLowerCase()) ||
+                    lowerMessage === keyword.toLowerCase()
+                );
+            }
+
+            // 检查是否以问好开头
+            return greetingKeywords.some(keyword => 
+                lowerMessage.startsWith(keyword.toLowerCase())
+            );
+        }
+
+        // 检测是否为其他品牌问题
+        function isOtherBrandQuestion(message) {
+            const otherBrands = [
+                // 国际品牌
+                'dyson', '戴森', 'xiaomi', '小米', 'philips', '飞利浦', 'panasonic', '松下',
+                'sharp', '夏普', 'daikin', '大金', 'mitsubishi', '三菱', 'gree', '格力',
+                'haier', '海尔', 'midea', '美的', 'aux', '奥克斯', 'tcl', 'TCL',
+                'changhong', '长虹', 'hisense', '海信', 'konka', '康佳', 'skyworth', '创维',
+                // 空调品牌
+                'carrier', '开利', 'trane', '特灵', 'york', '约克', 'mcquay', '麦克维尔',
+                // 小家电品牌
+                'bear', '小熊', 'joyoung', '九阳', 'supor', '苏泊尔', 'povos', '奔腾',
+                'aca', 'ACA', 'royalstar', '荣事达', 'galanz', '格兰仕'
+            ];
+
+            const productCategories = [
+                '加湿器', '除湿机', '空气净化器', '风扇', '塔扇', '空调', '暖风机',
+                '空调扇', '循环扇', '吸尘器', '扫地机器人', '空气炸锅'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+
+            // 检查是否提到其他品牌
+            const hasOtherBrand = otherBrands.some(brand => 
+                lowerMessage.includes(brand.toLowerCase())
+            );
+
+            // 检查是否提到产品品类
+            const hasProductCategory = productCategories.some(category => 
+                lowerMessage.includes(category)
+            );
+
+            // 确保不是DREO相关问题
+            const isDreoMentioned = lowerMessage.includes('dreo') || lowerMessage.includes('DREO');
+
+            return hasOtherBrand && hasProductCategory && !isDreoMentioned;
+        }
+
+        // 检测是否为用户不满表达
+        function isDissatisfiedWithService(message) {
+            const dissatisfactionKeywords = [
+                // 直接不满词汇
+                '不满意', '不行', '没用', '无聊', '差劲', '糟糕', '垃圾', '废物',
+                '不好', '很差', '太差', '不够好', '不合格', '失望', '很失望',
+                
+                // 情绪表达
+                '生气', '愤怒', '烦躁', '郁闷', '恼火', '气死了', '烦死了',
+                '无语', '无奈', '崩溃', '抓狂', '受不了', '忍无可忍',
+                
+                // 否定评价
+                '毫无用处', '一点用都没有', '完全没用', '根本不行', '太垃圾了',
+                '什么鬼', '什么玩意', '坑爹', '坑人', '骗人', '忽悠',
+                
+                // 投诉相关
+                '投诉', '举报', '差评', '退钱', '要求赔偿', '找领导', '找经理',
+                '客服不行', '服务太差', '态度不好', '不专业',
+                
+                // 对AI能力的质疑
+                '不智能', '太笨', '笨死了', '智障', '人工智障', '机器人太笨',
+                '一点都不聪明', '回答不对', '答非所问', '牛头不对马嘴',
+                
+                // 比较性不满
+                '还不如', '还没有', '比不上', '不如别家', '其他家更好',
+                
+                // 英文不满
+                'terrible', 'awful', 'bad', 'worst', 'useless', 'stupid',
+                'disappointed', 'angry', 'frustrated', 'annoying'
+            ];
+
+            const frustratedExpressions = [
+                // 挫折表达
+                '试了好多次', '试了很久', '折腾了半天', '浪费时间',
+                '越来越烦', '心累', '头疼', '麻烦死了',
+                
+                // 期望落差
+                '不是我想要的', '不符合预期', '和说的不一样', '骗我',
+                '说好的呢', '承诺呢', '怎么回事', '搞什么',
+                
+                // 重复问题表达
+                '说了多少遍', '问了好多次', '重复了很多遍', '还是没懂',
+                '又来这套', '老是这样', '每次都是', '还是老样子'
+            ];
+
+            const negativeEmoticons = [
+                // 负面表情
+                '😡', '😠', '🤬', '😤', '😒', '🙄', '😑', '😐',
+                '💢', '😞', '😔', '😭', '😩', '😫', '🤦', '🤷'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含不满关键词
+            const hasDissatisfactionKeywords = dissatisfactionKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 检查是否包含挫折表达
+            const hasFrustratedExpressions = frustratedExpressions.some(expr => 
+                lowerMessage.includes(expr.toLowerCase())
+            );
+            
+            // 检查是否包含负面表情
+            const hasNegativeEmoticons = negativeEmoticons.some(emoticon => 
+                message.includes(emoticon)
+            );
+            
+            // 检查否定性问句
+            const negativeQuestions = [
+                '为什么不', '怎么不', '能不能', '会不会', '难道不',
+                '你们是不是', '到底行不行', '什么意思', '开什么玩笑'
+            ];
+            
+            const hasNegativeQuestions = negativeQuestions.some(question => 
+                lowerMessage.includes(question)
+            );
+            
+            // 检查连续否定
+            const hasMultipleNegatives = (
+                (message.match(/不/g) || []).length >= 2 ||
+                (message.match(/没/g) || []).length >= 2 ||
+                (message.includes('不') && message.includes('没'))
+            );
+            
+            // 检查特定不满句式
+            const dissatisfactionPatterns = [
+                '这什么.*服务', '什么.*客服', '太.*了', '一点.*没有',
+                '完全.*不', '根本.*不', '怎么.*这样', '为什么.*不'
+            ];
+            
+            const hasDissatisfactionPattern = dissatisfactionPatterns.some(pattern => {
+                const regex = new RegExp(pattern, 'i');
+                return regex.test(message);
+            });
+            
+            // 排除误判：正常的技术问题询问
+            const isTechnicalQuestion = [
+                '怎么设置', '如何使用', '怎么操作', '怎么连接', '怎么安装',
+                '为什么会', '什么原因', '怎么解决', '如何修复'
+            ].some(tech => lowerMessage.includes(tech));
+            
+            // 如果是技术问题，即使包含"为什么不"等词汇也不算不满
+            if (isTechnicalQuestion && !hasDissatisfactionKeywords) {
+                return false;
+            }
+            
+            return hasDissatisfactionKeywords || hasFrustratedExpressions || hasNegativeEmoticons || 
+                   (hasNegativeQuestions && hasMultipleNegatives) || hasDissatisfactionPattern;
+        }
+
+        // 检测是否为感谢表达（问题已解决）
+        function isThankfulForSolution(message) {
+            const thanksKeywords = [
+                // 直接感谢词
+                '谢谢', '感谢', '多谢', '谢了', 'thanks', 'thank', '3q', '3Q',
+                
+                // 感谢句式
+                '谢谢你', '感谢您', '多谢了', '谢谢您的', '感谢你的',
+                '非常感谢', '十分感谢', '真的谢谢', '太感谢了',
+                
+                // 问题解决表达
+                '解决了', '搞定了', '弄好了', '修好了', '好了', '行了',
+                '可以了', '没问题了', '正常了', '管用', '有用', '有效',
+                '成功了', '恢复了', '工作了', '运行了',
+                
+                // 积极反馈
+                '很有帮助', '帮了大忙', '帮助很大', '真有用', '确实有效',
+                '问题解决', '已经解决', '终于好了', '果然可以'
+            ];
+
+            const solutionIndicators = [
+                // 解决状态
+                '按照你的', '按你说的', '照你的方法', '根据你的建议',
+                '按照您的', '按您说的', '照您的方法', '根据您的建议',
+                '试了一下', '尝试了', '操作了', '按照操作',
+                
+                // 成功表达
+                '成功', '搞定', '解决', '修复', '恢复', '正常',
+                '可以', '能用', '管用', '有效', '好使', '工作',
+                
+                // 感谢+解决组合
+                '帮我解决', '帮忙解决', '告诉我怎么', '教我怎么',
+                '指导我', '帮助我', '让我知道'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含感谢关键词
+            const hasThanksKeywords = thanksKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 检查是否包含解决方案指示词
+            const hasSolutionIndicators = solutionIndicators.some(indicator => 
+                lowerMessage.includes(indicator.toLowerCase())
+            );
+            
+            // 检查积极情绪表达
+            const positiveExpressions = [
+                '👍', '👏', '✅', '💯', '🎉', '😊', '😁', '🙂',
+                '棒', '赞', '好', '妙', '厉害', '给力', '不错'
+            ];
+            
+            const hasPositiveExpression = positiveExpressions.some(expr => 
+                message.includes(expr)
+            );
+            
+            // 排除纯粹的客套话（没有实质内容）
+            const isEmptyThanks = (
+                message.trim().length <= 10 && 
+                (message.includes('谢谢') || message.includes('感谢')) &&
+                !hasSolutionIndicators
+            );
+            
+            // 检查是否同时包含感谢和解决方案相关内容
+            const isThankfulForHelp = hasThanksKeywords && (hasSolutionIndicators || hasPositiveExpression);
+            
+            // 检查特定的感谢+解决句式
+            const specificPatterns = [
+                '谢谢.*解决', '感谢.*帮', '多谢.*告诉', '谢谢.*教',
+                'thanks.*help', 'thank.*solv', '按.*谢谢', '照.*感谢'
+            ];
+            
+            const hasSpecificPattern = specificPatterns.some(pattern => {
+                const regex = new RegExp(pattern, 'i');
+                return regex.test(message);
+            });
+            
+            // 避免误判：排除求助类问题
+            const isStillAskingForHelp = [
+                '还', '但是', '不过', '可是', '然而', '还有', '另外',
+                '继续', '接下来', '下一步', '还需要', '怎么办'
+            ].some(word => lowerMessage.includes(word));
+            
+            // 如果还在求助，不算是感谢解决
+            if (isStillAskingForHelp) {
+                return false;
+            }
+            
+            return isThankfulForHelp || hasSpecificPattern || (hasThanksKeywords && !isEmptyThanks && message.length > 6);
+        }
+
+        // 检测是否为改进建议
+        function isImprovementSuggestion(message) {
+            const suggestionKeywords = [
+                // 直接建议类
+                '建议', '意见', '反馈', '想法', '提议', '看法', '观点',
+                '希望', '期望', '能不能', '可否', '可以考虑', '最好',
+                
+                // 改进类
+                '改进', '优化', '提升', '完善', '加强', '改善', '升级',
+                '更新', '增加', '添加', '新增', '扩展', '支持',
+                
+                // 问题指出类
+                '问题', '不足', '缺点', '不方便', '麻烦', '困难',
+                '不够', '太少', '太慢', '不好用', '体验差',
+                
+                // 功能需求类
+                '功能', '特性', '选项', '模式', '设置', '配置',
+                '界面', '操作', '控制', '显示', '提醒', '通知',
+                
+                // 产品改进类
+                '设计', '外观', '材质', '颜色', '尺寸', '重量',
+                '噪音', '效果', '性能', '续航', '耗电', '寿命'
+            ];
+
+            const improvementContexts = [
+                // 改进方向
+                'dreo', 'DREO', '产品', '设备', '机器', '功能', 'app', 'APP',
+                '界面', '操作', '使用', '体验', '服务', '客服',
+                
+                // 具体产品
+                'DR-HHM002S', 'DR-HHM003S', 'Nomad One', '加湿器', '塔扇',
+                '风扇', '暖风机', '除湿机', '空气净化器'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含建议关键词
+            const hasSuggestionKeywords = suggestionKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+            
+            // 检查是否包含改进上下文
+            const hasImprovementContext = improvementContexts.some(context => 
+                lowerMessage.includes(context.toLowerCase())
+            );
+            
+            // 检查是否包含疑问句或建议句式
+            const suggestionPatterns = [
+                '能否', '可否', '可以', '希望', '建议', '最好', '应该',
+                '如果', '要是', '建议你们', '你们可以', '希望能够'
+            ];
+            
+            const hasSuggestionPattern = suggestionPatterns.some(pattern => 
+                lowerMessage.includes(pattern)
+            );
+            
+            // 排除明显的问题求助（避免误判）
+            const helpKeywords = [
+                '怎么办', '如何解决', '什么原因', '为什么', '怎么用',
+                '不会用', '用不了', '坏了', '故障', '维修'
+            ];
+            
+            const isHelpRequest = helpKeywords.some(keyword => 
+                lowerMessage.includes(keyword)
+            );
+            
+            // 如果是求助请求，不判断为建议
+            if (isHelpRequest) {
+                return false;
+            }
+            
+            // 满足建议关键词且有相关上下文，或者有建议句式
+            return (hasSuggestionKeywords && hasImprovementContext) || hasSuggestionPattern;
+        }
+
+        // 检测是否为产品推荐请求
+        function isProductRecommendationRequest(message) {
+            const recommendationKeywords = [
+                '推荐', '建议', '选择', '买什么', '哪款好', '哪个好', '什么型号',
+                '适合', '性价比', '值得买', '入手', '购买建议', '怎么选',
+                '最好的', '最适合', '最推荐', '首选', '优选'
+            ];
+
+            const purposeKeywords = [
+                '客厅', '卧室', '书房', '办公室', '婴儿房', '老人房',
+                '小户型', '大房间', '干燥', '潮湿', '过敏', '小孩',
+                '老人', '孕妇', '宠物', '植物', '新房', '装修'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+
+            // 检查是否包含推荐关键词
+            const hasRecommendation = recommendationKeywords.some(keyword => 
+                lowerMessage.includes(keyword)
+            );
+
+            // 检查是否包含使用场景或目的
+            const hasPurpose = purposeKeywords.some(keyword => 
+                lowerMessage.includes(keyword)
+            );
+
+            // 检查是否提到了DREO产品类别
+            const productTypes = ['加湿器', '风扇', '塔扇', '家电', '产品'];
+            const hasProductType = productTypes.some(type => 
+                lowerMessage.includes(type)
+            );
+
+            return hasRecommendation && (hasPurpose || hasProductType);
+        }
+
+        // 检测是否为DREO相关问题
+        function isDreoRelatedQuestion(message) {
+            const dreoKeywords = [
+                // 品牌相关
+                'dreo', 'DREO', '德龙', 
+                // 产品型号
+                'DR-HHM002S', 'DR-HHM003S', 'Nomad One', 'DR-', 
+                // 产品类型
+                '加湿器', '塔扇', '风扇', '空气净化器', '暖风机', '除湿机', '空调扇',
+                '智能家电', '智能产品', '家电', '电器',
+                // 功能相关
+                '加湿', '制冷', '制热', '净化', '除湿', '降温', '升温', '风速', '噪音',
+                '遥控', 'APP控制', '定时', '湿度', '温度', '风力',
+                // 问题相关
+                '故障', '维修', '保修', '售后', '配件', '使用说明', '安装', '清洁',
+                '不工作', '没反应', '异响', '漏水', '不制冷', '不加湿',
+                // 购买相关
+                '价格', '购买', '订单', '发货', '物流', '退货', '换货', '退款'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            
+            // 检查是否包含DREO相关关键词
+            const hasDreoKeywords = dreoKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+
+            // 排除明显的非相关问题
+            const nonRelatedKeywords = [
+                '天气', '股票', '新闻',
+                '路线', '导航', '交通', '餐厅', '电影', '音乐', '游戏',
+                '翻译', '计算', '数学', '历史', '地理', '政治', '体育',
+                '吃饭', '睡觉', '工作', '学习'
+            ];
+
+            const hasNonRelated = nonRelatedKeywords.some(keyword => 
+                lowerMessage.includes(keyword.toLowerCase())
+            );
+
+            // 如果包含非相关关键词且不包含DREO关键词，则认为不相关
+            if (hasNonRelated && !hasDreoKeywords) {
+                return false;
+            }
+
+            // 如果包含DREO关键词或者是常见的客服问题，则认为相关
+            return hasDreoKeywords || isCommonCustomerServiceQuestion(message);
+        }
+
+        // 检测是否为常见客服问题（即使没有明确提到DREO）
+        function isCommonCustomerServiceQuestion(message) {
+            const commonServiceKeywords = [
+                '怎么', '如何', '可以', '能否', '是否', '为什么', '什么时候',
+                '帮助', '支持', '咨询', '建议', '推荐', '选择',
+                '问题', '故障', '不行', '坏了', '异常'
+            ];
+
+            const lowerMessage = message.toLowerCase();
+            return commonServiceKeywords.some(keyword => 
+                lowerMessage.includes(keyword)
+            );
+        }
+
+        // 产品对比数据
+        const productComparisonData = {
+            'DR-HHM002S vs DR-HHM003S': {
+                commonFeatures: '两款产品均为DREO智能加湿器，支持APP远程控制，具备自动湿度调节功能，都采用超声波加湿技术，噪音低于35dB，支持定时功能。',
+                differences: [
+                    { feature: '加湿容量', 'DR-HHM002S': '300ml/h', 'DR-HHM003S': '500ml/h' },
+                    { feature: '水箱容量', 'DR-HHM002S': '4L', 'DR-HHM003S': '6L' },
+                    { feature: '适用面积', 'DR-HHM002S': '30-40㎡', 'DR-HHM003S': '50-60㎡' },
+                    { feature: '功率', 'DR-HHM002S': '25W', 'DR-HHM003S': '35W' },
+                    { feature: '价格区间', 'DR-HHM002S': '¥299-399', 'DR-HHM003S': '¥399-499' },
+                    { feature: '显示屏', 'DR-HHM002S': 'LED数显', 'DR-HHM003S': 'LCD彩屏' },
+                    { feature: '香薰功能', 'DR-HHM002S': '不支持', 'DR-HHM003S': '支持' }
+                ],
+                analysis: {
+                    'DR-HHM002S': {
+                        pros: ['价格实惠，性价比高', '体积小巧，便于摆放', '功耗低，节能环保', '操作简单，易于使用'],
+                        cons: ['加湿量相对较小', '适用面积有限', '不支持香薰功能']
+                    },
+                    'DR-HHM003S': {
+                        pros: ['加湿量大，效果显著', '适用面积广', '彩色LCD显示屏', '支持香薰功能'],
+                        cons: ['价格相对较高', '体积较大', '功耗稍高']
+                    }
+                },
+                recommendation: '如果您的房间面积在30-40㎡，追求性价比，建议选择DR-HHM002S；如果房间面积较大（50㎡以上）或者需要香薰功能，建议选择DR-HHM003S。'
+            }
+        };
+
+        // 添加产品对比回复
+        function addProductComparisonResponse(userMessage) {
+            // 简单的产品识别逻辑，实际应用中可以更复杂
+            let comparisonKey = 'DR-HHM002S vs DR-HHM003S'; // 默认对比
+            
+            if (userMessage.includes('DR-HHM002S') && userMessage.includes('DR-HHM003S')) {
+                comparisonKey = 'DR-HHM002S vs DR-HHM003S';
+            }
+            
+            const comparisonData = productComparisonData[comparisonKey];
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 标题
+            const titleDiv = document.createElement('div');
+            titleDiv.style.cssText = 'font-weight: bold; margin-bottom: 12px; color: #333; font-size: 14px;';
+            titleDiv.textContent = `📊 ${comparisonKey} 详细对比分析`;
+            messageContent.appendChild(titleDiv);
+            
+            // 相同点总结
+            const commonDiv = document.createElement('div');
+            commonDiv.style.cssText = 'margin-bottom: 16px;';
+            commonDiv.innerHTML = `
+                <div style="font-size: 13px; color: #333;">${comparisonData.commonFeatures}</div>
+            `;
+            messageContent.appendChild(commonDiv);
+            
+            // 差异对比表格
+            const tableDiv = document.createElement('div');
+            tableDiv.style.cssText = 'margin: 16px 0;';
+            
+            const tableTitle = document.createElement('div');
+            tableTitle.style.cssText = 'font-weight: bold; color: #333; margin-bottom: 8px; font-size: 14px;';
+            tableTitle.textContent = '📋 详细差异对比';
+            tableDiv.appendChild(tableTitle);
+            
+            const table = document.createElement('table');
+            table.className = 'comparison-table';
+            
+            // 表头
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `
+                <th>功能特性</th>
+                <th>DR-HHM002S</th>
+                <th>DR-HHM003S</th>
+            `;
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // 表格内容
+            const tbody = document.createElement('tbody');
+            comparisonData.differences.forEach(diff => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="feature-name">${diff.feature}</td>
+                    <td>${diff['DR-HHM002S']}</td>
+                    <td>${diff['DR-HHM003S']}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            table.appendChild(tbody);
+            
+            tableDiv.appendChild(table);
+            messageContent.appendChild(tableDiv);
+            
+            // // 优劣势分析
+            // const analysisDiv = document.createElement('div');
+            // analysisDiv.style.cssText = 'margin: 16px 0;';
+            
+            // const analysisTitle = document.createElement('div');
+            // analysisTitle.style.cssText = 'font-weight: bold; color: #333; margin-bottom: 12px; font-size: 14px;';
+            // analysisTitle.textContent = '⚖️ 优劣势分析';
+            // analysisDiv.appendChild(analysisTitle);
+            
+            // // DR-HHM002S 分析
+            // const analysis002S = document.createElement('div');
+            // analysis002S.className = 'pros-cons-section';
+            // analysis002S.innerHTML = `
+            //     <div class="pros-cons-title">🔹 DR-HHM002S</div>
+            //     <div style="margin-bottom: 8px;">
+            //         <strong style="color: #28a745;">✅ 优势：</strong>
+            //         ${comparisonData.analysis['DR-HHM002S'].pros.map(pro => `<div class="pros-item">• ${pro}</div>`).join('')}
+            //     </div>
+            //     <div>
+            //         <strong style="color: #dc3545;">❌ 劣势：</strong>
+            //         ${comparisonData.analysis['DR-HHM002S'].cons.map(con => `<div class="cons-item">• ${con}</div>`).join('')}
+            //     </div>
+            // `;
+            // analysisDiv.appendChild(analysis002S);
+            
+            // // DR-HHM003S 分析
+            // const analysis003S = document.createElement('div');
+            // analysis003S.className = 'pros-cons-section';
+            // analysis003S.innerHTML = `
+            //     <div class="pros-cons-title">🔹 DR-HHM003S</div>
+            //     <div style="margin-bottom: 8px;">
+            //         <strong style="color: #28a745;">✅ 优势：</strong>
+            //         ${comparisonData.analysis['DR-HHM003S'].pros.map(pro => `<div class="pros-item">• ${pro}</div>`).join('')}
+            //     </div>
+            //     <div>
+            //         <strong style="color: #dc3545;">❌ 劣势：</strong>
+            //         ${comparisonData.analysis['DR-HHM003S'].cons.map(con => `<div class="cons-item">• ${con}</div>`).join('')}
+            //     </div>
+            // `;
+            // analysisDiv.appendChild(analysis003S);
+            
+            // messageContent.appendChild(analysisDiv);
+            
+            // 购买建议
+            const recommendationDiv = document.createElement('div');
+            recommendationDiv.style.cssText = 'margin-top: 16px; padding: 12px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;';
+            recommendationDiv.innerHTML = `
+                <div style="font-weight: bold; color: #856404; margin-bottom: 6px;">💡 购买建议</div>
+                <div style="font-size: 13px; color: #856404;">${comparisonData.recommendation}</div>
+            `;
+            messageContent.appendChild(recommendationDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加非DREO相关问题的回复
+        function addNonDreoResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 创建回复内容
+            const responseDiv = document.createElement('div');
+            responseDiv.style.cssText = 'padding: 12px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ff9800;';
+            responseDiv.innerHTML = `
+                <div style="color: #333; font-size: 14px; line-height: 1.5;">
+                    很抱歉，您提出的问题超出了我目前的知识范围。我无法为您提供准确的解答。
+                    <br><br>
+                    <div>
+                        
+                        <div style="color: #333; font-size: 14px; margin-bottom: 14px;">
+                            为了解决您的问题，建议您联系专业的技术支持团队。
+                        </div>
+
+                        <div style="text-align: center; margin: 16px 0;">
+                            <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')" 
+                                    style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); 
+                                           color: white; 
+                                           border: none; 
+                                           padding: 14px 28px; 
+                                           border-radius: 25px; 
+                                           font-size: 16px; 
+                                           font-weight: bold; 
+                                           cursor: pointer; 
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+                                           display: flex;
+                                           align-items: center;
+                                           justify-content: center;
+                                           margin: 0 auto;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(230, 126, 34, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(230, 126, 34, 0.3)'">
+                                <span style="margin-right: 6px;">📝</span>
+                                提交技术支持工单
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加问好回复
+        function addGreetingResponse() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 创建问好回复内容
+            const greetingDiv = document.createElement('div');
+            greetingDiv.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 24px; margin-right: 8px;">👋</span>
+                    <strong style="color: #667eea; font-size: 16px;">您好！很高兴为您服务！</strong>
+                </div>
+                
+                <div>
+                    <p style="color: #333; font-size: 14px; margin-bottom: 12px;">
+                        🤖 我是DREO智能助手，专为DREO智能家电用户提供7×24小时专业服务，致力于让您的智能生活更加便捷舒适。
+                    </p>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 14px; border-radius: 10px; margin: 12px 0;">
+                    <div style="font-weight: bold; color: #333; margin-bottom: 8px; display: flex; align-items: center;">
+                        <span style="margin-right: 6px;">🎯</span>我可以为您提供：
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px;">
+                        <div style="display: flex; align-items: center; color: #555;">
+                            <span style="color: #28a745; margin-right: 4px;">✓</span>产品咨询与对比
+                        </div>
+                        <div style="display: flex; align-items: center; color: #555;">
+                            <span style="color: #28a745; margin-right: 4px;">✓</span>故障诊断解决
+                        </div>
+                        <div style="display: flex; align-items: center; color: #555;">
+                            <span style="color: #28a745; margin-right: 4px;">✓</span>使用指导帮助
+                        </div>
+                        <div style="display: flex; align-items: center; color: #555;">
+                            <span style="color: #28a745; margin-right: 4px;">✓</span>售后服务支持
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p style="color: #333; font-size: 14px; margin-bottom: 12px;">
+                        💬 请告诉我您需要什么帮助
+                    </p>
+                </div>
+            `;
+            
+            messageContent.appendChild(greetingDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // DREO产品推荐数据
+        const dreoProductRecommendations = {
+            '加湿器': {
+                category: '加湿器',
+                description: 'DREO加湿器采用超声波雾化技术，静音运行，智能控制湿度，为您打造舒适健康的室内环境。',
+                products: [
+                    {
+                        model: 'DR-HHM003S',
+                        name: '智能加湿器 (大容量版)',
+                        features: ['6L大容量水箱', '500ml/h加湿量', '50-60㎡适用', 'LCD彩屏显示', '支持香薰功能'],
+                        price: '¥399-499'
+                    },
+                    {
+                        model: 'DR-HHM002S', 
+                        name: '智能加湿器 (经济版)',
+                        features: ['4L水箱容量', '300ml/h加湿量', '30-40㎡适用', 'LED数显', '超静音设计'],
+                        price: '¥299-399'
+                    }
+                ]
+            },
+            '风扇': {
+                category: '塔扇/风扇',
+                description: 'DREO塔扇搭载先进空气动力学设计，提供强劲而安静的风力，智能控制让您享受个性化的清凉体验。',
+                products: [
+                    {
+                        model: 'Nomad One',
+                        name: '智能塔扇',
+                        features: ['108档风速调节', '超静音运行', 'APP远程控制', '定时预约功能', '自然风模拟'],
+                        price: '¥699-899'
+                    }
+                ]
+            },
+            '塔扇': {
+                category: '塔扇/风扇', 
+                description: 'DREO塔扇搭载先进空气动力学设计，提供强劲而安静的风力，智能控制让您享受个性化的清凉体验。',
+                products: [
+                    {
+                        model: 'Nomad One',
+                        name: '智能塔扇',
+                        features: ['108档风速调节', '超静音运行', 'APP远程控制', '定时预约功能', '自然风模拟'],
+                        price: '¥699-899'
+                    }
+                ]
+            },
+            '空气净化器': {
+                category: '空气净化器',
+                description: 'DREO专注于空气质量改善，我们的产品主要集中在空气流动和湿度调节领域，为您推荐我们的空气循环和净化解决方案。',
+                products: [
+                    {
+                        model: 'Nomad One塔扇',
+                        name: '智能空气循环扇',
+                        features: ['强力空气循环', '净化空气流动', '除湿配合使用', '智能风速控制'],
+                        price: '¥699-899'
+                    }
+                ]
+            }
+        };
+
+        // 产品推荐数据库
+        const productRecommendationDatabase = {
+            recommendations: [
+                {
+                    id: 'dr-hhm003s',
+                    model: 'DR-HHM003S',
+                    name: '智能加湿器 (大容量版)',
+                    category: '加湿器',
+                    price: '¥399-499',
+                    image: '🏠',
+                    link: 'https://support.dreo.com/en', // 实际产品页面链接
+                    features: ['6L大容量水箱', '500ml/h加湿量', '50-60㎡适用', 'LCD彩屏显示', '支持香薰功能', 'APP智能控制'],
+                    suitableFor: ['大房间', '客厅', '办公室', '婴儿房'],
+                    highlights: ['大容量', '高效加湿', '智能控制'],
+                    reasonTemplate: '适合大空间使用，6L大容量减少频繁加水，LCD彩屏操作简便'
+                },
+                {
+                    id: 'dr-hhm002s',
+                    model: 'DR-HHM002S', 
+                    name: '智能加湿器 (经济版)',
+                    category: '加湿器',
+                    price: '¥299-399',
+                    image: '🏡',
+                    link: 'https://support.dreo.com/en',
+                    features: ['4L水箱容量', '300ml/h加湿量', '30-40㎡适用', 'LED数显', '超静音设计', '节能省电'],
+                    suitableFor: ['卧室', '书房', '小户型', '单人房'],
+                    highlights: ['性价比高', '静音运行', '节能环保'],
+                    reasonTemplate: '性价比之选，适合中小型房间，超静音设计不影响睡眠'
+                },
+                {
+                    id: 'nomad-one',
+                    model: 'Nomad One',
+                    name: '智能塔扇',
+                    category: '风扇',
+                    price: '¥699-899',
+                    image: '🌪️',
+                    link: 'https://support.dreo.com/en',
+                    features: ['108档风速调节', '超静音运行', 'APP远程控制', '定时预约功能', '自然风模拟', '空气循环'],
+                    suitableFor: ['客厅', '卧室', '办公室', '全屋'],
+                    highlights: ['精细调控', '智能互联', '节能降噪'],
+                    reasonTemplate: '108档精细风速调节，智能化程度高，适合追求个性化体验的用户'
+                }
+            ],
+            
+            // 根据用户需求智能推荐产品
+            getRecommendations: function(userMessage) {
+                const message = userMessage.toLowerCase();
+                let recommendations = [];
+                
+                // 基于使用场景推荐
+                if (message.includes('卧室') || message.includes('睡觉') || message.includes('安静') || message.includes('静音')) {
+                    recommendations.push(this.recommendations[1], this.recommendations[2]); // DR-HHM002S, Nomad One
+                } else if (message.includes('客厅') || message.includes('大房间') || message.includes('办公室')) {
+                    recommendations.push(this.recommendations[0], this.recommendations[2]); // DR-HHM003S, Nomad One
+                } else if (message.includes('婴儿') || message.includes('小孩') || message.includes('孕妇')) {
+                    recommendations.push(this.recommendations[1], this.recommendations[0]); // 静音优先
+                } else if (message.includes('性价比') || message.includes('便宜') || message.includes('经济')) {
+                    recommendations.push(this.recommendations[1], this.recommendations[0]); // 性价比优先
+                }
+                
+                // 基于产品类型推荐
+                if (message.includes('加湿器') || message.includes('干燥') || message.includes('湿度')) {
+                    if (!recommendations.some(r => r.category === '加湿器')) {
+                        recommendations.unshift(this.recommendations[0], this.recommendations[1]);
+                    }
+                } else if (message.includes('风扇') || message.includes('塔扇') || message.includes('降温') || message.includes('凉快')) {
+                    if (!recommendations.some(r => r.category === '风扇')) {
+                        recommendations.unshift(this.recommendations[2]);
+                    }
+                }
+                
+                // 默认推荐（如果没有特定匹配）
+                if (recommendations.length === 0) {
+                    recommendations = [this.recommendations[0], this.recommendations[1], this.recommendations[2]];
+                }
+                
+                // 限制最多3个推荐
+                return recommendations.slice(0, 3);
+            }
+        };
+
+        // 添加产品推荐回复
+        function addProductRecommendationResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 标题
+            const titleDiv = document.createElement('div');
+            titleDiv.style.cssText = 'font-weight: bold; margin-bottom: 12px; color: #333; font-size: 16px; display: flex; align-items: center;';
+            titleDiv.innerHTML = `
+                <span style="font-size: 20px; margin-right: 8px;">🎯</span>
+                为您精选DREO产品推荐
+            `;
+            messageContent.appendChild(titleDiv);
+
+            // 获取推荐产品
+            const recommendedProducts = productRecommendationDatabase.getRecommendations(userMessage);
+            
+            // 推荐理由说明
+            const reasonDiv = document.createElement('div');
+            reasonDiv.className = 'recommendation-reason';
+            reasonDiv.innerHTML = `
+                <div style="color: #333; font-size: 13px;">
+                    基于您的需求，我为您推荐以下${recommendedProducts.length}款DREO产品，每款都有其独特优势：
+                </div>
+            `;
+            messageContent.appendChild(reasonDiv);
+
+            // 产品卡片
+            recommendedProducts.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.onclick = () => {
+                    window.open(product.link, '_blank');
+                };
+
+                productCard.innerHTML = `
+                    <div class="card-overlay">点击查看详情</div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                                <span style="font-size: 24px; margin-right: 8px;">${product.image}</span>
+                                <div>
+                                    <div style="font-weight: bold; color: #333; font-size: 16px;">${product.model}</div>
+                                    <div style="color: #666; font-size: 13px;">${product.name}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 8px 0;">
+                                ${product.highlights.map(highlight => 
+                                    `<span class="product-badge">${highlight}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: bold; margin-bottom: 6px;">
+                                ${product.price}
+                            </div>
+                            <div style="color: #28a745; font-size: 12px; font-weight: bold;">
+                                🔥 第${index + 1}推荐
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin: 10px 0;">
+                        <div style="font-size: 12px; color: #333;">
+                            ${product.reasonTemplate}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 4px;">
+                            ${product.features.map(feature => 
+                                `<div style="font-size: 11px; color: #555; display: flex; align-items: center;">
+                                    <span style="color: #28a745; margin-right: 4px;">●</span>${feature}
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+
+                `;
+
+                messageContent.appendChild(productCard);
+            });
+
+            // 咨询提示
+            const consultDiv = document.createElement('div');
+            consultDiv.style.cssText = 'padding: 12px; margin-top: 16px;';
+            consultDiv.innerHTML = `
+                <div style="font-size: 14px;">
+                    💬 如需了解更多产品详情、使用指导或有其他疑问，随时咨询我！
+                </div>
+            `;
+            messageContent.appendChild(consultDiv);
+
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加改进建议回复
+        function addImprovementSuggestionResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 提取建议的核心内容（简单的关键词提取）
+            const suggestionSummary = extractSuggestionSummary(userMessage);
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%); padding: 18px; border-radius: 12px; border-left: 4px solid #4caf50;">
+                    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+                        <span style="font-size: 24px; margin-right: 10px;">💡</span>
+                        <strong style="color: #2e7d32; font-size: 18px;">非常感谢您的宝贵建议！</strong>
+                    </div>
+                    
+                    <div style="color: #388e3c; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        您提出的"<em style="color: #1b5e20; font-weight: bold;">${suggestionSummary}</em>"建议非常有价值！
+                        这正是我们持续改进产品和服务所需要的真实用户反馈。
+                    </div>
+
+                    <div style="margin: 16px 0;">
+                        <div style="display: grid; gap: 10px;">
+                            <div style="display: flex; align-items: center; color: #388e3c; font-size: 13px;">
+                                <span style="background: #4caf50; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">1</span>
+                                我们已收录您的建议到产品改进数据库
+                            </div>
+                            <div style="display: flex; align-items: center; color: #388e3c; font-size: 13px;">
+                                <span style="background: #4caf50; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">2</span>
+                                相关产品团队将进行专业评估分析
+                            </div>
+                            <div style="display: flex; align-items: center; color: #388e3c; font-size: 13px;">
+                                <span style="background: #4caf50; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">3</span>
+                                可行建议将纳入产品迭代开发计划
+                            </div>
+                            <div style="display: flex; align-items: center; color: #388e3c; font-size: 13px;">
+                                <span style="background: #4caf50; color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; margin-right: 8px;">4</span>
+                                我们会通过多渠道通知改进进展
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: linear-gradient(135deg, #fff3e0 0%, #fffbf0 100%); border: 2px solid #ff9800; border-radius: 12px; padding: 16px; margin: 16px 0;">
+                        <div style="color: #bf360c; font-size: 14px; margin-bottom: 14px;">
+                            DREO诚邀您加入共创计划，成为产品共创伙伴，与我们一起打造更完美的智能家居体验！
+                        </div>
+
+                        <div style="text-align: center;">
+                            <button onclick="window.open('https://account.dreo.com/en/cocreator-program', '_blank')" 
+                                    style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); 
+                                           color: white; 
+                                           border: none; 
+                                           padding: 12px 24px; 
+                                           border-radius: 25px; 
+                                           font-size: 14px; 
+                                           font-weight: bold; 
+                                           cursor: pointer; 
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 152, 0, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 152, 0, 0.3)'">
+                                🎯 立即加入共创计划
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 16px; color: #bf360c; font-size: 11px;">
+                            优先体验新功能，获得专属权益
+                        </div>
+                    </div>
+
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加未找到对应解决方案的回复
+        function addNoSolutionFoundResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffeaa7 100%); padding: 18px; border-radius: 12px; border-left: 4px solid #f39c12;">
+                    <div style="color: #333; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        很抱歉，您提出的问题超出了我目前的知识范围。我无法为您提供准确的解答。
+                    </div>
+
+                    <div style="margin: 16px 0;">
+                        
+                        <div style="color: #333; font-size: 14px; margin-bottom: 14px;">
+                            为了解决您的问题，建议您联系专业的技术支持团队。
+                        </div>
+
+                        <div style="text-align: center; margin: 16px 0;">
+                            <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')" 
+                                    style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); 
+                                           color: white; 
+                                           border: none; 
+                                           padding: 14px 28px; 
+                                           border-radius: 25px; 
+                                           font-size: 16px; 
+                                           font-weight: bold; 
+                                           cursor: pointer; 
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+                                           display: flex;
+                                           align-items: center;
+                                           justify-content: center;
+                                           margin: 0 auto;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(230, 126, 34, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(230, 126, 34, 0.3)'">
+                                <span style="margin-right: 6px;">📝</span>
+                                提交技术支持工单
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 提取建议核心内容的简单函数
+        function extractSuggestionSummary(message) {
+            // 去除常见的填充词，提取关键内容
+            let summary = message
+                .replace(/^(我觉得|我认为|我建议|建议|希望|期望|能否|可否|可以|应该|最好)/g, '')
+                .replace(/(你们|咱们|DREO|dreo)/g, '')
+                .trim();
+            
+            // 如果处理后的内容太短，返回原消息的前部分
+            if (summary.length < 10) {
+                summary = message.length > 50 ? message.substring(0, 47) + '...' : message;
+            } else if (summary.length > 50) {
+                summary = summary.substring(0, 47) + '...';
+            }
+            
+            return summary;
+        }
+
+        // 添加用户不满回复
+        function addDissatisfiedResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #fdeaea 0%, #fff5f5 100%); padding: 18px; border-radius: 12px; border-left: 4px solid #dc3545;">
+                    <div style="display: flex; align-items: center; margin-bottom: 16px;">
+                        <span style="font-size: 24px; margin-right: 10px;">😔</span>
+                        <strong style="color: #721c24; font-size: 18px;">非常抱歉，让您失望了</strong>
+                    </div>
+                    
+                    <div style="color: #842029; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        我深深理解您此刻的感受，也为没能提供让您满意的服务而感到非常抱歉。
+                        您的不满完全可以理解，这确实是我们服务中的不足。
+                    </div>
+
+                    <div style="background: white; padding: 16px; border-radius: 10px; margin: 16px 0; box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);">
+                        <div style="color: #333; font-size: 14px; margin-bottom: 16px;">
+                            您可能需要更专业的人工服务支持。您可以通过以下方式获得人工客服帮助:
+                        </div>
+
+                        <div style="text-align: center; margin: 16px 0;">
+                            <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')" 
+                                    style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%); 
+                                           color: white; 
+                                           border: none; 
+                                           padding: 16px 32px; 
+                                           border-radius: 25px; 
+                                           font-size: 16px; 
+                                           font-weight: bold; 
+                                           cursor: pointer; 
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+                                           display: flex;
+                                           align-items: center;
+                                           justify-content: center;
+                                           margin: 0 auto;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(220, 53, 69, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(220, 53, 69, 0.3)'">
+                                <span style="margin-right: 8px;">👨‍💼</span>
+                                联系专业人工客服
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="color: #842029; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        <div style="color: #842029; font-size: 13px; line-height: 1.5;">
+                            您的每一条反馈都是我们改进的宝贵财富。我们会认真分析服务中的不足，
+                            持续优化AI助手的能力，努力为每位用户提供更好的服务体验。
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加感谢回复（问题已解决）
+        function addThankfulResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0fff4 100%); padding: 18px; border-radius: 12px; border-left: 4px solid #28a745;">
+                    <div style="display: flex; align-items: center; margin-bottom: 14px;">
+                        <span style="font-size: 24px; margin-right: 10px;">🎉</span>
+                        <strong style="color: #155724; font-size: 18px;">太棒了！很高兴能帮到您</strong>
+                    </div>
+                    
+                    <div style="color: #1e5a26; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        看到您的问题得到解决，我真的很开心。
+                        能够为您提供有用的帮助，是我存在的最大价值。<br>  
+                          <br>
+                        每一次成功的帮助都是我成长的动力。我会不断学习和改进，力争为每位DREO用户提供更准确、更贴心的服务。您的满意是我前进的最大鼓励！
+                    </div>
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加其他品牌问题回复
+        function addOtherBrandResponse(userMessage) {
+            // 检测用户询问的产品品类
+            let detectedCategory = '';
+            const categories = ['加湿器', '除湿机', '空气净化器', '风扇', '塔扇', '空调', '暖风机', '空调扇', '循环扇'];
+            
+            for (let category of categories) {
+                if (userMessage.includes(category)) {
+                    detectedCategory = category;
+                    break;
+                }
+            }
+
+            // 如果是风扇相关，都归类为风扇
+            if (['风扇', '塔扇', '循环扇', '空调扇'].includes(detectedCategory)) {
+                detectedCategory = '风扇';
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 品牌声明部分
+            const brandStatementDiv = document.createElement('div');
+            brandStatementDiv.style.cssText = 'margin-bottom: 16px;';
+            brandStatementDiv.innerHTML = `
+                <div style="color: #333; font-size: 14px;">
+                    很抱歉，作为DREO智能助手，我仅提供<strong>DREO品牌</strong>相关的产品咨询和技术支持服务。
+                    <br>虽然无法为您介绍其他品牌产品，但我很乐意为您推荐DREO的优质产品！
+                </div>
+            `;
+            messageContent.appendChild(brandStatementDiv);
+
+            // 产品推荐部分
+            const recommendationData = dreoProductRecommendations[detectedCategory];
+            if (recommendationData) {
+                const recommendationDiv = document.createElement('div');
+                recommendationDiv.innerHTML = `
+                    
+                    <div style="background: #f0f4ff; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                        <p style="color: #333; font-size: 13px; margin: 0;">${recommendationData.description}</p>
+                    </div>
+                `;
+
+                // 添加产品列表
+                recommendationData.products.forEach((product, index) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.style.cssText = 'background: white; border: 1px solid #e0e6ed; border-radius: 10px; padding: 16px; margin: 12px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);';
+                    productDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: bold; color: #333; font-size: 15px;">${product.model}</div>
+                                <div style="color: #666; font-size: 13px; margin-top: 2px;">${product.name}</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                                ${product.price}
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div style="font-size: 12px; color: #333; font-weight: bold; margin-bottom: 6px;">✨ 核心特性：</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 4px;">
+                                ${product.features.map(feature => 
+                                    `<div style="font-size: 11px; color: #555; display: flex; align-items: center;">
+                                        <span style="color: #28a745; margin-right: 4px;">●</span>${feature}
+                                    </div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    `;
+                    recommendationDiv.appendChild(productDiv);
+                });
+
+                messageContent.appendChild(recommendationDiv);
+            }
+
+            // 咨询引导
+            const consultationDiv = document.createElement('div');
+            consultationDiv.style.cssText = 'margin-top: 16px;';
+            consultationDiv.innerHTML = `
+                <div style="color: #333; font-size: 14px; ">
+                    💬 如需了解更多DREO产品详情或有任何疑问，欢迎随时咨询！
+                </div>
+            `;
+            messageContent.appendChild(consultationDiv);
+
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加转人工回复
+        function addHumanAgentResponse() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 创建回复内容
+            const textPart = document.createElement('div');
+            textPart.textContent = '我理解您可能需要更专业的人工服务支持。您可以通过以下方式获得人工客服帮助：';
+            textPart.style.marginBottom = '12px';
+            messageContent.appendChild(textPart);
+            
+            // 创建工单提交按钮
+            const ticketButton = document.createElement('div');
+            ticketButton.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                text-align: center;
+                margin: 8px 0;
+                transition: all 0.3s ease;
+                font-weight: bold;
+            `;
+            ticketButton.textContent = '📝 提交工单获得人工支持';
+            ticketButton.onclick = () => {
+                window.open('https://support.dreo.com/en/support/request', '_blank');
+            };
+            ticketButton.onmouseover = () => {
+                ticketButton.style.transform = 'translateY(-2px)';
+                ticketButton.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+            };
+            ticketButton.onmouseout = () => {
+                ticketButton.style.transform = 'translateY(0)';
+                ticketButton.style.boxShadow = 'none';
+            };
+            messageContent.appendChild(ticketButton);
+            
+            // 添加说明文字
+            const infoText = document.createElement('div');
+            infoText.style.cssText = `
+                font-size: 12px;
+                color: #666;
+                margin-top: 8px;
+                line-height: 1.4;
+            `;
+            infoText.textContent = '通过工单系统，您可以详细描述问题并上传相关文件，我们的专业客服团队会尽快为您处理。';
+            messageContent.appendChild(infoText);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加消息到聊天区域
+        function addMessage(type, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = type === 'ai' ? 'AI' : 'U';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.whiteSpace = 'pre-line';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            // 为AI回复添加反馈按钮
+            if (type === 'ai') {
+                const messageId = `msg-${++feedbackCounter}`;
+                const feedbackButtons = createFeedbackButtons(messageId);
+                messageContent.appendChild(feedbackButtons);
+            }
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加带资源链接的详细回复
+        function addDetailedResponseWithResources(question) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            // 主要回复内容
+            const mainResponseDiv = document.createElement('div');
+            mainResponseDiv.style.cssText = 'color: #333; font-size: 14px; margin-bottom: 16px; white-space: pre-line;';
+            mainResponseDiv.textContent = `关于"${question}"这个问题，我来为您详细解答...\n\n这是一个常见问题，通常的解决方案包括：\n1. 检查设备连接状态\n2. 确认网络设置\n3. 重启设备尝试\n\n如需更详细的指导，请提供具体的设备型号和问题现象。`;
+            messageContent.appendChild(mainResponseDiv);
+            
+            // 相关资源推荐部分
+            const resourcesDiv = document.createElement('div');
+            resourcesDiv.style.cssText = '';
+            
+            resourcesDiv.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 10px; display: flex; align-items: center;">
+                    <span style="margin-right: 6px;"></span>相关资源推荐
+                </div>
+            `;
+            
+            // 根据问题类型获取相关资源
+            const resources = getResourcesByQuestion(question);
+            
+            resources.forEach(resource => {
+                const resourceItem = document.createElement('div');
+                resourceItem.style.cssText = `
+                    background: white;
+                    border: 1px solid #e0e6ed;
+                    border-radius: 8px;
+                    padding: 12px;
+                    margin: 8px 0;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                `;
+                resourceItem.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                <span style="font-size: 16px; margin-right: 6px;">${resource.icon}</span>
+                                <strong style="color: #333; font-size: 13px;">${resource.title}</strong>
+                            </div>
+                            <div style="color: #666; font-size: 12px;">${resource.description}</div>
+                        </div>
+                        <div style="color: #667eea; font-size: 11px; font-weight: bold;">
+                            点击查看 →
+                        </div>
+                    </div>
+                `;
+                
+                resourceItem.onclick = () => {
+                    window.open(resource.link, '_blank');
+                };
+                
+                resourceItem.onmouseover = () => {
+                    resourceItem.style.borderColor = '#667eea';
+                    resourceItem.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.1)';
+                };
+                
+                resourceItem.onmouseout = () => {
+                    resourceItem.style.borderColor = '#e0e6ed';
+                    resourceItem.style.boxShadow = 'none';
+                };
+                
+                resourcesDiv.appendChild(resourceItem);
+            });
+            
+            messageContent.appendChild(resourcesDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg-${++feedbackCounter}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 反馈计数器（用于生成唯一ID）
+        let feedbackCounter = 0;
+
+        // 创建反馈按钮
+        function createFeedbackButtons(messageId) {
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.className = 'feedback-buttons';
+            feedbackDiv.innerHTML = `
+                <span class="feedback-text">此回复对您有帮助吗？</span>
+                <button class="feedback-button" data-type="like" data-message="${messageId}">
+                    👍 有帮助
+                </button>
+                <button class="feedback-button" data-type="dislike" data-message="${messageId}">
+                    👎 没帮助
+                </button>
+                <span class="feedback-success" id="feedback-success-${messageId}">感谢反馈！</span>
+            `;
+            
+            // 绑定点击事件
+            const likeBtn = feedbackDiv.querySelector('[data-type="like"]');
+            const dislikeBtn = feedbackDiv.querySelector('[data-type="dislike"]');
+            
+            likeBtn.addEventListener('click', () => handleFeedback(messageId, 'like'));
+            dislikeBtn.addEventListener('click', () => handleFeedback(messageId, 'dislike'));
+            
+            return feedbackDiv;
+        }
+
+        // 处理反馈
+        function handleFeedback(messageId, type) {
+            const feedbackDiv = document.querySelector(`[data-message="${messageId}"]`).closest('.feedback-buttons');
+            const likeBtn = feedbackDiv.querySelector('[data-type="like"]');
+            const dislikeBtn = feedbackDiv.querySelector('[data-type="dislike"]');
+            const successMsg = feedbackDiv.querySelector(`#feedback-success-${messageId}`);
+            
+            // 移除之前的状态
+            likeBtn.classList.remove('liked');
+            dislikeBtn.classList.remove('disliked');
+            
+            // 添加当前状态
+            if (type === 'like') {
+                likeBtn.classList.add('liked');
+                likeBtn.innerHTML = '👍 已点赞';
+            } else {
+                dislikeBtn.classList.add('disliked');
+                dislikeBtn.innerHTML = '👎 已反馈';
+            }
+            
+            // 禁用按钮
+            likeBtn.classList.add('disabled');
+            dislikeBtn.classList.add('disabled');
+            
+            // 显示感谢消息
+            successMsg.style.display = 'inline-block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+            
+            // 这里可以添加发送反馈到服务器的逻辑
+            console.log(`用户对消息 ${messageId} 给出了 ${type} 反馈`);
+            
+            // 如果是负面反馈，提供额外的帮助回复
+            if (type === 'dislike') {
+                console.log('检测到负面反馈，将在1.5秒后显示额外帮助');
+                setTimeout(() => {
+                    console.log('正在添加负面反馈响应');
+                    addDislikeFeedbackResponse();
+                }, 1500);
+            }
+        }
+
+        // 添加订单相关问题的回复
+        function addOrderInquiryResponse(userMessage) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%); padding: 18px; border-radius: 12px; border-left: 4px solid #2196f3;">
+
+                    <div style="color: #1565c0; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        感谢您的咨询！关于退/换货、优惠申请等订单相关问题，请联系DREO客服团队。
+                    </div>
+
+                    <div style="margin: 16px 0;">
+
+                        <div style="text-align: center; margin: 16px 0;">
+                            <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')"
+                                    style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+                                           color: white;
+                                           border: none;
+                                           padding: 14px 28px;
+                                           border-radius: 25px;
+                                           font-size: 16px;
+                                           font-weight: bold;
+                                           cursor: pointer;
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+                                           display: flex;
+                                           align-items: center;
+                                           justify-content: center;
+                                           margin: 0 auto;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(33, 150, 243, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(33, 150, 243, 0.3)'">
+                                <span style="margin-right: 8px;">📞</span>
+                                联系专业客服
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            // 添加反馈按钮
+            const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const feedbackButtons = createFeedbackButtons(messageId);
+            messageContent.appendChild(feedbackButtons);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // 添加踩反馈后的额外帮助回复
+        function addDislikeFeedbackResponse() {
+            console.log('addDislikeFeedbackResponse 函数被调用');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = 'AI';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.style.lineHeight = '1.6';
+            
+            const responseDiv = document.createElement('div');
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #ffc107;">
+                    
+                    <div style="color: #856404; font-size: 14px; margin-bottom: 16px; line-height: 1.6;">
+                        看起来我的回复没有很好地解决您的问题。为了更好地帮助您，您可以联系专业的技术支持团队：
+                    </div>
+
+                     <div style="text-align: center; margin: 16px 0;">
+                            <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')" 
+                                    style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); 
+                                           color: white; 
+                                           border: none; 
+                                           padding: 14px 28px; 
+                                           border-radius: 25px; 
+                                           font-size: 16px; 
+                                           font-weight: bold; 
+                                           cursor: pointer; 
+                                           transition: all 0.3s ease;
+                                           box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+                                           display: flex;
+                                           align-items: center;
+                                           justify-content: center;
+                                           margin: 0 auto;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(230, 126, 34, 0.4)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(230, 126, 34, 0.3)'">
+                                <span style="margin-right: 6px;">📝</span>
+                                提交技术支持工单
+                            </button>
+                        </div>
+                </div>
+            `;
+            
+            messageContent.appendChild(responseDiv);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            
+            chatBody.appendChild(messageDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // // 显示额外帮助选项（当用户给出负面反馈时）
+        // function showFeedbackHelp(messageId) {
+        //     const helpDiv = document.createElement('div');
+        //     helpDiv.style.cssText = 'background: #fff8e1; border: 1px solid #ffcc02; border-radius: 6px; padding: 10px; margin-top: 8px; font-size: 12px;';
+        //     helpDiv.innerHTML = `
+        //         <div style="color: #f57f17; font-weight: bold; margin-bottom: 6px;">
+        //             😔 很抱歉没有帮到您，您可以：
+        //         </div>
+        //         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        //             <button onclick="addMessage('user', '我需要更详细的说明')" style="background: #667eea; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+        //                 需要更详细说明
+        //             </button>
+        //             <button onclick="window.open('https://support.dreo.com/en/support/request', '_blank')" style="background: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+        //                 联系人工客服
+        //             </button>
+        //         </div>
+        //     `;
+            
+        //     // 插入到反馈按钮后面
+        //     const messageDiv = document.querySelector(`[data-message="${messageId}"]`).closest('.message');
+        //     messageDiv.appendChild(helpDiv);
+        // }
+
+        // 根据问题获取相关资源
+        function getResourcesByQuestion(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            // 产品规格参数类问题
+            if (lowerQuestion.includes('尺寸') || lowerQuestion.includes('重量') || lowerQuestion.includes('耗电量') || lowerQuestion.includes('参数')) {
+                return [
+                    {
+                        icon: '📋',
+                        title: 'DREO产品规格手册',
+                        description: '详细的产品尺寸、重量、功耗等技术参数',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🎥',
+                        title: '产品开箱评测视频',
+                        description: '实际产品展示和参数对比演示',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '📐',
+                        title: '安装尺寸指南',
+                        description: '产品安装空间要求和摆放建议',
+                        link: 'https://support.dreo.com/en'
+                    }
+                ];
+            }
+            
+            // 加湿效果类问题
+            if (lowerQuestion.includes('加湿效果') || lowerQuestion.includes('加湿量')) {
+                return [
+                    {
+                        icon: '💧',
+                        title: '加湿效果测试报告',
+                        description: '专业实验室加湿性能测试数据',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🎬',
+                        title: '加湿效果演示视频',
+                        description: '不同环境下的加湿效果对比',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '📊',
+                        title: '使用环境建议',
+                        description: '不同房间面积的加湿器选择指南',
+                        link: 'https://support.dreo.com/en'
+                    }
+                ];
+            }
+            
+            // 智能控制类问题
+            if (lowerQuestion.includes('智能') || lowerQuestion.includes('语音') || lowerQuestion.includes('app')) {
+                return [
+                    {
+                        icon: '📱',
+                        title: 'DREO智能App使用指南',
+                        description: 'App下载、连接和功能使用教程',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🎤',
+                        title: '语音控制设置教程',
+                        description: '支持的语音助手和语音指令大全',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🔗',
+                        title: '智能家居集成指南',
+                        description: '与其他智能设备的联动设置',
+                        link: 'https://support.dreo.com/en'
+                    }
+                ];
+            }
+            
+            // 故障排除类问题
+            if (lowerQuestion.includes('配网失败') || lowerQuestion.includes('无反应') || lowerQuestion.includes('异响') || lowerQuestion.includes('掉线')) {
+                return [
+                    {
+                        icon: '🔧',
+                        title: '常见故障自助诊断',
+                        description: '快速定位和解决常见问题',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🎯',
+                        title: '故障排除视频教程',
+                        description: '分步骤排除故障的视频指导',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '📞',
+                        title: '专业技术支持',
+                        description: '提交工单获得一对一技术指导',
+                        link: 'https://support.dreo.com/en/support/request'
+                    }
+                ];
+            }
+            
+            // 产品维护类问题
+            if (lowerQuestion.includes('清洁') || lowerQuestion.includes('保养') || lowerQuestion.includes('维护') || lowerQuestion.includes('配件') || lowerQuestion.includes('使用寿命')) {
+                return [
+                    {
+                        icon: '🧽',
+                        title: '产品清洁保养指南',
+                        description: '详细的清洁步骤和保养周期说明',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🎬',
+                        title: '保养操作视频教程',
+                        description: '专业保养技巧和注意事项演示',
+                        link: 'https://support.dreo.com/en'
+                    },
+                    {
+                        icon: '🛒',
+                        title: '原装配件购买指南',
+                        description: '官方配件选择和购买渠道',
+                        link: 'https://support.dreo.com/en'
+                    }
+                ];
+            }
+            
+            // 默认通用资源
+            return [
+                {
+                    icon: '📖',
+                    title: 'DREO产品使用手册',
+                    description: '完整的产品操作和维护指南',
+                    link: 'https://support.dreo.com/en'
+                },
+                {
+                    icon: '🎥',
+                    title: '产品教学视频库',
+                    description: '从入门到进阶的完整视频教程',
+                    link: 'https://support.dreo.com/en'
+                },
+                {
+                    icon: '🔍',
+                    title: '在线帮助中心',
+                    description: '搜索更多相关问题和解答',
+                    link: 'https://support.dreo.com/en'
+                }
+            ];
+        }
+
+
+        // 发送按钮点击
+        sendButton.addEventListener('click', sendMessage);
+
+        // 回车发送
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 输入框状态管理
+        messageInput.addEventListener('input', () => {
+            sendButton.disabled = !messageInput.value.trim();
+        });
+
+        // 初始化发送按钮状态
+        sendButton.disabled = true;
+    </script>
+</body>
+</html>
