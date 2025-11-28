@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel文件拆分器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 20px;
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            background: #f8f9ff;
+            color: #667eea;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-button:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .split-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: none;
+        }
+
+        .split-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .split-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .downloads {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .download-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border: 1px solid #e0e8ff;
+        }
+
+        .download-link {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .download-link:hover {
+            background: #5a6fd8;
+        }
+
+        .status {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 900px) {
+            .info-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        .info-card {
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e0e8ff;
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .config-section {
+            margin-bottom: 30px;
+        }
+
+        .config-card {
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 2px solid #e0e8ff;
+            text-align: center;
+        }
+
+        .config-card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .config-input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .config-input-group label {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .split-input {
+            padding: 10px 15px;
+            border: 2px solid #e0e8ff;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 80px;
+            transition: border-color 0.3s ease;
+        }
+
+        .split-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .config-note {
+            color: #888;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .config-input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .config-input-group label {
+                text-align: center;
+            }
+
+            .info-card p {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Excel文件拆分器</h1>
+            <p>将Excel文件平均拆分成指定数量的文件，保持表头不变</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="file-input-container">
+                <input type="file" id="excelFile" class="file-input" accept=".xlsx,.xls">
+                <div class="file-input-button">
+                    📁 点击选择Excel文件或拖拽文件到这里
+                </div>
+            </div>
+            <div id="fileInfo" class="file-info"></div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-card">
+                <h3>⚙️ 拆分配置</h3>
+                <div class="config-input-group">
+                    <label for="splitCount">要拆分成几个文件：</label>
+                    <input type="number" id="splitCount" min="2" max="20" value="7" class="split-input">
+                    <span class="config-note">建议：2-20个文件之间</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="progressContainer" class="progress-container">
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill">0%</div>
+            </div>
+        </div>
+
+        <button id="splitButton" class="split-button">🚀 开始拆分文件</button>
+
+        <div id="status" class="status"></div>
+
+        <div id="infoGrid" class="info-grid" style="display: none;"></div>
+
+        <div id="downloads" class="downloads">
+            <h3>📥 下载拆分后的文件：</h3>
+            <div id="downloadLinks"></div>
+        </div>
+    </div>
+
+    <script>
+        class ExcelSplitter {
+            constructor() {
+                this.workbook = null;
+                this.originalData = null;
+                this.headerRow = null;
+                this.init();
+            }
+
+            init() {
+                const fileInput = document.getElementById('excelFile');
+                const splitButton = document.getElementById('splitButton');
+                const splitCountInput = document.getElementById('splitCount');
+
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+                splitButton.addEventListener('click', () => this.splitFile());
+                
+                // 监听拆分数量变化，实时更新信息
+                splitCountInput.addEventListener('input', () => {
+                    if (this.originalData) {
+                        this.analyzeFile();
+                    }
+                });
+
+                // 添加拖拽功能
+                const dropZone = document.querySelector('.file-input-button');
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.style.background = '#667eea';
+                    dropZone.style.color = 'white';
+                });
+
+                dropZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    dropZone.style.background = '#f8f9ff';
+                    dropZone.style.color = '#667eea';
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.style.background = '#f8f9ff';
+                    dropZone.style.color = '#667eea';
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        this.handleFileSelect({ target: { files } });
+                    }
+                });
+            }
+
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const fileInfo = document.getElementById('fileInfo');
+                const splitButton = document.getElementById('splitButton');
+
+                // 显示文件信息
+                fileInfo.innerHTML = `
+                    <strong>📋 文件信息：</strong><br>
+                    文件名：${file.name}<br>
+                    文件大小：${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                    上传时间：${new Date().toLocaleString()}
+                `;
+                fileInfo.style.display = 'block';
+
+                // 读取文件
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        this.workbook = XLSX.read(e.target.result, { type: 'array' });
+                        this.analyzeFile();
+                        splitButton.style.display = 'block';
+                        this.showStatus('文件加载成功！点击"开始拆分文件"按钮进行拆分。', 'success');
+                    } catch (error) {
+                        this.showStatus(`文件读取失败：${error.message}`, 'error');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            analyzeFile() {
+                const firstSheetName = this.workbook.SheetNames[0];
+                const worksheet = this.workbook.Sheets[firstSheetName];
+                
+                // 转换为JSON数据（保留空行）
+                this.originalData = XLSX.utils.sheet_to_json(worksheet, { 
+                    header: 1, 
+                    defval: '',
+                    blankrows: true 
+                });
+
+                // 获取表头（第一行）
+                this.headerRow = this.originalData[0] || [];
+                
+                // 数据行（除了表头的所有行）
+                const dataRows = this.originalData.slice(1);
+                
+                // 显示文件分析信息
+                const splitCount = document.getElementById('splitCount').value;
+                const avgRowsPerFile = Math.ceil(dataRows.length / splitCount);
+                
+                const infoGrid = document.getElementById('infoGrid');
+                infoGrid.innerHTML = `
+                    <div class="info-card">
+                        <h3>📊 总行数</h3>
+                        <p>${this.originalData.length}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>📋 数据行数</h3>
+                        <p>${dataRows.length}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>📝 列数</h3>
+                        <p>${this.headerRow.length}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>📂 拆分文件数</h3>
+                        <p>${splitCount}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>📄 平均每文件行数</h3>
+                        <p>${avgRowsPerFile}</p>
+                    </div>
+                `;
+                infoGrid.style.display = 'grid';
+            }
+
+            updateProgress(percent, text = '') {
+                const progressContainer = document.getElementById('progressContainer');
+                const progressFill = document.getElementById('progressFill');
+                
+                progressContainer.style.display = 'block';
+                progressFill.style.width = `${percent}%`;
+                progressFill.textContent = text || `${percent}%`;
+            }
+
+            async splitFile() {
+                if (!this.workbook || !this.originalData) {
+                    this.showStatus('请先选择一个Excel文件', 'error');
+                    return;
+                }
+
+                try {
+                    const splitButton = document.getElementById('splitButton');
+                    splitButton.disabled = true;
+                    splitButton.textContent = '🔄 正在拆分...';
+
+                    this.updateProgress(10, '开始处理...');
+
+                    // 获取用户配置的拆分数量
+                    const splitCount = parseInt(document.getElementById('splitCount').value);
+                    if (splitCount < 2 || splitCount > 20) {
+                        this.showStatus('拆分数量必须在2-20之间！', 'error');
+                        splitButton.disabled = false;
+                        splitButton.textContent = '🚀 开始拆分文件';
+                        return;
+                    }
+
+                    // 获取数据行（除了表头）
+                    const dataRows = this.originalData.slice(1);
+                    const totalDataRows = dataRows.length;
+                    
+                    // 计算每个文件的行数
+                    const rowsPerFile = Math.ceil(totalDataRows / splitCount);
+                    
+                    this.updateProgress(20, '计算分割点...');
+
+                    const downloadLinks = document.getElementById('downloadLinks');
+                    downloadLinks.innerHTML = '';
+
+                    // 计算进度增量
+                    const progressIncrement = 70 / splitCount; // 总进度70%分配给文件创建
+
+                    // 创建指定数量的文件
+                    for (let i = 0; i < splitCount; i++) {
+                        this.updateProgress(20 + (i * progressIncrement), `创建第${i + 1}个文件...`);
+                        
+                        // 计算起始和结束索引
+                        const startIndex = i * rowsPerFile;
+                        const endIndex = Math.min(startIndex + rowsPerFile, totalDataRows);
+                        
+                        // 获取当前文件的数据行
+                        const currentFileRows = dataRows.slice(startIndex, endIndex);
+                        
+                        // 创建新的数据数组（表头 + 数据行）
+                        const newData = [this.headerRow, ...currentFileRows];
+                        
+                        // 创建新的工作表
+                        const newWorksheet = XLSX.utils.aoa_to_sheet(newData);
+                        
+                        // 创建新的工作簿
+                        const newWorkbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, 'Sheet1');
+                        
+                        // 生成文件
+                        const fileName = `拆分文件_${i + 1}_共${currentFileRows.length}行.xlsx`;
+                        const fileBuffer = XLSX.write(newWorkbook, { bookType: 'xlsx', type: 'array' });
+                        
+                        // 创建下载链接
+                        const blob = new Blob([fileBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        // 添加到下载列表
+                        const downloadItem = document.createElement('div');
+                        downloadItem.className = 'download-item';
+                        downloadItem.innerHTML = `
+                            <div>
+                                <strong>${fileName}</strong><br>
+                                <small>包含 ${currentFileRows.length} 行数据 (第${startIndex + 1}行到第${endIndex}行)</small>
+                            </div>
+                            <a href="${url}" download="${fileName}" class="download-link">📥 下载</a>
+                        `;
+                        downloadLinks.appendChild(downloadItem);
+                        
+                        // 添加小延迟以显示进度
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+
+                    this.updateProgress(100, '完成！');
+                    
+                    // 显示下载区域
+                    document.getElementById('downloads').style.display = 'block';
+                    
+                    this.showStatus(`✅ 文件拆分完成！已将 ${totalDataRows} 行数据平均分配到${splitCount}个Excel文件中。`, 'success');
+                    
+                    splitButton.textContent = '✅ 拆分完成';
+                    
+                    // 5秒后隐藏进度条
+                    setTimeout(() => {
+                        document.getElementById('progressContainer').style.display = 'none';
+                    }, 5000);
+                    
+                } catch (error) {
+                    this.showStatus(`拆分过程中出现错误：${error.message}`, 'error');
+                    console.error('Split error:', error);
+                    
+                    const splitButton = document.getElementById('splitButton');
+                    splitButton.disabled = false;
+                    splitButton.textContent = '🚀 开始拆分文件';
+                }
+            }
+
+            showStatus(message, type = 'success') {
+                const status = document.getElementById('status');
+                status.className = `status ${type}`;
+                status.textContent = message;
+                status.style.display = 'block';
+                
+                // 5秒后自动隐藏状态消息
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new ExcelSplitter();
+        });
+    </script>
+</body>
+</html>
