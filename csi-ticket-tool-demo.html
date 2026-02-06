@@ -1,0 +1,5137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zendesk 工单系统 - 客服工单辅助回复工具演示</title>
+  <style>
+    :root {
+      --primary-color: #6366f1; /* Indigo 500 */
+      --primary-hover: #4f46e5; /* Indigo 600 */
+      --bg-color: #f3f4f6; /* Gray 100 */
+      --card-bg: #ffffff;
+      --text-main: #111827; /* Gray 900 */
+      --text-secondary: #6b7280; /* Gray 500 */
+      --border-color: #e5e7eb; /* Gray 200 */
+      --success-color: #10b981; /* Emerald 500 */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    /* 顶部标签栏 */
+    .top-tabs {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      height: 48px;
+    }
+
+    .tab-item {
+      padding: 8px 16px;
+      background: #fff;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-item.active {
+      color: #03363d;
+      border-bottom-color: #03363d;
+    }
+
+    .tab-item .close-icon {
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    .tab-item .close-icon:hover {
+      opacity: 1;
+    }
+
+    .add-tab {
+      padding: 8px;
+      color: #666;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* 面包屑导航 */
+    .breadcrumb {
+      background: #fff;
+      padding: 12px 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .breadcrumb-item {
+      color: #666;
+    }
+
+    .breadcrumb-item.active {
+      color: #03363d;
+      font-weight: 500;
+    }
+
+    .badge-new {
+      background: #28a745;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* 主容器 */
+    .main-container {
+      display: flex;
+      height: calc(100vh - 96px);
+    }
+
+    /* 左侧导航栏 */
+    .sidebar {
+      width: 64px;
+      background: #03363d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 0;
+      gap: 24px;
+    }
+
+    .sidebar-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .sidebar-icon:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-logo {
+      margin-top: auto;
+      font-size: 24px;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    /* 中央左侧面板 - 工单详情 */
+    .left-panel {
+      width: 400px;
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .field-group {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .field-value {
+      font-size: 14px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .link-action {
+      color: #03363d;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: underline;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: #e8f4f8;
+      color: #03363d;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .tag-remove {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    .tag-remove:hover {
+      opacity: 1;
+    }
+
+    /* 右侧主面板 - 对话区域 */
+    .right-panel {
+      flex: 1;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .conversation-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .conversation-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #03363d;
+      margin-bottom: 8px;
+    }
+
+    .conversation-meta {
+      font-size: 13px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .header-icon:hover {
+      background: #f0f0f0;
+    }
+
+    .conversation-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .message-item {
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .message-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .message-author {
+      font-weight: 500;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .message-time {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .message-bubble {
+      background: #e8f4f8;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+    }
+
+    /* 回复区域 */
+    .reply-area {
+      border-top: 1px solid #e0e0e0;
+      background: #fff;
+    }
+
+    /* 工具包面板 - 右侧抽屉 */
+    .toolkit-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 720px;
+      height: 100vh;
+      background: var(--bg-color);
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(100%);
+    }
+
+    .toolkit-panel.show {
+      transform: translateX(0);
+    }
+
+    .toolkit-header {
+      padding: 16px 24px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .toolkit-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toolkit-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      font-size: 20px;
+    }
+
+    .toolkit-close:hover {
+      background: #f3f4f6;
+      color: var(--text-main);
+    }
+
+    /* Tab导航 */
+    .tab-nav {
+      display: flex;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 16px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary-color);
+    }
+
+    .tab-btn.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .tab-icon {
+      font-size: 16px;
+    }
+
+    .toolkit-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* Tab内容 */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 工具栏 */
+    .reply-toolbar {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8f9fa;
+    }
+
+    .toolbar-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #666;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .toolbar-btn.active {
+      background: #03363d;
+      color: #fff;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: #e0e0e0;
+      margin: 0 4px;
+    }
+
+    .toolbar-btn-special {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 12px;
+      width: auto;
+      height: auto;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .toolbar-btn-special:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* 回复输入区域 */
+    .reply-input-area {
+      padding: 12px;
+    }
+
+    .reply-type {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .reply-type-select {
+      padding: 4px 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .reply-to {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .reply-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .reply-textarea:focus {
+      outline: none;
+      border-color: #03363d;
+    }
+
+    /* 信息区块 */
+    .info-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+      border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .icon {
+      font-size: 18px;
+    }
+
+    .info-card {
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+    }
+
+    /* 信息行样式 */
+    .info-row {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      min-width: 90px;
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      font-size: 14px;
+      color: var(--text-main);
+      flex: 1;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .info-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      color: var(--text-main);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #f9fafb;
+    }
+
+    .info-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* 场景信息 */
+    .scenario-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #eef2ff;
+      color: var(--primary-color);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .scenario-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* 建议内容 */
+    .node-recommendation {
+      padding: 12px;
+      background: #eef2ff;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--primary-color);
+      line-height: 1.6;
+      border-left: 3px solid var(--primary-color);
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    /* 动作选项 */
+    .action-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-item {
+      padding: 14px 16px;
+      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .action-item:hover {
+      border-color: var(--primary-color);
+      background: #f5f3ff;
+    }
+
+    .action-item.selected {
+      border-color: var(--primary-color);
+      background: #eef2ff;
+      box-shadow: 0 0 0 1px var(--primary-color);
+    }
+
+    .action-item input[type="radio"] {
+      margin: 0;
+      accent-color: var(--primary-color);
+      width: 16px;
+      height: 16px;
+    }
+
+    .action-item label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+
+    /* 邮件编辑器 */
+    .email-editor {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .email-editor:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .email-preview {
+      min-height: 150px;
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-main);
+      white-space: pre-wrap;
+    }
+
+    .email-textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 16px;
+      border: none;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      line-height: 1.6;
+      color: var(--text-main);
+      background: #fff;
+    }
+
+    .email-textarea:focus {
+      outline: none;
+    }
+
+    .email-toolbar {
+      padding: 10px 16px;
+      background: #f9fafb;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* 信息行样式 */
+    .info-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-label {
+      font-size: 13px;
+      color: #666;
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      font-size: 13px;
+      color: #333;
+      flex: 1;
+    }
+
+    .info-input {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .info-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* 产品列表 */
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      background: #fff;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .product-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .product-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-model {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .product-name {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .edit-btn {
+      margin-left: auto;
+      padding: 4px 8px;
+      background: #f0f0f0;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .edit-btn:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .edit-mode {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+      height: auto;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #666;
+      border: 1px solid #e0e0e0;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title .icon {
+      font-size: 16px;
+    }
+
+    .action-section {
+      margin-top: 24px;
+    }
+
+    /* 表格样式 */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: #f9fafb;
+    }
+
+    .empty-state {
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+      background: #f9fafb;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-color);
+    }
+
+    .info-section {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+      border: 1px solid rgba(229, 231, 235, 0.5);
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      /* gap: 8px; */
+    }
+
+    .quick-reply-content,
+    .customer-info-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .email-placeholder {
+      color: #999;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .email-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #5a6268;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #218838;
+    }
+
+    /* 加载状态 */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e5e7eb;
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 滚动条样式 */
+    .conversation-content::-webkit-scrollbar,
+    .toolkit-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .conversation-content::-webkit-scrollbar-track,
+    .toolkit-panel::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .conversation-content::-webkit-scrollbar-thumb,
+    .toolkit-panel::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+    /* 快捷处理 - 两个固定模块 */
+    .quick-process-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+      overflow-y: auto;
+    }
+
+    /* 分析模块 */
+    .analysis-module {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .module-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .analysis-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .analysis-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .analysis-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .analysis-result {
+      /* background: #f9fafb; */
+      border-top: 1px solid #e5e7eb;
+      /* border-radius: 8px; */
+      padding-top: 16px;
+      margin-top: 8px;
+    }
+
+    .analysis-result.hidden {
+      display: none;
+    }
+
+    .result-section {
+      margin-bottom: 16px;
+    }
+
+    .result-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .result-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .result-value {
+      font-size: 14px;
+      color: #111827;
+      line-height: 1.5;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-right: 8px;
+    }
+
+    .extracted-info-box {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 8px;
+    }
+
+    .info-item {
+      display: flex;
+      padding: 6px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .info-item:last-child {
+      border-bottom: none;
+    }
+
+    .info-item-label {
+      font-size: 13px;
+      color: #6b7280;
+      min-width: 90px;
+      font-weight: 500;
+    }
+
+    .info-item-value {
+      font-size: 13px;
+      color: #111827;
+      flex: 1;
+    }
+
+    .suggestion-box {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .suggestion-box .result-label {
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+
+    .suggestion-box .result-value {
+      color: #78350f;
+      font-size: 13px;
+    }
+
+    /* 编辑信息弹窗样式 */
+    .edit-info-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit-info-modal-content {
+      background-color: #fff;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .edit-info-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .edit-info-modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .edit-info-modal-close {
+      font-size: 28px;
+      font-weight: bold;
+      color: #6b7280;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .edit-info-modal-close:hover {
+      color: #111827;
+    }
+
+    .edit-info-modal-tabs {
+      display: flex;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0;
+    }
+
+    .edit-tab-btn {
+      flex: 1;
+      padding: 14px 16px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .edit-tab-btn:hover {
+      color: #667eea;
+      background: #f3f4f6;
+    }
+
+    .edit-tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+      background: #fff;
+    }
+
+    .edit-info-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .edit-tab-content {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .edit-field-group {
+      margin-bottom: 16px;
+    }
+
+    .edit-field-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .edit-field-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .edit-field-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .edit-field-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .edit-fields-container {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .edit-info-modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .edit-info-btn {
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+
+    .edit-info-btn:hover {
+      background: #5568d3 !important;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    }
+
+    /* 邮件历史弹窗样式 */
+    .email-history-modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .email-history-modal-content {
+      background-color: #fff;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .email-history-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .email-history-modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .email-history-modal-close {
+      font-size: 28px;
+      font-weight: bold;
+      color: #6b7280;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .email-history-modal-close:hover {
+      color: #111827;
+    }
+
+    .email-history-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .email-history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .email-history-table th {
+      background: #f9fafb;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #374151;
+      border-bottom: 2px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+    }
+
+    .email-history-table td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      color: #374151;
+      vertical-align: top;
+    }
+
+    .email-history-table tr:hover {
+      background: #f9fafb;
+    }
+
+    .email-history-content {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: pointer;
+      color: #6366f1;
+    }
+
+    .email-history-content:hover {
+      text-decoration: underline;
+    }
+
+    .email-history-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .email-history-status.yes {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .email-history-status.no {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .email-history-empty {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    /* 更新历史样式 */
+    .update-log {
+      font-size: 12px;
+      line-height: 1.6;
+      color: #374151;
+      word-break: break-word;
+    }
+
+    .update-type-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .update-type-badge.ai-update {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .update-type-badge.manual-update {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    /* 邮件回复模块 */
+    .email-module {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .actions-container {
+      margin-bottom: 16px;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .action-card {
+      padding: 12px;
+      background: #fff;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .action-card:hover {
+      border-color: #6366f1;
+      background: #f5f3ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .action-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .email-preview-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .email-preview-container.hidden {
+      display: none;
+    }
+
+    .email-preview {
+      flex: 1;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 13px;
+      color: #374151;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 200px;
+    }
+    
+    .email-preview:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .email-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .email-action-btn {
+      padding: 8px 16px;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .email-action-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .email-action-btn.primary {
+      background: #6366f1;
+      color: white;
+      border-color: #6366f1;
+    }
+
+    .email-action-btn.primary:hover {
+      background: #4f46e5;
+    }
+
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #78350f;
+    }
+
+    .warning-box .warning-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .warning-box ul {
+      margin: 6px 0 0 0;
+      padding-left: 20px;
+    }
+
+    .warning-box li {
+      margin: 4px 0;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 邮件反馈样式 */
+    .email-feedback-container {
+      margin-top: 16px;
+      padding: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .feedback-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .feedback-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .feedback-btn {
+      padding: 8px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .feedback-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .feedback-btn-usable:hover {
+      background: #d1fae5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+
+    .feedback-btn-unusable:hover {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #991b1b;
+    }
+
+    .feedback-btn.active {
+      background: #6366f1;
+      color: white;
+      border-color: #6366f1;
+    }
+
+    .feedback-btn-usable.active {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+
+    .feedback-btn-unusable.active {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+    }
+
+    .feedback-input-container {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .feedback-input-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .feedback-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #111827;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      box-sizing: border-box;
+    }
+
+    .feedback-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .feedback-submit-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: flex-end;
+    }
+
+    .feedback-submit-btn {
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .feedback-submit-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .feedback-submit-btn.primary {
+      background: #6366f1;
+      color: white;
+      border-color: #6366f1;
+    }
+
+    .feedback-submit-btn.primary:hover {
+      background: #4f46e5;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部标签栏 -->
+  <div class="top-tabs">
+    <div class="tab-item active">
+      Device disconnected #262815
+      <span class="close-icon">×</span>
+    </div>
+    <div class="add-tab">+</div>
+    <div style="margin-left: auto; padding: 0 12px; color: #666; font-size: 13px;">Add</div>
+  </div>
+
+  <!-- 面包屑导航 -->
+  <div class="breadcrumb">
+    <span class="breadcrumb-item">Organization (create)</span>
+    <span>Saqib</span>
+    <span class="breadcrumb-item active">NEW Incident #262815</span>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+    <!-- 左侧导航栏 -->
+    <div class="sidebar">
+      <div class="sidebar-icon">🏠</div>
+      <div class="sidebar-icon">📄</div>
+      <div class="sidebar-icon">👥</div>
+      <div class="sidebar-icon">🏢</div>
+      <div class="sidebar-icon">📊</div>
+      <div class="sidebar-icon">⚙️</div>
+      <div class="sidebar-icon">🚀</div>
+      <div class="sidebar-logo">Z</div>
+    </div>
+
+    <!-- 中央左侧面板 - 工单详情 -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="field-group">
+          <div class="field-label">Requester</div>
+          <div class="field-value">
+            <span>Saqib</span>
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Assignee*</div>
+          <div class="field-value">
+            <span class="link-action">take it</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">
+            Followers
+            <span style="color: #999; font-size: 11px;">ℹ️</span>
+          </div>
+          <div class="field-value">
+            <span class="link-action">follow</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Tags</div>
+          <div class="tags-container">
+            <span class="tag">dreo-app <span class="tag-remove">×</span></span>
+            <span class="tag">ios <span class="tag-remove">×</span></span>
+            <span class="tag">north_american_server <span class="tag-remove">×</span></span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Country</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Model</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Orders#</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Order date</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">问题分类</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">备注</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">SKU</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Provided Troubleshooting</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Troubleshooting Effective</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Need RMA</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Shipping Address</div>
+          <div class="field-value">
+            <input type="text" class="field-input" placeholder="">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-value">
+            <span class="link-action">Apply macro</span>
+            <span style="color: #999;">▼</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧主面板 - 对话区域 -->
+    <div class="right-panel">
+      <div class="conversation-header">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div class="conversation-title" id="ticketTitle">Device disconnected due to unknown cause. Unable to connect WiFi</div>
+            <div class="conversation-meta">
+              <span>Via mobile SDK</span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="header-icon">🔍</div>
+            <div class="header-icon">🔄</div>
+            <div class="header-icon">⋯</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="conversation-content">
+        <div class="message-item">
+          <div class="message-avatar">👤</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-author">Saqib</span>
+              <span style="color: #999;">↩</span>
+              <span class="message-time">44 minutes ago</span>
+            </div>
+            <div class="message-bubble" id="ticketDescription">
+              Device disconnected due to unknown cause. Unable to connect WiFi
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 回复区域 -->
+      <div class="reply-area">
+        <!-- 工具包面板 - 右侧抽屉 -->
+        <div id="toolkitPanel" class="toolkit-panel">
+          <div class="toolkit-header">
+            <div class="toolkit-title">
+              <span>🔧</span>
+              客服工单辅助回复工具
+            </div>
+            <div class="toolkit-close" id="closeToolkitBtn">×</div>
+          </div>
+
+          <!-- Tab导航 -->
+          <div class="tab-nav">
+            <button class="tab-btn active" data-tab="quick-reply">
+              <span class="tab-icon">⚡</span>
+              <span>快捷处理</span>
+            </button>
+            <button class="tab-btn" data-tab="ticket-info">
+              <span class="tab-icon">📋</span>
+              <span>工单信息</span>
+            </button>
+            <button class="tab-btn" data-tab="customer-info">
+              <span class="tab-icon">👤</span>
+              <span>客户信息</span>
+            </button>
+          </div>
+
+          <div class="toolkit-content">
+            <!-- 工单信息 Tab -->
+            <div id="ticket-info-tab" class="tab-content">
+              <!-- 加载状态 -->
+              <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <div class="loading-text">正在分析工单...</div>
+              </div>
+
+              <!-- 主要内容区域 -->
+              <div id="mainContent" class="main-content hidden">
+                <!-- 工单场景 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">📋</span>
+                    工单场景
+                    <button class="edit-btn" id="editScenarioBtn">编辑</button>
+                  </h3>
+                  <div id="scenarioInfo" class="info-card">
+                    <div class="scenario-badge" id="scenarioBadge">识别中...</div>
+                    <div class="scenario-desc" id="scenarioDetails"></div>
+                    <!-- 编辑状态 -->
+                    <div id="scenarioEditMode" class="edit-mode" style="display: none;">
+                      <div class="info-row">
+                        <span class="info-label">场景：</span>
+                        <select id="editScenario" class="info-input">
+                          <option value="售前咨询">售前咨询</option>
+                          <option value="订单问题">订单问题</option>
+                          <option value="产品问题">产品问题</option>
+                          <option value="售后服务">售后服务</option>
+                        </select>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-label">子场景：</span>
+                        <select id="editSubScenario" class="info-input"></select>
+                      </div>
+                      <div class="edit-actions">
+                        <button class="btn btn-primary btn-small" id="saveScenarioBtn">保存</button>
+                        <button class="btn btn-secondary btn-small" id="cancelScenarioBtn">取消</button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- 订单信息 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">📦</span>
+                    订单信息
+                    <button class="edit-btn" id="editOrderBtn">编辑</button>
+                  </h3>
+                  <div class="info-card">
+                    <div class="info-row">
+                      <span class="info-label">购买渠道：</span>
+                      <span id="orderChannel" class="info-value">-</span>
+                      <input type="text" id="editOrderChannel" class="info-input" style="display: none;" placeholder="输入购买渠道">
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">订单号：</span>
+                      <span id="orderNumber" class="info-value">-</span>
+                      <input type="text" id="editOrderNumber" class="info-input" style="display: none;" placeholder="输入订单号">
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">订单日期：</span>
+                      <span id="orderDate" class="info-value">-</span>
+                      <input type="date" id="editOrderDate" class="info-input" style="display: none;" placeholder="选择订单日期">
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">订单产品：</span>
+                      <div id="orderProducts" class="info-value">-</div>
+                      <input type="text" id="editOrderProducts" class="info-input" style="display: none;" placeholder="输入订单产品，多个用逗号分隔">
+                    </div>
+                    <!-- 编辑状态按钮 -->
+                    <div id="orderEditActions" class="edit-actions" style="display: none;">
+                      <button class="btn btn-primary btn-small" id="saveOrderBtn">保存</button>
+                      <button class="btn btn-secondary btn-small" id="cancelOrderBtn">取消</button>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- 产品信息 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">🛍️</span>
+                    产品信息
+                    <button class="edit-btn" id="editProductsBtn">编辑</button>
+                  </h3>
+                  <div id="productsList" class="info-card">
+                    <!-- 产品列表将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- 物流信息 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">🚚</span>
+                    物流信息
+                    <button class="edit-btn" id="editLogisticsBtn">编辑</button>
+                  </h3>
+                  <div class="info-card">
+                    <div class="info-row">
+                      <span class="info-label">物流承运商：</span>
+                      <span id="logisticsCarrierDisplay" class="info-value">-</span>
+                      <input type="text" id="logisticsCarrier" class="info-input" style="display: none;" placeholder="输入物流承运商">
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">物流单号：</span>
+                      <span id="logisticsNumberDisplay" class="info-value">-</span>
+                      <input type="text" id="logisticsNumber" class="info-input" style="display: none;" placeholder="输入物流单号">
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">当前状态：</span>
+                      <span id="logisticsStatusDisplay" class="info-value">-</span>
+                      <input type="text" id="logisticsStatus" class="info-input" style="display: none;" placeholder="输入当前状态">
+                    </div>
+                    <!-- 编辑状态按钮 -->
+                    <div id="logisticsEditActions" class="edit-actions" style="display: none;">
+                      <button class="btn btn-primary btn-small" id="saveLogisticsBtn">保存</button>
+                      <button class="btn btn-secondary btn-small" id="cancelLogisticsBtn">取消</button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            <!-- 快捷处理 Tab -->
+            <div id="quick-reply-tab" class="tab-content active">
+              <div class="quick-process-container">
+                <!-- 分析模块 -->
+                <div class="analysis-module">
+                  <div class="module-header">
+                    <div class="module-title">
+                      <span>🔍</span>
+                      <span>工单分析</span>
+                    </div>
+                    <button class="analysis-btn" id="analysisBtn" onclick="startNewAnalysis()">
+                      <span>✨</span>
+                      <span>一键分析</span>
+                    </button>
+                  </div>
+
+                  <div style="display: none; margin-left: 8px;" id="analysisActionButtons">
+                    <button class="edit-info-btn" id="editInfoBtn" onclick="openEditInfoModal()" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 8px;">
+                      ✏️ 编辑信息
+                    </button>
+                    <button class="update-history-btn" id="updateHistoryBtn" onclick="showUpdateHistory()" style="padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                      📜 更新历史
+                    </button>
+                  </div>
+                  <div class="analysis-result hidden" id="analysisResult">
+                    <!-- 工单信息提取 -->
+                    <div class="result-section">
+                      <div class="result-label">
+                        📋 工单信息
+                        
+                      </div>
+                      <div class="result-value">
+                        <span class="result-badge" id="scenarioBadgeQuick">未分析</span>
+                        <span id="scenarioDetailsQuick"></span>
+                      </div>
+                      
+                      <div class="extracted-info-box">
+                        <div class="info-item">
+                          <div class="info-item-label">📦 订单号：</div>
+                          <div class="info-item-value" id="extractedOrderNumber">-</div>
+                        </div>
+                        <div class="info-item">
+                          <div class="info-item-label">🛒 购买渠道：</div>
+                          <div class="info-item-value" id="extractedChannel">-</div>
+                        </div>
+                        <div class="info-item">
+                          <div class="info-item-label">📅 订单日期：</div>
+                          <div class="info-item-value" id="extractedOrderDate">-</div>
+                        </div>
+                        <div class="info-item">
+                          <div class="info-item-label">🛍️ 产品型号：</div>
+                          <div class="info-item-value" id="extractedProduct">-</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 当前处理进度 -->
+                    <div class="result-section">
+                      <div class="result-label">📊 处理进度</div>
+                      <div class="result-value" id="processNodeQuick">-</div>
+                    </div>
+
+                    <!-- 处理建议 -->
+                    <div class="suggestion-box">
+                      <div class="result-label">💡 处理建议</div>
+                      <div class="result-value" id="suggestionText">-</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 邮件回复模块 -->
+                <div class="email-module">
+                  <div class="module-header">
+                    <div class="module-title">
+                      <span>✉️</span>
+                      <span>邮件回复</span>
+                    </div>
+                  </div>
+
+                  <!-- 动作选择 -->
+                  <div class="actions-container" id="actionsContainer">
+                    <div class="result-label">选择邮件动作</div>
+                    <div class="actions-grid" id="actionsGrid">
+                      <div class="action-card disabled">请先完成工单分析</div>
+                    </div>
+                  </div>
+
+                  <!-- 邮件预览 -->
+                  <div class="email-preview-container hidden" id="emailPreviewContainer">
+                    <div class="result-label">邮件预览</div>
+                    
+                    <!-- 警告信息 -->
+                    <div class="warning-box hidden" id="emailWarning">
+                      <div class="warning-title">⚠️ 需要补充信息</div>
+                      <div>生成的邮件缺少以下内容，建议补充后重新生成：</div>
+                      <ul id="missingFieldsList"></ul>
+                    </div>
+
+                    <textarea class="email-preview" id="emailPreview"></textarea>
+                    
+                    <div class="email-actions">
+                      <button class="email-action-btn primary" onclick="sendEmail()">
+                        <span>📤</span>
+                        <span>发送</span>
+                      </button>
+                      <button class="email-action-btn" onclick="copyEmail()">
+                        <span>📋</span>
+                        <span>复制</span>
+                      </button>
+                      <button class="email-action-btn" onclick="saveEmail()">
+                        <span>💾</span>
+                        <span>保存</span>
+                      </button>
+                      <button class="email-action-btn" onclick="showEmailHistory()">
+                        <span>📜</span>
+                        <span>邮件历史</span>
+                      </button>
+                    </div>
+
+                    <!-- 邮件反馈区域 -->
+                    <div class="email-feedback-container hidden" id="emailFeedbackContainer">
+                      <div class="feedback-header">
+                        <div class="feedback-label">邮件质量反馈</div>
+                        <div class="feedback-buttons">
+                          <button class="feedback-btn feedback-btn-usable" onclick="markEmailUsable()">
+                            <span>👍</span>
+                            <span>可用</span>
+                          </button>
+                          <button class="feedback-btn feedback-btn-unusable" onclick="markEmailUnusable()">
+                            <span>👎</span>
+                            <span>不可用</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="feedback-input-container hidden" id="feedbackInputContainer">
+                        <label class="feedback-input-label">请填写详细反馈：</label>
+                        <textarea 
+                          class="feedback-input" 
+                          id="feedbackInput" 
+                          placeholder="请详细说明邮件不可用的原因，例如：内容不准确、语气不合适、缺少关键信息等..."
+                          rows="4"
+                        ></textarea>
+                        <div class="feedback-submit-buttons">
+                          <button class="feedback-submit-btn primary" onclick="submitFeedback()">
+                            <span>提交反馈</span>
+                          </button>
+                          <button class="feedback-submit-btn" onclick="cancelFeedback()">
+                            <span>取消</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 客户信息 Tab -->
+            <div id="customer-info-tab" class="tab-content">
+              <div class="customer-info-content">
+                <!-- 基本信息 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">👤</span>
+                    基本信息
+                  </h3>
+                  <div class="info-card">
+                    <div class="info-row">
+                      <span class="info-label">用户名：</span>
+                      <span id="customerName" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">邮箱：</span>
+                      <span id="customerEmail" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">DREO账号ID：</span>
+                      <span id="customerDreoId" class="info-value">-</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Customer ID：</span>
+                      <span id="customerId" class="info-value">-</span>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- 历史订单 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">📦</span>
+                    历史订单
+                  </h3>
+                  <div id="orderHistory" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- IoT设备 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">📱</span>
+                    IoT设备
+                  </h3>
+                  <div id="iotDevices" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- 历史工单 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">🎫</span>
+                    历史工单
+                  </h3>
+                  <div id="ticketHistory" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- 历史换货 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">🔄</span>
+                    历史换货
+                  </h3>
+                  <div id="exchangeHistory" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- 历史退款 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">💰</span>
+                    历史退款
+                  </h3>
+                  <div id="refundHistory" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+
+                <!-- 质保信息 -->
+                <section class="info-section">
+                  <h3 class="section-title">
+                    <span class="icon">🛡️</span>
+                    质保信息
+                  </h3>
+                  <div id="warrantyInfo" class="table-container">
+                    <!-- 表格将通过JS动态生成 -->
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="reply-toolbar">
+          <button class="toolbar-btn" title="粗体">B</button>
+          <button class="toolbar-btn" title="斜体">I</button>
+          <button class="toolbar-btn" title="下划线">U</button>
+          <button class="toolbar-btn" title="文字颜色">A</button>
+          <button class="toolbar-btn" title="表情">😊</button>
+          <div class="toolbar-divider"></div>
+          <button class="toolbar-btn" title="附件">📎</button>
+          <button class="toolbar-btn" title="链接">🔗</button>
+          <button class="toolbar-btn" title="知识库">📚</button>
+          <div class="toolbar-divider"></div>
+          <!-- 客服工单辅助回复工具按钮 -->
+          <button id="openToolkitBtn" class="toolbar-btn toolbar-btn-special" title="客服工单辅助回复工具">
+            🔧 客服工单辅助回复工具
+          </button>
+        </div>
+
+        <!-- 回复输入区域 -->
+        <div class="reply-input-area">
+          <div class="reply-type">
+            <span>Public reply</span>
+            <span style="color: #999;">▼</span>
+          </div>
+          <div class="reply-to">
+            <span>To</span>
+            <span>👤</span>
+            <span>Saqib</span>
+            <span style="color: #999; cursor: pointer;">✏️</span>
+          </div>
+          <textarea id="replyTextarea" class="reply-textarea" placeholder="输入回复内容..."></textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <span style="color: #666; font-size: 12px; cursor: pointer;">CC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 应用状态
+    let appState = {
+      ticketId: '262815',
+      ticketData: {
+        id: '262815',
+        subject: 'Device disconnected due to unknown cause. Unable to connect WiFi',
+        description: 'Device disconnected due to unknown cause. Unable to connect WiFi',
+        requester: { name: 'Saqib' }
+      },
+      scenario: null,
+      subScenario: null,
+      processNode: null,
+      selectedAction: null,
+      generatedEmail: null,
+      emailHistory: [], // 邮件历史（包括AI生成和手动保存）
+      currentHistoryId: undefined, // 当前邮件历史的ID
+      updateHistory: [], // 更新历史（包括分析和手动编辑）
+      orderInfo: {
+        channel: null,
+        orderNumber: null,
+        orderDate: null,
+        products: []
+      },
+      products: [],
+      logistics: {
+        carrier: null,
+        number: null,
+        status: null
+      },
+      customerInfo: null
+    };
+
+    // 演示客户数据
+    const demoCustomerData = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      dreoId: 'DREO123456',
+      customerId: 'CUST789012',
+      orders: [
+        { orderNumber: 'ORD001', products: 'DR-HTF001S', amount: '$89.99', store: 'Amazon', date: '2024-01-15' },
+        { orderNumber: 'ORD002', products: 'DR-HTF002', amount: '$129.99', store: 'DREO官网', date: '2024-02-20' },
+        { orderNumber: 'ORD003', products: 'DR-HTF001S, DR-HTF002', amount: '$219.98', store: 'Walmart', date: '2024-03-10' }
+      ],
+      iotDevices: [
+        { sn: 'SN001234', model: 'DR-HTF001S', category: 'IoT', firstConnect: '2024-01-20', lastConnect: '2024-03-15', lastControl: '2024-03-15', sharedAccounts: 'user2@example.com' },
+        { sn: 'SN005678', model: 'DR-HTF002', category: 'IoT', firstConnect: '2024-02-25', lastConnect: '2024-03-14', lastControl: '2024-03-14', sharedAccounts: '-' }
+      ],
+      ticketHistory: [
+        { ticketId: '#262814', title: '产品功能咨询' },
+        { ticketId: '#262815', title: '设备连接问题' },
+        { ticketId: '#260000', title: '退货申请' }
+      ],
+      exchangeHistory: [
+        { model: 'DR-HTF001S', rma: 'RMA001' },
+        { model: 'DR-HTF002', rma: 'RMA002' }
+      ],
+      refundHistory: [
+        { model: 'DR-HTF001S', returnNumber: 'RET001' },
+        { model: 'DR-HTF002', returnNumber: 'RET002' }
+      ],
+      warrantyInfo: [
+        { model: 'DR-HTF001S', channelType: '线上', salesChannel: 'Amazon', category: 'IoT', startDate: '2024-01-15', endDate: '2025-01-15', submitDate: '2024-01-15' },
+        { model: 'DR-HTF002', channelType: '线上', salesChannel: 'DREO官网', category: 'IoT', startDate: '2024-02-20', endDate: '2025-02-20', submitDate: '2024-02-20' }
+      ]
+    };
+
+    // 场景配置数据（简化版，用于演示）
+    const scenarioConfig = {
+      '售前咨询': {
+        '产品功能咨询': {
+          nodes: [
+            { id: 'check_content', name: '检查工单内容', description: '分析工单，判断是否包含产品信息和功能/参数信息' },
+            { id: 'extract_info', name: '提取产品信息', description: '从工单中提取产品相关信息' },
+            { id: 'query_kb', name: '查询知识库', description: '在知识库中搜索相关产品信息' },
+            { id: 'organize_info', name: '整理产品功能参数说明', description: '整理和格式化知识库中的信息' },
+            { id: 'send_email', name: '发送回复邮件', description: '发送产品功能参数告知邮件' }
+          ],
+          actions: [
+            { id: 'ask_info', name: '询问产品信息', icon: '❓', template: 1 },
+            { id: 'provide_info', name: '提供产品信息', icon: '📦', template: 2 }
+          ]
+        },
+        '服务政策咨询': {
+          nodes: [
+            { id: 'analyze_type', name: '分析咨询类型', description: '分析用户咨询的具体政策类型' },
+            { id: 'query_policy', name: '查询政策知识库', description: '在知识库中查询相关政策信息' },
+            { id: 'extract_policy', name: '提取政策内容', description: '从知识库中提取相关政策内容' },
+            { id: 'organize_policy', name: '整理政策说明', description: '整理和格式化政策信息' },
+            { id: 'send_email', name: '发送回复邮件', description: '发送政策告知邮件' }
+          ],
+          actions: [
+            { id: 'provide_policy', name: '提供政策说明', icon: '📋', template: 1 }
+          ]
+        }
+      },
+      '订单问题': {
+        '需取消订单': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和物流信息' },
+            { id: 'check_channel', name: '判断购买渠道', description: '判断是否为官网订单' },
+            { id: 'check_shipment', name: '检查发货状态', description: '判断订单是否已发货' },
+            { id: 'process_cancel', name: '处理取消请求', description: '执行取消订单或协商保留' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'guide_platform', name: '引导平台咨询', icon: '🔗', template: 2 },
+            { id: 'cancel_order', name: '取消订单', icon: '✅', template: 3 }
+          ]
+        },
+        '咨询订单物流': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和物流信息' },
+            { id: 'check_channel', name: '判断购买渠道', description: '判断是否为官网订单' },
+            { id: 'query_logistics', name: '查询物流信息', description: '查询订单物流状态' },
+            { id: 'inform_customer', name: '告知客户', description: '告知用户物流信息' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'guide_platform', name: '引导平台咨询', icon: '🔗', template: 2 },
+            { id: 'inform_logistics', name: '告知物流信息', icon: '🚚', template: 3 }
+          ]
+        },
+        '包裹丢失': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和物流信息' },
+            { id: 'check_channel', name: '判断购买渠道', description: '判断是否为官网订单' },
+            { id: 'check_delivery', name: '检查交付状态', description: '检查物流显示状态' },
+            { id: 'process_lost', name: '处理丢失', description: '补发或退款处理' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'guide_platform', name: '引导平台咨询', icon: '🔗', template: 2 },
+            { id: 'request_new_address', name: '请求新地址', icon: '📍', template: 3 },
+            { id: 'negotiate_refund', name: '协商退款', icon: '💰', template: 5 }
+          ]
+        },
+        '购买后发现其他渠道更便宜': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息' },
+            { id: 'verify_price', name: '核实价格', description: '核对付款金额和渠道价格' },
+            { id: 'process_refund', name: '处理差价', description: '回复退差价邮件' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'refund_difference', name: '退差价', icon: '💰', template: 2 }
+          ]
+        }
+      },
+      '售后服务': {
+        '延保时长不符': {
+          nodes: [
+            { id: 'verify_warranty', name: '核实延保信息', description: '核实延保时长' },
+            { id: 'correct_warranty', name: '修正延保时长', description: '修正延保时长' }
+          ],
+          actions: [
+            { id: 'correct_warranty', name: '修正延保时长', icon: '🛡️', template: 1 }
+          ]
+        }
+      },
+      '产品问题': {
+        '配送造成损坏': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'check_channel', name: '判断购买渠道', description: '判断是否为官网订单' },
+            { id: 'check_device_status', name: '检查设备状态', description: '询问设备是否还能正常运行' },
+            { id: 'process_damage', name: '处理损坏', description: '部分退款或换货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'guide_platform', name: '引导平台咨询', icon: '🔗', template: 2 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 4 },
+            { id: 'exchange', name: '换货', icon: '🔄', template: 5 }
+          ]
+        },
+        '产品体验问题（非品质问题）': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
+            { id: 'negotiate_solution', name: '协商解决方案', description: '部分退款或退货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 2 },
+            { id: 'guide_platform_return', name: '引导平台退货', icon: '🔗', template: 3 }
+          ]
+        },
+        '不影响主功能的问题（品质&非主功能问题）': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
+            { id: 'assess_damage', name: '评估损坏程度', description: '确定损坏程度' },
+            { id: 'process_issue', name: '处理问题', description: '部分退款、换货或退货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 2 },
+            { id: 'exchange', name: '换货', icon: '🔄', template: 4 }
+          ]
+        },
+        '产品功能品质问题': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
+            { id: 'provide_troubleshooting', name: '提供排错步骤', description: '提供排错步骤' },
+            { id: 'process_issue', name: '处理问题', description: '换货或退货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'provide_troubleshooting', name: '提供排错步骤', icon: '🔧', template: 2 },
+            { id: 'exchange', name: '换货', icon: '🔄', template: 4 }
+          ]
+        },
+        '配件质量问题': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
+            { id: 'check_stock', name: '检查库存', description: '检查配件库存' },
+            { id: 'process_accessory', name: '处理配件问题', description: '补发、部分退款或换货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'send_accessory', name: '补发配件', icon: '📦', template: 2 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 5 }
+          ]
+        },
+        '配件非质量问题': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
+            { id: 'check_detachable', name: '检查可拆卸性', description: '判断配件是否可拆卸' },
+            { id: 'provide_solution', name: '提供解决方案', description: '提供购买链接或优惠券' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'provide_link', name: '提供购买链接', icon: '🔗', template: 2 },
+            { id: 'provide_coupon', name: '提供优惠券', icon: '🎫', template: 3 }
+          ]
+        },
+        '安全问题': {
+          nodes: [
+            { id: 'verify_safety', name: '核实安全问题', description: '核实安全问题详情' },
+            { id: 'process_refund', name: '处理退款', description: '协商仅退款' }
+          ],
+          actions: [
+            { id: 'full_refund', name: '仅退款', icon: '💵', template: 1 }
+          ]
+        }
+      }
+    };
+
+    // 初始化应用
+    function initApp() {
+      bindEvents();
+      initTabs();
+      loadCustomerInfo();
+      extractOrderInfo();
+      initLogisticsDisplay();
+      identifyScenarioAndNode();
+    }
+
+    // 初始化Tab切换
+    function initTabs() {
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabName = btn.getAttribute('data-tab');
+          switchTab(tabName);
+        });
+      });
+    }
+
+    // 切换Tab
+    function switchTab(tabName) {
+      // 更新按钮状态
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+          btn.classList.add('active');
+        }
+      });
+      
+      // 更新内容显示
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      const targetTab = document.getElementById(`${tabName}-tab`);
+      if (targetTab) {
+        targetTab.classList.add('active');
+      }
+      
+      // 如果切换到快捷回复tab，更新动作选项
+      if (tabName === 'quick-reply') {
+        updateQuickReplyActions();
+      }
+    }
+
+    // 提取订单信息
+    function extractOrderInfo() {
+      const ticketData = appState.ticketData;
+      const subject = ticketData.subject || '';
+      const description = ticketData.description || '';
+      const content = subject + ' ' + description;
+      
+      // 提取订单号（简单匹配）
+      const orderMatch = content.match(/订单[号|号]?[：:：]?\s*([A-Z0-9]+)/i) || 
+                         content.match(/order[：:：]?\s*([A-Z0-9]+)/i) ||
+                         content.match(/#([0-9]+)/);
+      if (orderMatch) {
+        appState.orderInfo.orderNumber = orderMatch[1];
+      }
+      
+      // 提取购买渠道
+      if (content.includes('Amazon') || content.includes('amazon')) {
+        appState.orderInfo.channel = 'Amazon';
+      } else if (content.includes('Walmart') || content.includes('walmart')) {
+        appState.orderInfo.channel = 'Walmart';
+      } else if (content.includes('官网') || content.includes('DREO官网')) {
+        appState.orderInfo.channel = 'DREO官网';
+      }
+      
+      // 提取产品型号
+      const productMatch = content.match(/DR-[A-Z0-9]+/gi);
+      if (productMatch) {
+        const uniqueProducts = [...new Set(productMatch)];
+        appState.orderInfo.products = uniqueProducts;
+        appState.products = uniqueProducts.map(model => ({
+          model: model,
+          name: `产品 ${model}`,
+          image: `https://via.placeholder.com/50?text=${model}`
+        }));
+      }
+      
+      // 更新UI
+      updateOrderInfoDisplay();
+      updateProductsDisplay();
+      initLogisticsDisplay();
+    }
+
+    // 初始化物流信息显示
+    function initLogisticsDisplay() {
+      const carrierDisplay = document.getElementById('logisticsCarrierDisplay');
+      const numberDisplay = document.getElementById('logisticsNumberDisplay');
+      const statusDisplay = document.getElementById('logisticsStatusDisplay');
+      
+      if (carrierDisplay) {
+        const carrier = document.getElementById('logisticsCarrier').value || '';
+        carrierDisplay.textContent = carrier || '-';
+      }
+      if (numberDisplay) {
+        const number = document.getElementById('logisticsNumber').value || '';
+        numberDisplay.textContent = number || '-';
+      }
+      if (statusDisplay) {
+        const status = document.getElementById('logisticsStatus').value || '';
+        statusDisplay.textContent = status || '-';
+      }
+    }
+
+    // 更新订单信息显示
+    function updateOrderInfoDisplay() {
+      const orderChannelEl = document.getElementById('orderChannel');
+      const orderNumberEl = document.getElementById('orderNumber');
+      const orderDateEl = document.getElementById('orderDate');
+      const orderProductsEl = document.getElementById('orderProducts');
+      
+      if (orderChannelEl) orderChannelEl.textContent = appState.orderInfo.channel || '-';
+      if (orderNumberEl) orderNumberEl.textContent = appState.orderInfo.orderNumber || '-';
+      if (orderDateEl) orderDateEl.textContent = appState.orderInfo.orderDate || '-';
+      
+      if (orderProductsEl) {
+        if (appState.orderInfo.products && appState.orderInfo.products.length > 0) {
+          orderProductsEl.innerHTML = appState.orderInfo.products.join(', ');
+        } else {
+          orderProductsEl.textContent = '-';
+        }
+      }
+    }
+
+    // 更新产品信息显示
+    function updateProductsDisplay() {
+      const container = document.getElementById('productsList');
+      if (!container) return;
+      
+      if (!appState.products || appState.products.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无产品信息</div>';
+        return;
+      }
+      
+      container.innerHTML = appState.products.map(product => `
+        <div class="product-item">
+          <img src="${product.image}" alt="${product.model}" class="product-image" onerror="this.src='https://via.placeholder.com/50?text=Product'">
+          <div class="product-info">
+            <div class="product-model">${product.model}</div>
+            <div class="product-name">${product.name}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 加载客户信息
+    function loadCustomerInfo() {
+      appState.customerInfo = demoCustomerData;
+      
+      // 更新基本信息
+      const customerNameEl = document.getElementById('customerName');
+      const customerEmailEl = document.getElementById('customerEmail');
+      const customerDreoIdEl = document.getElementById('customerDreoId');
+      const customerIdEl = document.getElementById('customerId');
+      
+      if (customerNameEl) customerNameEl.textContent = demoCustomerData.name;
+      if (customerEmailEl) customerEmailEl.textContent = demoCustomerData.email;
+      if (customerDreoIdEl) customerDreoIdEl.textContent = demoCustomerData.dreoId;
+      if (customerIdEl) customerIdEl.textContent = demoCustomerData.customerId;
+      
+      // 更新历史订单
+      renderTable('orderHistory', ['订单编号', '产品', '花费金额', '商店', '下单时间'], 
+        demoCustomerData.orders.map(o => [o.orderNumber, o.products, o.amount, o.store, o.date]));
+      
+      // 更新IoT设备
+      renderTable('iotDevices', ['SN', 'Model', '品类', '最早配网时间', '最近配网时间', '最近控制时间', '分享账号'],
+        demoCustomerData.iotDevices.map(d => [d.sn, d.model, d.category, d.firstConnect, d.lastConnect, d.lastControl, d.sharedAccounts]));
+      
+      // 更新历史工单
+      renderTable('ticketHistory', ['工单ID', '工单标题'],
+        demoCustomerData.ticketHistory.map(t => [t.ticketId, t.title]));
+      
+      // 更新历史换货
+      renderTable('exchangeHistory', ['Model', 'RMA单'],
+        demoCustomerData.exchangeHistory.map(e => [e.model, e.rma]));
+      
+      // 更新历史退款
+      renderTable('refundHistory', ['Model', '退货单'],
+        demoCustomerData.refundHistory.map(r => [r.model, r.returnNumber]));
+      
+      // 更新质保信息
+      renderTable('warrantyInfo', ['Model', '渠道类型', '销售渠道', '品类', '质保开始时间', '质保结束时间', '提交时间'],
+        demoCustomerData.warrantyInfo.map(w => [w.model, w.channelType, w.salesChannel, w.category, w.startDate, w.endDate, w.submitDate]));
+    }
+
+    // 渲染表格
+    function renderTable(containerId, headers, rows) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (!rows || rows.length === 0) {
+        container.innerHTML = '<div class="empty-state">暂无数据</div>';
+        return;
+      }
+      
+      let html = '<table class="data-table"><thead><tr>';
+      headers.forEach(header => {
+        html += `<th>${header}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+      
+      rows.forEach(row => {
+        html += '<tr>';
+        row.forEach(cell => {
+          html += `<td>${cell || '-'}</td>`;
+        });
+        html += '</tr>';
+      });
+      
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // 绑定事件
+    function bindEvents() {
+      // 打开工具包按钮
+      const openToolkitBtn = document.getElementById('openToolkitBtn');
+      if (openToolkitBtn) {
+        openToolkitBtn.addEventListener('click', () => {
+          const panel = document.getElementById('toolkitPanel');
+          const btn = document.getElementById('openToolkitBtn');
+          
+          if (panel.classList.contains('show')) {
+            // 关闭工具包
+            panel.classList.remove('show');
+            btn.classList.remove('active');
+          } else {
+            // 打开工具包
+            panel.classList.add('show');
+            btn.classList.add('active');
+            // 首次打开时识别场景和节点
+            if (!appState.scenario) {
+              identifyScenarioAndNode();
+            }
+          }
+        });
+      }
+      
+      // 关闭工具包按钮
+      const closeToolkitBtn = document.getElementById('closeToolkitBtn');
+      if (closeToolkitBtn) {
+        closeToolkitBtn.addEventListener('click', () => {
+          const panel = document.getElementById('toolkitPanel');
+          const btn = document.getElementById('openToolkitBtn');
+          panel.classList.remove('show');
+          if (btn) btn.classList.remove('active');
+        });
+      }
+      
+      // 生成回复邮件按钮（快捷回复tab）
+      const quickGenerateBtn = document.getElementById('quickGenerateBtn');
+      if (quickGenerateBtn) {
+        quickGenerateBtn.addEventListener('click', generateEmail);
+      }
+      
+      // 复制邮件按钮
+      const copyEmailBtn = document.getElementById('copyEmailBtn');
+      if (copyEmailBtn) {
+        copyEmailBtn.addEventListener('click', copyEmail);
+      }
+      
+      // 插入邮件按钮
+      const insertEmailBtn = document.getElementById('insertEmailBtn');
+      if (insertEmailBtn) {
+        insertEmailBtn.addEventListener('click', insertEmail);
+      }
+      
+      // 插入变量按钮
+      const insertVariableBtn = document.getElementById('insertVariableBtn');
+      if (insertVariableBtn) {
+        insertVariableBtn.addEventListener('click', showVariableMenu);
+      }
+      
+      // 编辑工单场景按钮
+      const editScenarioBtn = document.getElementById('editScenarioBtn');
+      if (editScenarioBtn) {
+        editScenarioBtn.addEventListener('click', () => {
+          const isEditing = editScenarioBtn.getAttribute('data-editing') === 'true';
+          if (isEditing) {
+            cancelScenarioEdit();
+          } else {
+            enterScenarioEditMode();
+          }
+        });
+      }
+      const saveScenarioBtn = document.getElementById('saveScenarioBtn');
+      if (saveScenarioBtn) {
+        saveScenarioBtn.addEventListener('click', saveScenario);
+      }
+      const cancelScenarioBtn = document.getElementById('cancelScenarioBtn');
+      if (cancelScenarioBtn) {
+        cancelScenarioBtn.addEventListener('click', cancelScenarioEdit);
+      }
+      const editScenarioSelect = document.getElementById('editScenario');
+      if (editScenarioSelect) {
+        editScenarioSelect.addEventListener('change', updateSubScenarioOptions);
+      }
+
+      // 编辑订单信息按钮
+      const editOrderBtn = document.getElementById('editOrderBtn');
+      if (editOrderBtn) {
+        editOrderBtn.addEventListener('click', () => {
+          const isEditing = editOrderBtn.getAttribute('data-editing') === 'true';
+          if (isEditing) {
+            cancelOrderEdit();
+          } else {
+            enterOrderEditMode();
+          }
+        });
+      }
+      const saveOrderBtn = document.getElementById('saveOrderBtn');
+      if (saveOrderBtn) {
+        saveOrderBtn.addEventListener('click', saveOrder);
+      }
+      const cancelOrderBtn = document.getElementById('cancelOrderBtn');
+      if (cancelOrderBtn) {
+        cancelOrderBtn.addEventListener('click', cancelOrderEdit);
+      }
+
+      // 编辑产品信息按钮
+      const editProductsBtn = document.getElementById('editProductsBtn');
+      if (editProductsBtn) {
+        editProductsBtn.addEventListener('click', () => {
+          const isEditing = editProductsBtn.getAttribute('data-editing') === 'true';
+          if (isEditing) {
+            cancelProductsEdit();
+          } else {
+            enterProductsEditMode();
+          }
+        });
+      }
+
+      // 编辑物流信息按钮
+      const editLogisticsBtn = document.getElementById('editLogisticsBtn');
+      if (editLogisticsBtn) {
+        editLogisticsBtn.addEventListener('click', () => {
+          const isEditing = editLogisticsBtn.getAttribute('data-editing') === 'true';
+          if (isEditing) {
+            cancelLogisticsEdit();
+          } else {
+            enterLogisticsEditMode();
+          }
+        });
+      }
+      const saveLogisticsBtn = document.getElementById('saveLogisticsBtn');
+      if (saveLogisticsBtn) {
+        saveLogisticsBtn.addEventListener('click', saveLogistics);
+      }
+      const cancelLogisticsBtn = document.getElementById('cancelLogisticsBtn');
+      if (cancelLogisticsBtn) {
+        cancelLogisticsBtn.addEventListener('click', cancelLogisticsEdit);
+      }
+    }
+
+    // 编辑工单场景
+    function enterScenarioEditMode() {
+      const editMode = document.getElementById('scenarioEditMode');
+      const badge = document.getElementById('scenarioBadge');
+      const details = document.getElementById('scenarioDetails');
+      const editBtn = document.getElementById('editScenarioBtn');
+      
+      if (editMode && badge && details && editBtn) {
+        // 显示编辑模式
+        editMode.style.display = 'block';
+        badge.style.display = 'none';
+        details.style.display = 'none';
+        editBtn.textContent = '取消';
+        editBtn.setAttribute('data-editing', 'true');
+        
+        // 设置当前值
+        const currentScenario = appState.scenario || '售前咨询';
+        const currentSubScenario = appState.subScenario || '';
+        const scenarioSelect = document.getElementById('editScenario');
+        const subScenarioSelect = document.getElementById('editSubScenario');
+        
+        if (scenarioSelect) scenarioSelect.value = currentScenario;
+        updateSubScenarioOptions();
+        if (subScenarioSelect && currentSubScenario) {
+          subScenarioSelect.value = currentSubScenario;
+        }
+      }
+    }
+
+    function updateSubScenarioOptions() {
+      const scenarioSelect = document.getElementById('editScenario');
+      const subScenarioSelect = document.getElementById('editSubScenario');
+      if (!scenarioSelect || !subScenarioSelect) return;
+      
+      const scenario = scenarioSelect.value;
+      const subScenarios = scenarioConfig[scenario] ? Object.keys(scenarioConfig[scenario]) : [];
+      
+      subScenarioSelect.innerHTML = '';
+      subScenarios.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub;
+        option.textContent = sub;
+        subScenarioSelect.appendChild(option);
+      });
+    }
+
+    function saveScenario() {
+      const scenario = document.getElementById('editScenario').value;
+      const subScenario = document.getElementById('editSubScenario').value;
+      
+      appState.scenario = scenario;
+      appState.subScenario = subScenario;
+      
+      updateScenarioDisplay(scenario, subScenario);
+      updateProcessNodeDisplay(appState.currentNode || { id: '', description: '' });
+      updateQuickReplyActions();
+      
+      cancelScenarioEdit();
+    }
+
+    function cancelScenarioEdit() {
+      const editMode = document.getElementById('scenarioEditMode');
+      const badge = document.getElementById('scenarioBadge');
+      const details = document.getElementById('scenarioDetails');
+      const editBtn = document.getElementById('editScenarioBtn');
+      
+      if (editMode && badge && details && editBtn) {
+        editMode.style.display = 'none';
+        badge.style.display = '';
+        details.style.display = '';
+        editBtn.textContent = '编辑';
+        editBtn.removeAttribute('data-editing');
+      }
+    }
+
+    // 编辑订单信息
+    function enterOrderEditMode() {
+      const channelValue = document.getElementById('orderChannel');
+      const numberValue = document.getElementById('orderNumber');
+      const dateValue = document.getElementById('orderDate');
+      const productsValue = document.getElementById('orderProducts');
+      const editBtn = document.getElementById('editOrderBtn');
+      
+      if (channelValue && numberValue && dateValue && productsValue) {
+        // 隐藏显示值，显示输入框
+        channelValue.style.display = 'none';
+        numberValue.style.display = 'none';
+        dateValue.style.display = 'none';
+        productsValue.style.display = 'none';
+        
+        document.getElementById('editOrderChannel').style.display = '';
+        document.getElementById('editOrderNumber').style.display = '';
+        document.getElementById('editOrderDate').style.display = '';
+        document.getElementById('editOrderProducts').style.display = '';
+        document.getElementById('orderEditActions').style.display = 'flex';
+        
+        // 设置当前值
+        document.getElementById('editOrderChannel').value = appState.orderInfo.channel || '';
+        document.getElementById('editOrderNumber').value = appState.orderInfo.orderNumber || '';
+        document.getElementById('editOrderDate').value = appState.orderInfo.orderDate || '';
+        document.getElementById('editOrderProducts').value = (appState.orderInfo.products || []).join(', ');
+        
+        editBtn.textContent = '取消';
+        editBtn.setAttribute('data-editing', 'true');
+      }
+    }
+
+    function saveOrder() {
+      const channel = document.getElementById('editOrderChannel').value.trim();
+      const number = document.getElementById('editOrderNumber').value.trim();
+      const date = document.getElementById('editOrderDate').value.trim();
+      const products = document.getElementById('editOrderProducts').value.split(',').map(p => p.trim()).filter(p => p);
+      
+      appState.orderInfo.channel = channel;
+      appState.orderInfo.orderNumber = number;
+      appState.orderInfo.orderDate = date;
+      appState.orderInfo.products = products;
+      
+      updateOrderInfoDisplay();
+      cancelOrderEdit();
+    }
+
+    function cancelOrderEdit() {
+      const channelValue = document.getElementById('orderChannel');
+      const numberValue = document.getElementById('orderNumber');
+      const dateValue = document.getElementById('orderDate');
+      const productsValue = document.getElementById('orderProducts');
+      const editBtn = document.getElementById('editOrderBtn');
+      
+      if (channelValue && numberValue && dateValue && productsValue) {
+        channelValue.style.display = '';
+        numberValue.style.display = '';
+        dateValue.style.display = '';
+        productsValue.style.display = '';
+        
+        document.getElementById('editOrderChannel').style.display = 'none';
+        document.getElementById('editOrderNumber').style.display = 'none';
+        document.getElementById('editOrderDate').style.display = 'none';
+        document.getElementById('editOrderProducts').style.display = 'none';
+        document.getElementById('orderEditActions').style.display = 'none';
+        
+        editBtn.textContent = '编辑';
+        editBtn.removeAttribute('data-editing');
+      }
+    }
+
+    // 编辑产品信息
+    function enterProductsEditMode() {
+      const container = document.getElementById('productsList');
+      const editBtn = document.getElementById('editProductsBtn');
+      if (!container || !editBtn) return;
+      
+      const currentModels = appState.products && appState.products.length > 0 
+        ? appState.products.map(p => p.model).join(', ')
+        : '';
+      
+      container.innerHTML = `
+        <div class="edit-mode">
+          <div class="info-row">
+            <span class="info-label">产品型号：</span>
+            <input type="text" id="editProductsInput" class="info-input" value="${currentModels}" placeholder="输入产品型号，多个用逗号分隔">
+          </div>
+          <div class="edit-actions">
+            <button class="btn btn-primary btn-small" id="saveProductsBtn">保存</button>
+            <button class="btn btn-secondary btn-small" id="cancelProductsBtn">取消</button>
+          </div>
+        </div>
+      `;
+      
+      editBtn.textContent = '取消';
+      editBtn.setAttribute('data-editing', 'true');
+      
+      document.getElementById('saveProductsBtn').addEventListener('click', saveProducts);
+      document.getElementById('cancelProductsBtn').addEventListener('click', cancelProductsEdit);
+    }
+
+    function saveProducts() {
+      const input = document.getElementById('editProductsInput');
+      if (!input) return;
+      
+      const models = input.value.split(',').map(m => m.trim()).filter(m => m);
+      appState.products = models.map(model => ({
+        model: model,
+        name: `产品 ${model}`,
+        image: `https://via.placeholder.com/50?text=${model}`
+      }));
+      appState.orderInfo.products = models;
+      
+      updateProductsDisplay();
+      updateOrderInfoDisplay();
+      cancelProductsEdit();
+    }
+
+    function cancelProductsEdit() {
+      const editBtn = document.getElementById('editProductsBtn');
+      if (editBtn) {
+        editBtn.textContent = '编辑';
+        editBtn.removeAttribute('data-editing');
+      }
+      updateProductsDisplay();
+    }
+
+    // 编辑物流信息
+    function enterLogisticsEditMode() {
+      const carrierDisplay = document.getElementById('logisticsCarrierDisplay');
+      const numberDisplay = document.getElementById('logisticsNumberDisplay');
+      const statusDisplay = document.getElementById('logisticsStatusDisplay');
+      const editBtn = document.getElementById('editLogisticsBtn');
+      
+      if (carrierDisplay && numberDisplay && statusDisplay) {
+        // 隐藏显示值，显示输入框
+        carrierDisplay.style.display = 'none';
+        numberDisplay.style.display = 'none';
+        statusDisplay.style.display = 'none';
+        
+        document.getElementById('logisticsCarrier').style.display = '';
+        document.getElementById('logisticsNumber').style.display = '';
+        document.getElementById('logisticsStatus').style.display = '';
+        document.getElementById('logisticsEditActions').style.display = 'flex';
+        
+        // 设置当前值
+        const carrier = document.getElementById('logisticsCarrier').value || '';
+        const number = document.getElementById('logisticsNumber').value || '';
+        const status = document.getElementById('logisticsStatus').value || '';
+        
+        editBtn.textContent = '取消';
+        editBtn.setAttribute('data-editing', 'true');
+      }
+    }
+
+    function saveLogistics() {
+      const carrier = document.getElementById('logisticsCarrier').value.trim();
+      const number = document.getElementById('logisticsNumber').value.trim();
+      const status = document.getElementById('logisticsStatus').value.trim();
+      
+      document.getElementById('logisticsCarrierDisplay').textContent = carrier || '-';
+      document.getElementById('logisticsNumberDisplay').textContent = number || '-';
+      document.getElementById('logisticsStatusDisplay').textContent = status || '-';
+      
+      cancelLogisticsEdit();
+    }
+
+    function cancelLogisticsEdit() {
+      const carrierDisplay = document.getElementById('logisticsCarrierDisplay');
+      const numberDisplay = document.getElementById('logisticsNumberDisplay');
+      const statusDisplay = document.getElementById('logisticsStatusDisplay');
+      const editBtn = document.getElementById('editLogisticsBtn');
+      
+      if (carrierDisplay && numberDisplay && statusDisplay) {
+        carrierDisplay.style.display = '';
+        numberDisplay.style.display = '';
+        statusDisplay.style.display = '';
+        
+        document.getElementById('logisticsCarrier').style.display = 'none';
+        document.getElementById('logisticsNumber').style.display = 'none';
+        document.getElementById('logisticsStatus').style.display = 'none';
+        document.getElementById('logisticsEditActions').style.display = 'none';
+        
+        editBtn.textContent = '编辑';
+        editBtn.removeAttribute('data-editing');
+      }
+    }
+
+    // 显示变量菜单
+    function showVariableMenu() {
+      const variables = [
+        { name: '客户姓名', value: '{{customerName}}' },
+        { name: '订单号', value: '{{orderNumber}}' },
+        { name: '产品型号', value: '{{productModel}}' },
+        { name: '工单号', value: '{{ticketId}}' }
+      ];
+      
+      const variable = prompt('选择要插入的变量:\n1. 客户姓名\n2. 订单号\n3. 产品型号\n4. 工单号', '1');
+      const editor = document.getElementById('emailEditor');
+      if (editor && variable) {
+        const index = parseInt(variable) - 1;
+        if (index >= 0 && index < variables.length) {
+          const cursorPos = editor.selectionStart;
+          const textBefore = editor.value.substring(0, cursorPos);
+          const textAfter = editor.value.substring(cursorPos);
+          editor.value = textBefore + variables[index].value + textAfter;
+          editor.focus();
+          editor.setSelectionRange(cursorPos + variables[index].value.length, cursorPos + variables[index].value.length);
+        }
+      }
+    }
+
+    // 更新快捷回复动作选项
+    function updateQuickReplyActions() {
+      const container = document.getElementById('quickReplyActions');
+      if (!container) return;
+      
+      if (!appState.scenario || !appState.subScenario) {
+        container.innerHTML = '<div class="empty-state">请先在工单信息tab中识别场景</div>';
+        return;
+      }
+      
+      const config = scenarioConfig[appState.scenario]?.[appState.subScenario];
+      if (!config || !config.actions) {
+        container.innerHTML = '<div class="empty-state">暂无可用动作</div>';
+        return;
+      }
+      
+      // 清空容器，避免重复添加
+      container.innerHTML = '';
+      
+      config.actions.forEach((action, index) => {
+        const option = document.createElement('div');
+        option.className = 'action-item';
+        if (index === 0 || action.id === appState.selectedAction?.id) {
+          option.classList.add('selected');
+          appState.selectedAction = action;
+        }
+        option.innerHTML = `
+          <input type="radio" name="quickAction" id="quick_action_${action.id}" value="${action.id}" ${index === 0 || action.id === appState.selectedAction?.id ? 'checked' : ''}>
+          <label for="quick_action_${action.id}">
+            <span>${action.icon}</span>
+            <span>${action.name}</span>
+          </label>
+        `;
+        
+        option.addEventListener('click', () => {
+          option.querySelector('input').checked = true;
+          document.querySelectorAll('#quickReplyActions .action-item').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          option.classList.add('selected');
+          appState.selectedAction = action;
+        });
+        
+        container.appendChild(option);
+      });
+    }
+
+    // 识别场景和流程节点
+    async function identifyScenarioAndNode() {
+      showLoading();
+      hideMainContent();
+      
+      try {
+        // 模拟API调用识别场景
+        const scenario = await identifyScenario(appState.ticketData);
+        appState.scenario = scenario.scenario;
+        appState.subScenario = scenario.subScenario;
+        
+        // 识别流程节点
+        const node = await identifyProcessNode(scenario.scenario, scenario.subScenario, appState.ticketData);
+        appState.processNode = node;
+        
+        // 更新UI
+        updateScenarioDisplay(scenario.scenario, scenario.subScenario);
+        updateProcessNodeDisplay(node);
+        
+        hideLoading();
+        showMainContent();
+      } catch (error) {
+        console.error('识别场景和节点失败:', error);
+        hideLoading();
+        alert('识别失败：' + (error.message || '未知错误'));
+      }
+    }
+
+    // 识别场景（模拟AI识别）
+    async function identifyScenario(ticketData) {
+      // 模拟API延迟
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const subject = ticketData.subject || '';
+      const description = ticketData.description || '';
+      const content = (subject + ' ' + description).toLowerCase();
+      
+      // 关键词匹配识别场景
+      if (content.includes('功能') || content.includes('参数') || content.includes('规格') || 
+          content.includes('function') || content.includes('specification')) {
+        return { scenario: '售前咨询', subScenario: '产品功能咨询' };
+      } else if (content.includes('政策') || content.includes('质保') || content.includes('保修') || 
+                 content.includes('退货') || content.includes('换货') || content.includes('退款') ||
+                 content.includes('policy') || content.includes('warranty')) {
+        return { scenario: '售前咨询', subScenario: '服务政策咨询' };
+      } else if (content.includes('取消') || content.includes('cancel')) {
+        return { scenario: '订单问题', subScenario: '需取消订单' };
+      } else if (content.includes('物流') || content.includes('快递') || content.includes('shipping') || 
+                 content.includes('delivery')) {
+        if (content.includes('丢失') || content.includes('lost') || content.includes('missing')) {
+          return { scenario: '订单问题', subScenario: '包裹丢失' };
+        }
+        return { scenario: '订单问题', subScenario: '咨询订单物流' };
+      } else if (content.includes('便宜') || content.includes('cheap') || content.includes('price')) {
+        return { scenario: '订单问题', subScenario: '购买后发现其他渠道更便宜' };
+      } else if (content.includes('延保') || content.includes('warranty')) {
+        return { scenario: '售后服务', subScenario: '延保时长不符' };
+      } else if (content.includes('损坏') || content.includes('damage') || content.includes('broken')) {
+        if (content.includes('配送') || content.includes('delivery')) {
+          return { scenario: '产品问题', subScenario: '配送造成损坏' };
+        }
+        return { scenario: '产品问题', subScenario: '不影响主功能的问题（品质&非主功能问题）' };
+      } else if (content.includes('体验') || content.includes('experience') || content.includes('设计') || 
+                 content.includes('design')) {
+        return { scenario: '产品问题', subScenario: '产品体验问题（非品质问题）' };
+      } else if (content.includes('不开机') || content.includes('不加热') || content.includes('没有风') ||
+                 content.includes('not working') || content.includes('not heating')) {
+        return { scenario: '产品问题', subScenario: '产品功能品质问题' };
+      } else if (content.includes('配件') || content.includes('accessory') || content.includes('遥控器')) {
+        if (content.includes('接触不良') || content.includes('按键失灵') || content.includes('malfunction')) {
+          return { scenario: '产品问题', subScenario: '配件质量问题' };
+        }
+        return { scenario: '产品问题', subScenario: '配件非质量问题' };
+      } else if (content.includes('燃烧') || content.includes('火花') || content.includes('安全') ||
+                 content.includes('burn') || content.includes('spark') || content.includes('safety')) {
+        return { scenario: '产品问题', subScenario: '安全问题' };
+      }
+      
+      // 默认返回
+      return { scenario: '售前咨询', subScenario: '产品功能咨询' };
+    }
+
+    // 识别流程节点（模拟AI识别）
+    async function identifyProcessNode(scenario, subScenario, ticketData) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const config = scenarioConfig[scenario]?.[subScenario];
+      if (!config || !config.nodes || config.nodes.length === 0) {
+        return { id: 'unknown', name: '未知节点', description: '无法识别当前节点' };
+      }
+      
+      const description = ticketData.description || '';
+      const content = description.toLowerCase();
+      
+      // 检查是否已包含产品信息
+      if (scenario === '售前咨询' && subScenario === '产品功能咨询') {
+        const hasProductInfo = /产品|型号|规格|model/.test(content);
+        if (!hasProductInfo) {
+          return config.nodes[0]; // 检查工单内容
+        } else {
+          return config.nodes[2]; // 查询知识库
+        }
+      }
+      
+      // 默认返回第一个节点
+      return config.nodes[0];
+    }
+
+    // 更新场景显示
+    function updateScenarioDisplay(scenario, subScenario) {
+      const badge = document.getElementById('scenarioBadge');
+      const details = document.getElementById('scenarioDetails');
+      
+      if (badge) badge.textContent = `${scenario} - ${subScenario}`;
+      if (badge) badge.className = 'scenario-badge';
+      
+      let detailsText = '';
+      if (scenario === '售前咨询') {
+        if (subScenario === '产品功能咨询') {
+        //   detailsText = '用户咨询产品功能、参数或规格信息，需要提供产品说明或询问更多产品信息。';
+        } else if (subScenario === '服务政策咨询') {
+          detailsText = '用户咨询服务政策，包括质保政策、退换货政策等，需要提供相关政策说明。';
+        }
+      } else if (scenario === '订单问题') {
+        detailsText = '用户咨询订单相关问题，需要根据订单状态和购买渠道进行处理。';
+      } else if (scenario === '产品问题') {
+        detailsText = '用户反馈产品问题，需要根据问题类型提供相应的解决方案。';
+      } else if (scenario === '售后服务') {
+        detailsText = '用户咨询售后服务相关问题，需要核实并处理。';
+      }
+      
+      if (details) details.textContent = detailsText;
+    }
+
+    // 更新流程节点显示
+    function updateProcessNodeDisplay(node) {
+      const quickReplyRecommendation = document.getElementById('quickReplyRecommendation');
+      
+      // 生成推荐处理方式（简短）
+      let recommendText = '';
+      if (node.id === 'check_content' || node.id === 'check_order') {
+        recommendText = '建议：先确认用户是否已提供完整信息，如未提供则发送询问邮件。';
+      } else if (node.id === 'query_kb' || node.id === 'query_policy' || node.id === 'query_logistics') {
+        recommendText = '建议：查询知识库或系统获取相关信息，准备回复内容。';
+      } else if (node.id === 'extract_info' || node.id === 'extract_policy') {
+        recommendText = '建议：从工单或知识库中提取关键信息，整理成清晰的回复。';
+      } else if (node.id === 'organize_info' || node.id === 'organize_policy') {
+        recommendText = '建议：整理并格式化信息，确保回复内容准确、专业。';
+      } else if (node.id === 'send_email' || node.id === 'inform_customer') {
+        recommendText = '建议：使用合适的邮件模板，发送回复给用户。';
+      } else if (node.id === 'process_cancel' || node.id === 'process_damage' || node.id === 'process_issue') {
+        recommendText = '建议：根据订单状态和用户需求，选择合适的处理方案（退款/换货/退货等）。';
+      } else {
+        recommendText = '建议：根据当前情况选择合适的下一步动作，确保及时响应用户需求。';
+      }
+      
+      if (quickReplyRecommendation) {
+        quickReplyRecommendation.textContent = recommendText;
+      }
+    }
+
+    // 更新动作选项
+    function updateActionOptions(scenario, subScenario, node) {
+      const container = document.getElementById('actionOptions');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      const config = scenarioConfig[scenario]?.[subScenario];
+      if (!config || !config.actions) return;
+      
+      // 根据当前节点过滤可用动作（简化逻辑）
+      let availableActions = config.actions;
+      
+      // 默认选择第一个动作
+      if (availableActions.length > 0) {
+        appState.selectedAction = availableActions[0];
+      }
+      
+      availableActions.forEach((action, index) => {
+        const option = document.createElement('div');
+        option.className = 'action-item';
+        if (index === 0) {
+          option.classList.add('selected');
+        }
+        option.innerHTML = `
+          <input type="radio" name="action" id="action_${action.id}" value="${action.id}" ${index === 0 ? 'checked' : ''}>
+          <label for="action_${action.id}">
+            <span>${action.icon}</span>
+            <span>${action.name}</span>
+          </label>
+        `;
+        
+        option.addEventListener('click', () => {
+          option.querySelector('input').checked = true;
+          document.querySelectorAll('#actionOptions .action-item').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          option.classList.add('selected');
+          appState.selectedAction = action;
+        });
+        
+        container.appendChild(option);
+      });
+    }
+
+    // 生成回复邮件
+    async function generateEmail() {
+      if (!appState.selectedAction) {
+        alert('请先选择下一步动作');
+        return;
+      }
+      
+      const btn = document.getElementById('quickGenerateBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span>生成中...';
+      }
+      
+      try {
+        // 调用AI API生成邮件（模拟）
+        const email = await callAIGenerateEmail(
+          appState.scenario,
+          appState.subScenario,
+          appState.processNode,
+          appState.selectedAction,
+          appState.ticketData,
+          appState.orderInfo,
+          appState.products
+        );
+        
+        appState.generatedEmail = email;
+        
+        // 显示邮件内容到编辑器
+        const editor = document.getElementById('emailEditor');
+        if (editor) {
+          editor.value = email;
+        }
+        
+        if (btn) {
+          btn.innerHTML = '<span>✨</span>生成回复邮件';
+          btn.disabled = false;
+        }
+      } catch (error) {
+        console.error('生成邮件失败:', error);
+        alert('生成邮件失败：' + (error.message || '未知错误'));
+        if (btn) {
+          btn.innerHTML = '<span>✨</span>生成回复邮件';
+          btn.disabled = false;
+        }
+      }
+    }
+
+    // 调用AI生成邮件（模拟API调用）
+    async function callAIGenerateEmail(scenario, subScenario, node, action, ticketData, orderInfo, products) {
+      // 模拟API延迟
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // 模拟邮件生成（实际应该调用后端AI API）
+      const customerName = ticketData.requester?.name || '尊敬的客户';
+      const ticketId = ticketData.id;
+      const orderNumber = orderInfo.orderNumber || '[订单号]';
+      const productList = products.map(p => p.model).join(', ') || '[产品型号]';
+      
+      let emailContent = '';
+      
+      if (scenario === '售前咨询') {
+        if (subScenario === '产品功能咨询') {
+          if (action.id === 'ask_info') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your inquiry about product functionality, to better provide you with accurate product information, we need the following details:
+
+1. Product name or model number
+2. Specific features or parameters you would like to know
+3. Your usage scenario or requirements
+
+Please provide the above information, and we will provide you with detailed product specifications as soon as possible.
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+        } else if (action.id === 'provide_info') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Based on your inquiry, we have prepared the following product specifications:
+
+【Product Information】
+- Product Model: ${productList}
+
+【Features】
+- Feature 1: [Detailed Description]
+- Feature 2: [Detailed Description]
+- Feature 3: [Detailed Description]
+
+【Technical Specifications】
+- Parameter 1: [Value]
+- Parameter 2: [Value]
+
+【Usage Instructions】
+[Usage Instructions]
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          }
+        } else if (subScenario === '服务政策咨询') {
+          if (action.id === 'provide_policy') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your inquiry about service policies, we would like to provide the following information:
+
+【Warranty Policy】
+- Warranty Period: 1 year
+- Warranty Coverage: Main components
+- Warranty Conditions: Under normal use
+
+【Return & Exchange Policy】
+- Return Period: Within 7 days
+- Exchange Conditions: Product quality issues
+- Refund Method: Original payment method
+
+【Other Policies】
+[Other policy information]
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else if (action.id === 'partial_refund') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your refund request, we have approved a partial refund.
+
+【Refund Information】
+- Refund Amount: [Amount]
+- Refund Method: Original payment method
+- Processing Time: 3-5 business days
+
+The refund will be returned to your original payment account. Please check your account.
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else if (action.id === 'exchange') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your exchange request, we have approved the exchange.
+
+【Exchange Process】
+1. Please return the product to: [Address]
+2. We will arrange shipment after receiving the product
+3. Estimated processing time: 5-7 business days
+
+【Important Notes】
+- Please keep the original packaging
+- Please include the order number or ticket number
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else if (action.id === 'return') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your return request, we have approved the return and refund.
+
+【Return Process】
+1. Please return the product to: [Address]
+2. We will arrange refund after receiving the product
+3. Refund Amount: [Amount]
+4. Refund Method: Original payment method
+5. Estimated processing time: 5-7 business days
+
+【Important Notes】
+- Please keep the original packaging
+- Please include the order number or ticket number
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else if (action.id === 'full_refund') {
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your refund request, we have approved a full refund.
+
+【Refund Information】
+- Refund Amount: [Amount]
+- Refund Method: Original payment method
+- Processing Time: 3-5 business days
+
+The refund will be returned to your original payment account. Please check your account.
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          }
+        }
+      } else if (scenario === '订单问题') {
+        emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your order inquiry (Order #${orderNumber}), we are processing your request.
+
+[Action-specific content based on selected action]
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+      } else if (scenario === '产品问题') {
+        emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+We understand your concern regarding the product issue. We are here to help you resolve this matter.
+
+【Order Information】
+- Order Number: ${orderNumber}
+- Product Model: ${productList}
+
+[Action-specific content based on selected action]
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+      }
+      
+      return emailContent || '邮件回复失败，请重试。';
+    }
+
+    // 旧的邮件操作函数（已被下方的新版本覆盖）
+    /*
+    function copyEmail() {
+      const editor = document.getElementById('emailEditor');
+      const email = editor ? editor.value : appState.generatedEmail;
+      
+      if (!email) {
+        alert('请先生成邮件');
+        return;
+      }
+      
+      navigator.clipboard.writeText(email).then(() => {
+        const btn = document.getElementById('copyEmailBtn');
+        if (btn) {
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span>✓</span>已复制';
+          setTimeout(() => {
+            btn.innerHTML = originalText;
+          }, 2000);
+        }
+      }).catch(err => {
+        console.error('复制失败:', err);
+        alert('复制失败，请手动复制');
+      });
+    }
+
+    function insertEmail() {
+      const editor = document.getElementById('emailEditor');
+      const email = editor ? editor.value : appState.generatedEmail;
+      
+      if (!email) {
+        alert('请先生成邮件');
+        return;
+      }
+      
+      const textarea = document.getElementById('replyTextarea');
+      if (textarea) {
+        textarea.value = email;
+        textarea.focus();
+      }
+      
+      const btn = document.getElementById('insertEmailBtn');
+      if (btn) {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span>✓</span>已插入';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      }
+    }
+    */
+
+    // 工具函数
+    function showLoading() {
+      document.getElementById('loadingState').classList.remove('hidden');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingState').classList.add('hidden');
+    }
+
+    function showMainContent() {
+      document.getElementById('mainContent').classList.remove('hidden');
+    }
+
+    function hideMainContent() {
+      document.getElementById('mainContent').classList.add('hidden');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // --- 快捷处理（对话式 UI）逻辑 ---
+
+    // 全局变量存储当前选择的动作
+    let currentSelectedAction = null;
+
+    // 一键分析功能
+    async function startNewAnalysis() {
+      const analysisBtn = document.getElementById('analysisBtn');
+      const analysisResult = document.getElementById('analysisResult');
+      const actionsGrid = document.getElementById('actionsGrid');
+      const emailPreviewContainer = document.getElementById('emailPreviewContainer');
+      
+      // 禁用按钮并显示加载状态
+      analysisBtn.disabled = true;
+      analysisBtn.innerHTML = '<span class="loading-spinner"></span><span>分析中...</span>';
+      
+      // 隐藏邮件预览
+      emailPreviewContainer.classList.add('hidden');
+      
+      try {
+        // 调用原有的识别逻辑
+        const scenario = await identifyScenario(appState.ticketData);
+        appState.scenario = scenario.scenario;
+        appState.subScenario = scenario.subScenario;
+        
+        const node = await identifyProcessNode(scenario.scenario, scenario.subScenario, appState.ticketData);
+        appState.processNode = node;
+        
+        // 更新工单信息Tab的显示（保持原有逻辑）
+        updateScenarioDisplay(scenario.scenario, scenario.subScenario);
+        updateProcessNodeDisplay(node);
+        
+        // 提取关键信息用于展示
+        const orderInfo = appState.orderInfo || {};
+        const products = appState.products || [];
+        const productNames = products.map(p => p.model).join(', ') || '未识别';
+        
+        // 检查信息完整性
+        const hasProductInfo = products.length > 0 && productNames !== '未识别';
+        const hasOrderInfo = orderInfo.orderNumber && orderInfo.orderNumber !== '未识别';
+        
+        // 更新分析结果显示
+        document.getElementById('scenarioBadgeQuick').textContent = `${scenario.scenario} - ${scenario.subScenario}`;
+        document.getElementById('scenarioDetailsQuick').textContent = '';
+        document.getElementById('extractedOrderNumber').textContent = orderInfo.orderNumber || '未识别';
+        document.getElementById('extractedChannel').textContent = orderInfo.channel || '未识别';
+        document.getElementById('extractedOrderDate').textContent = orderInfo.orderDate || '未识别';
+        document.getElementById('extractedProduct').textContent = productNames;
+        document.getElementById('processNodeQuick').textContent = node.name || '未识别';
+        
+        // 生成智能建议
+        let recommendation = '';
+        if (scenario.scenario === '产品问题') {
+          if (!hasProductInfo) {
+            recommendation = '当前用户未提供产品信息，无法直接提供解决方案，建议先邮件询问用户或手动补充产品信息后再进一步回复。';
+          } else if (!hasOrderInfo) {
+            recommendation = '当前用户未提供订单信息，建议先邮件询问用户订单号或手动补充订单信息后再进一步回复。';
+          } else {
+            recommendation = '已提取到完整的订单和产品信息，可以根据当前节点选择下一步动作（如提供排错步骤、处理退款等）。';
+          }
+        } else if (scenario.scenario === '订单问题') {
+          if (!hasOrderInfo) {
+            recommendation = '当前用户未提供订单信息，无法查询订单状态，建议先邮件询问用户订单号或手动补充订单信息后再进一步回复。';
+          } else {
+            recommendation = '已提取到订单信息，可以根据订单状态和用户需求选择合适的处理方案。';
+          }
+        } else if (scenario.scenario === '售前咨询') {
+          if (!hasProductInfo && (scenario.subScenario === '产品功能咨询')) {
+            recommendation = '当前用户未提供产品信息，无法提供准确的产品功能说明，建议先邮件询问用户产品型号或手动补充产品信息后再进一步回复。';
+          } else {
+            recommendation = '可以根据用户咨询内容提供相应的产品信息或服务政策说明。';
+          }
+        } else {
+          recommendation = '根据当前情况选择合适的下一步动作，确保及时响应用户需求。';
+        }
+        
+        document.getElementById('suggestionText').textContent = recommendation;
+        
+        // 显示分析结果
+        analysisResult.classList.remove('hidden');
+        
+        // 构建当前数据快照
+        const currentData = {
+          scenario: `${scenario.scenario}${scenario.subScenario ? ' - ' + scenario.subScenario : ''}`,
+          processNode: node.name || '未识别',
+          orderNumber: orderInfo.orderNumber || '未识别',
+          channel: orderInfo.channel || '未识别',
+          orderDate: orderInfo.orderDate || '未识别',
+          products: productNames
+        };
+        
+        // 获取上一次更新数据（如果有）
+        const lastUpdate = appState.updateHistory.length > 0 ? appState.updateHistory[0] : null;
+        
+        // 生成更新日志
+        const updateLog = generateUpdateLog(lastUpdate, currentData, '分析');
+        
+        // 每次分析都保存更新历史
+        const updateHistoryItem = {
+          id: Date.now(),
+          updateTime: new Date().toLocaleString('zh-CN'),
+          updateLog: updateLog || '无更新',
+          updateType: 'AI生成',
+          lastData: currentData // 保存当前数据快照，用于下次比较
+        };
+        
+        appState.updateHistory.unshift(updateHistoryItem); // 添加到开头，最新的在前面
+        
+        // 显示编辑信息和更新历史按钮（首次分析后显示）
+        const analysisActionButtons = document.getElementById('analysisActionButtons');
+        if (analysisActionButtons) {
+          analysisActionButtons.style.display = 'inline-block';
+        }
+        
+        // 获取推荐动作并更新动作列表
+        const config = scenarioConfig[appState.scenario]?.[appState.subScenario];
+        updateActionsGrid(config, hasProductInfo, hasOrderInfo);
+        
+      } catch (error) {
+        console.error(error);
+        alert('分析失败，请重试：' + error.message);
+      } finally {
+        // 恢复按钮状态
+        analysisBtn.disabled = false;
+        analysisBtn.innerHTML = '<span>✨</span><span>一键分析</span>';
+      }
+    }
+
+    // 生成更新日志
+    function generateUpdateLog(lastUpdate, currentData, updateType) {
+      if (!lastUpdate) {
+        // 首次更新，记录所有信息
+        const updates = [];
+        if (currentData.scenario && currentData.scenario !== '未识别') {
+          updates.push(`场景：${currentData.scenario}`);
+        }
+        if (currentData.processNode && currentData.processNode !== '未识别') {
+          updates.push(`处理进度：${currentData.processNode}`);
+        }
+        if (currentData.orderNumber && currentData.orderNumber !== '未识别') {
+          updates.push(`订单号：${currentData.orderNumber}`);
+        }
+        if (currentData.channel && currentData.channel !== '未识别') {
+          updates.push(`购买渠道：${currentData.channel}`);
+        }
+        if (currentData.orderDate && currentData.orderDate !== '未识别') {
+          updates.push(`订单日期：${currentData.orderDate}`);
+        }
+        if (currentData.products && currentData.products !== '未识别') {
+          updates.push(`产品型号：${currentData.products}`);
+        }
+        return updates.length > 0 ? updates.join('；') : '无';
+      }
+      
+      // 获取上一次的数据快照
+      const lastData = lastUpdate.lastData || {};
+      const updates = [];
+      
+      // 比较场景
+      if (lastData.scenario !== currentData.scenario && currentData.scenario !== '未识别') {
+        updates.push(`场景：${lastData.scenario || '未设置'} → ${currentData.scenario}`);
+      }
+      
+      // 比较处理进度
+      if (lastData.processNode !== currentData.processNode && currentData.processNode !== '未识别') {
+        updates.push(`处理进度：${lastData.processNode || '未设置'} → ${currentData.processNode}`);
+      }
+      
+      // 比较订单号
+      if (lastData.orderNumber !== currentData.orderNumber && currentData.orderNumber !== '未识别') {
+        updates.push(`订单号：${lastData.orderNumber || '未设置'} → ${currentData.orderNumber}`);
+      }
+      
+      // 比较购买渠道
+      if (lastData.channel !== currentData.channel && currentData.channel !== '未识别') {
+        updates.push(`购买渠道：${lastData.channel || '未设置'} → ${currentData.channel}`);
+      }
+      
+      // 比较订单日期
+      if (lastData.orderDate !== currentData.orderDate && currentData.orderDate !== '未识别') {
+        updates.push(`订单日期：${lastData.orderDate || '未设置'} → ${currentData.orderDate}`);
+      }
+      
+      // 比较产品型号
+      if (lastData.products !== currentData.products && currentData.products !== '未识别') {
+        updates.push(`产品型号：${lastData.products || '未设置'} → ${currentData.products}`);
+      }
+      
+      return updates.length > 0 ? updates.join('；') : '无更新';
+    }
+    
+    // 获取当前数据快照
+    function getCurrentDataSnapshot() {
+      const orderInfo = appState.orderInfo || {};
+      const products = appState.products || [];
+      const productNames = products.map(p => p.model).join(', ') || '未识别';
+      
+      return {
+        scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}` || '未识别',
+        processNode: appState.processNode?.name || '未识别',
+        orderNumber: orderInfo.orderNumber || '未识别',
+        channel: orderInfo.channel || '未识别',
+        orderDate: orderInfo.orderDate || '未识别',
+        products: productNames
+      };
+    }
+
+    // 更新动作网格
+    function updateActionsGrid(config, hasProductInfo, hasOrderInfo) {
+      const actionsGrid = document.getElementById('actionsGrid');
+      actionsGrid.innerHTML = '';
+      
+      // 如果信息不完整，优先显示补充信息选项
+      const needInfo = (!hasProductInfo && appState.scenario === '产品问题') || 
+                       (!hasOrderInfo && appState.scenario === '订单问题') ||
+                       (!hasProductInfo && appState.scenario === '售前咨询' && appState.subScenario === '产品功能咨询');
+      
+      // 检查场景配置中是否已经包含询问类的动作
+      const hasAskAction = config && config.actions && config.actions.some(action => 
+        action.id === 'ask_info' || action.name.includes('询问')
+      );
+      
+      // 如果信息不完整且场景配置中没有询问类动作，才添加通用的询问客户按钮
+      if (needInfo && !hasAskAction) {
+        // 添加询问客户动作
+        const askCard = document.createElement('div');
+        askCard.className = 'action-card';
+        askCard.textContent = '❓ 询问客户';
+        askCard.onclick = () => selectAction({ id: 'ask_info', name: '询问客户' });
+        actionsGrid.appendChild(askCard);
+      }
+      
+      // 添加场景推荐的动作
+      if (config && config.actions) {
+        config.actions.forEach(action => {
+          const card = document.createElement('div');
+          card.className = 'action-card';
+          card.textContent = action.name;
+          card.onclick = () => selectAction(action);
+          actionsGrid.appendChild(card);
+        });
+      }
+      
+      // 如果没有任何动作，显示提示
+      if (actionsGrid.children.length === 0) {
+        const emptyCard = document.createElement('div');
+        emptyCard.className = 'action-card disabled';
+        emptyCard.textContent = '暂无可用动作';
+        actionsGrid.appendChild(emptyCard);
+      }
+    }
+
+    // 旧的对话式函数（已废弃）
+    /*
+    function handleSupplement() {
+      addChatMessage('user', '补充信息');
+      addChatMessage('ai', '请选择补充方式：', [
+        { text: '✏️ 手动补充', handler: () => {
+             addChatMessage('user', '手动补充');
+             // 切换到工单信息Tab
+             switchTab('ticket-info');
+             addChatMessage('ai', '请切换到“工单信息”标签页手动编辑相关字段。编辑完成后，请再次点击“生成邮件”。', [
+               { text: '✨ 生成邮件', primary: true, handler: handleGenerateEmail }
+             ]);
+        }},
+        { text: '❓ 询问客户', handler: () => {
+            addChatMessage('user', '询问客户');
+            // 直接生成询问邮件
+            generateAndShowEmail('ask_info'); 
+        }}
+      ]);
+    }
+
+    function handleGenerateEmail() {
+      addChatMessage('user', '生成邮件');
+      
+      // 获取当前场景的推荐动作
+      const config = scenarioConfig[appState.scenario]?.[appState.subScenario];
+      if (!config || !config.actions) {
+        addChatMessage('ai', '当前场景没有配置推荐动作。');
+        return;
+      }
+      
+      // 显示下一步动作建议
+      let actionButtons = config.actions.map(action => ({
+        text: action.name,
+        handler: () => generateAndShowEmail(action.id, action)
+      }));
+      
+      addChatMessage('ai', '请确认下一步动作：', actionButtons);
+    }
+    */
+    
+    // 检查邮件内容是否完整
+    function checkEmailCompleteness(email, scenario, subScenario, actionObj) {
+      const missingFields = [];
+      
+      // 检查常见占位符
+      const placeholders = [
+        { pattern: /\[订单号\]|\[订单号\]/i, field: '订单号', check: () => {
+          const orderInfo = appState.orderInfo || {};
+          return !orderInfo.orderNumber || orderInfo.orderNumber === '未识别' || orderInfo.orderNumber === '[订单号]';
+        }},
+        { pattern: /\[产品型号\]|\[产品型号\]/i, field: '产品型号', check: () => {
+          const products = appState.products || [];
+          return products.length === 0 || products.every(p => !p.model || p.model === '未识别');
+        }},
+        { pattern: /\[Amount\]|\[金额\]/i, field: '退款金额', check: () => {
+          // 对于退款相关的动作，检查是否有金额信息
+          if (actionObj && (actionObj.id === 'partial_refund' || actionObj.id === 'full_refund' || actionObj.id === 'return')) {
+            return true; // 需要手动填写金额
+          }
+          return false;
+        }},
+        { pattern: /\[Address\]|\[地址\]/i, field: '退货地址', check: () => {
+          // 对于退货/换货相关的动作，检查是否有地址信息
+          if (actionObj && (actionObj.id === 'exchange' || actionObj.id === 'return')) {
+            return true; // 需要手动填写地址
+          }
+          return false;
+        }},
+        { pattern: /\[Detailed Description\]|\[详细描述\]/i, field: '产品功能详细描述', check: () => {
+          // 对于提供产品信息的动作
+          if (actionObj && actionObj.id === 'provide_info') {
+            return true; // 需要补充产品功能描述
+          }
+          return false;
+        }},
+        { pattern: /\[Value\]|\[值\]/i, field: '技术参数值', check: () => {
+          // 对于提供产品信息的动作
+          if (actionObj && actionObj.id === 'provide_info') {
+            return true; // 需要补充技术参数
+          }
+          return false;
+        }},
+        { pattern: /\[Usage Instructions\]|\[使用说明\]/i, field: '使用说明', check: () => {
+          // 对于提供产品信息的动作
+          if (actionObj && actionObj.id === 'provide_info') {
+            return true; // 需要补充使用说明
+          }
+          return false;
+        }},
+        { pattern: /\[Other policy information\]|\[其他政策信息\]/i, field: '其他政策信息', check: () => {
+          // 对于政策咨询的动作
+          if (actionObj && actionObj.id === 'provide_policy') {
+            return true; // 可能需要补充其他政策信息
+          }
+          return false;
+        }},
+        { pattern: /\[Action-specific content based on selected action\]/i, field: '动作特定内容', check: () => {
+          // 如果包含这个占位符，说明需要补充动作特定内容
+          return email.includes('[Action-specific content based on selected action]');
+        }}
+      ];
+      
+      // 检查每个占位符
+      placeholders.forEach(placeholder => {
+        if (placeholder.pattern.test(email) && placeholder.check()) {
+          missingFields.push(placeholder.field);
+        }
+      });
+      
+      return missingFields;
+    }
+
+    // 选择动作并生成邮件
+    async function selectAction(action) {
+      currentSelectedAction = action;
+      
+      const emailPreviewContainer = document.getElementById('emailPreviewContainer');
+      const emailPreview = document.getElementById('emailPreview');
+      const emailWarning = document.getElementById('emailWarning');
+      const missingFieldsList = document.getElementById('missingFieldsList');
+      
+      // 显示加载状态
+      emailPreview.value = '正在生成邮件...';
+      emailPreviewContainer.classList.remove('hidden');
+      emailWarning.classList.add('hidden');
+      
+      try {
+        const email = await callAIGenerateEmail(
+          appState.scenario,
+          appState.subScenario,
+          appState.processNode,
+          action,
+          appState.ticketData,
+          appState.orderInfo,
+          appState.products
+        );
+        
+        appState.generatedEmail = email;
+        
+        // 检查邮件内容是否完整
+        const missingFields = checkEmailCompleteness(email, appState.scenario, appState.subScenario, action);
+        
+        // 显示邮件内容
+        emailPreview.value = email;
+        
+        // 如果有缺失字段，显示警告
+        if (missingFields.length > 0) {
+          missingFieldsList.innerHTML = missingFields.map(f => `<li>${f}</li>`).join('');
+          emailWarning.classList.remove('hidden');
+        } else {
+          emailWarning.classList.add('hidden');
+        }
+        
+        // 记录邮件生成历史（AI生成）
+        const historyItem = {
+          id: Date.now(),
+          generateTime: new Date().toLocaleString('zh-CN'),
+          updateType: 'AI生成',
+          action: action.name || '未知动作',
+          scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`,
+          content: email,
+          sent: false,
+          copied: false
+        };
+        appState.emailHistory.unshift(historyItem); // 添加到开头，最新的在前面
+        appState.currentHistoryId = historyItem.id; // 保存当前历史记录的ID
+        
+        // 显示反馈区域
+        const feedbackContainer = document.getElementById('emailFeedbackContainer');
+        if (feedbackContainer) {
+          feedbackContainer.classList.remove('hidden');
+          // 重置反馈状态
+          resetFeedbackState();
+        }
+        
+      } catch (error) {
+        console.error(error);
+        emailPreview.value = '生成邮件失败：' + error.message;
+        // 隐藏反馈区域（生成失败时）
+        const feedbackContainer = document.getElementById('emailFeedbackContainer');
+        if (feedbackContainer) {
+          feedbackContainer.classList.add('hidden');
+        }
+      }
+    }
+
+    // 发送邮件
+    function sendEmail() {
+      const emailPreview = document.getElementById('emailPreview');
+      const emailContent = emailPreview ? emailPreview.value : appState.generatedEmail;
+      
+      if (!emailContent) {
+        alert('邮件内容为空，无法发送');
+        return;
+      }
+      
+      // 二次确认弹窗
+      if (confirm('确定要发送这封邮件吗？\n\n发送后将无法撤回，请确认邮件内容无误。')) {
+        // 确认发送
+        const textarea = document.getElementById('replyTextarea');
+        if (textarea) {
+          textarea.value = emailContent;
+          textarea.focus();
+        }
+        
+        // 更新当前邮件内容
+        appState.generatedEmail = emailContent;
+        
+        // 更新历史记录状态
+        if (appState.currentHistoryId !== undefined) {
+          const historyItem = appState.emailHistory.find(item => item.id === appState.currentHistoryId);
+          if (historyItem) {
+            historyItem.sent = true;
+            historyItem.content = emailContent; // 更新内容
+          }
+        }
+        
+        alert('邮件已发送');
+      }
+    }
+
+    // 标记邮件为可用
+    function markEmailUsable() {
+      const usableBtn = document.querySelector('.feedback-btn-usable');
+      const unusableBtn = document.querySelector('.feedback-btn-unusable');
+      const feedbackInputContainer = document.getElementById('feedbackInputContainer');
+      
+      // 更新按钮状态
+      if (usableBtn) {
+        usableBtn.classList.add('active');
+      }
+      if (unusableBtn) {
+        unusableBtn.classList.remove('active');
+      }
+      
+      // 隐藏反馈输入框
+      if (feedbackInputContainer) {
+        feedbackInputContainer.classList.add('hidden');
+      }
+      
+      // 保存反馈状态
+      appState.emailFeedback = {
+        status: 'usable',
+        feedback: '',
+        timestamp: new Date().toLocaleString('zh-CN')
+      };
+      
+      // 这里可以添加发送反馈到服务器的逻辑
+      console.log('邮件标记为可用', appState.emailFeedback);
+      
+      // 可选：显示成功提示
+      // alert('已标记为可用');
+    }
+
+    // 标记邮件为不可用
+    function markEmailUnusable() {
+      const usableBtn = document.querySelector('.feedback-btn-usable');
+      const unusableBtn = document.querySelector('.feedback-btn-unusable');
+      const feedbackInputContainer = document.getElementById('feedbackInputContainer');
+      
+      // 更新按钮状态
+      if (usableBtn) {
+        usableBtn.classList.remove('active');
+      }
+      if (unusableBtn) {
+        unusableBtn.classList.add('active');
+      }
+      
+      // 显示反馈输入框
+      if (feedbackInputContainer) {
+        feedbackInputContainer.classList.remove('hidden');
+        const feedbackInput = document.getElementById('feedbackInput');
+        if (feedbackInput) {
+          // 如果存在之前的反馈内容，填充到输入框
+          if (appState.emailFeedback && appState.emailFeedback.status === 'unusable' && appState.emailFeedback.feedback) {
+            feedbackInput.value = appState.emailFeedback.feedback;
+          } else {
+            feedbackInput.value = '';
+          }
+          // 聚焦到输入框
+          setTimeout(() => feedbackInput.focus(), 100);
+        }
+      }
+    }
+
+    // 提交反馈
+    function submitFeedback() {
+      const feedbackInput = document.getElementById('feedbackInput');
+      const feedbackText = feedbackInput ? feedbackInput.value.trim() : '';
+      
+      if (!feedbackText) {
+        alert('请填写详细反馈内容');
+        return;
+      }
+      
+      // 保存反馈状态
+      appState.emailFeedback = {
+        status: 'unusable',
+        feedback: feedbackText,
+        timestamp: new Date().toLocaleString('zh-CN'),
+        emailId: appState.currentHistoryId,
+        emailContent: appState.generatedEmail,
+        action: currentSelectedAction ? currentSelectedAction.name : '未知动作',
+        scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`
+      };
+      
+      // 这里可以添加发送反馈到服务器的逻辑
+      console.log('提交反馈', appState.emailFeedback);
+      
+      // 显示成功提示
+      alert('反馈已提交，感谢您的反馈！');
+      
+      // 提交后保持"不可用"按钮的选中状态，只隐藏输入框
+      const feedbackInputContainer = document.getElementById('feedbackInputContainer');
+      if (feedbackInputContainer) {
+        feedbackInputContainer.classList.add('hidden');
+      }
+      
+      // 清空输入框内容
+      if (feedbackInput) {
+        feedbackInput.value = '';
+      }
+      
+      // 保持"不可用"按钮的激活状态，不重置按钮状态
+    }
+
+    // 取消反馈
+    function cancelFeedback() {
+      resetFeedbackState();
+    }
+
+    // 重置反馈状态
+    function resetFeedbackState() {
+      const usableBtn = document.querySelector('.feedback-btn-usable');
+      const unusableBtn = document.querySelector('.feedback-btn-unusable');
+      const feedbackInputContainer = document.getElementById('feedbackInputContainer');
+      const feedbackInput = document.getElementById('feedbackInput');
+      
+      // 移除按钮激活状态
+      if (usableBtn) {
+        usableBtn.classList.remove('active');
+      }
+      if (unusableBtn) {
+        unusableBtn.classList.remove('active');
+      }
+      
+      // 隐藏反馈输入框
+      if (feedbackInputContainer) {
+        feedbackInputContainer.classList.add('hidden');
+      }
+      
+      // 清空输入框
+      if (feedbackInput) {
+        feedbackInput.value = '';
+      }
+    }
+
+    // 复制邮件
+    function copyEmail() {
+      const emailPreview = document.getElementById('emailPreview');
+      const emailContent = emailPreview ? emailPreview.value : appState.generatedEmail;
+      
+      if (emailContent) {
+        navigator.clipboard.writeText(emailContent).then(() => {
+          alert('已复制到剪贴板');
+          
+          // 更新当前邮件内容
+          appState.generatedEmail = emailContent;
+          
+          // 更新历史记录状态
+          if (appState.currentHistoryId !== undefined) {
+            const historyItem = appState.emailHistory.find(item => item.id === appState.currentHistoryId);
+            if (historyItem) {
+              historyItem.copied = true;
+              historyItem.content = emailContent; // 更新内容
+            }
+          }
+        }).catch(err => {
+          console.error('复制失败：', err);
+          alert('复制失败，请手动复制');
+        });
+      }
+    }
+
+    // 保存邮件
+    function saveEmail() {
+      const emailPreview = document.getElementById('emailPreview');
+      if (!emailPreview || !emailPreview.value.trim()) {
+        alert('邮件内容为空，无法保存');
+        return;
+      }
+      
+      const emailContent = emailPreview.value;
+      const currentAction = currentSelectedAction || { name: '未知动作' };
+      
+      // 记录邮件保存历史（手动保存）
+      const historyItem = {
+        id: Date.now(),
+        generateTime: new Date().toLocaleString('zh-CN'),
+        updateType: '手动保存',
+        action: currentAction.name || '未知动作',
+        scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`,
+        content: emailContent,
+        sent: false,
+        copied: false
+      };
+      
+      appState.emailHistory.unshift(historyItem); // 添加到开头，最新的在前面
+      appState.currentHistoryId = historyItem.id; // 保存当前历史记录的ID
+      appState.generatedEmail = emailContent; // 更新当前邮件内容
+      
+      alert('邮件已保存');
+    }
+
+    // 显示更新历史
+    function showUpdateHistory() {
+      const modal = document.getElementById('updateHistoryModal');
+      const tableBody = document.getElementById('updateHistoryTableBody');
+      const emptyDiv = document.getElementById('updateHistoryEmpty');
+      
+      if (appState.updateHistory.length === 0) {
+        tableBody.innerHTML = '';
+        emptyDiv.style.display = 'block';
+      } else {
+        emptyDiv.style.display = 'none';
+        tableBody.innerHTML = appState.updateHistory.map(item => {
+          // 转义HTML特殊字符
+          const escapeHtml = (text) => {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+          };
+          
+          return `
+            <tr>
+              <td>${escapeHtml(item.updateTime)}</td>
+              <td>
+                <span class="update-type-badge ${item.updateType === 'AI生成' ? 'ai-update' : 'manual-update'}">
+                  ${escapeHtml(item.updateType === 'AI更新' ? 'AI生成' : item.updateType === '手动更新' ? '手动保存' : item.updateType)}
+                </span>
+              </td>
+              <td>
+                <div class="update-log">${escapeHtml(item.updateLog)}</div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    // 关闭更新历史弹窗
+    function closeUpdateHistoryModal() {
+      const modal = document.getElementById('updateHistoryModal');
+      modal.style.display = 'none';
+    }
+
+    // 显示邮件历史
+    function showEmailHistory() {
+      const modal = document.getElementById('emailHistoryModal');
+      const tableBody = document.getElementById('emailHistoryTableBody');
+      const emptyDiv = document.getElementById('emailHistoryEmpty');
+      
+      if (appState.emailHistory.length === 0) {
+        tableBody.innerHTML = '';
+        emptyDiv.style.display = 'block';
+      } else {
+        emptyDiv.style.display = 'none';
+        tableBody.innerHTML = appState.emailHistory.map(item => {
+          // 转义HTML特殊字符
+          const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+          };
+          
+          const contentPreview = item.content.length > 50 
+            ? item.content.substring(0, 50) + '...' 
+            : item.content;
+          const escapedContent = escapeHtml(item.content);
+          const escapedPreview = escapeHtml(contentPreview);
+          
+          // 来源，默认为AI生成（兼容旧数据）
+          const updateType = item.updateType || 'AI生成';
+          const updateTypeClass = updateType === 'AI生成' ? 'ai-update' : 'manual-update';
+          
+          return `
+            <tr>
+              <td>${escapeHtml(item.generateTime)}</td>
+              <td>
+                <span class="update-type-badge ${updateTypeClass}">
+                  ${escapeHtml(updateType)}
+                </span>
+              </td>
+              <td>${escapeHtml(item.action)}</td>
+              <td>${escapeHtml(item.scenario || '-')}</td>
+              <td>
+                <span class="email-history-content" title="${escapedContent.replace(/"/g, '&quot;')}" onclick="showFullEmailContent(${item.id})">
+                  ${escapedPreview}
+                </span>
+              </td>
+              <td>
+                <span class="email-history-status ${item.sent ? 'yes' : 'no'}">
+                  ${item.sent ? '是' : '否'}
+                </span>
+              </td>
+              <td>
+                <span class="email-history-status ${item.copied ? 'yes' : 'no'}">
+                  ${item.copied ? '是' : '否'}
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    // 关闭邮件历史弹窗
+    function closeEmailHistoryModal() {
+      const modal = document.getElementById('emailHistoryModal');
+      modal.style.display = 'none';
+    }
+
+    // 显示完整邮件内容
+    function showFullEmailContent(historyId) {
+      const historyItem = appState.emailHistory.find(item => item.id === historyId);
+      if (historyItem) {
+        // 创建一个更好的显示方式，使用文本区域
+        const textarea = document.createElement('textarea');
+        textarea.value = historyItem.content;
+        textarea.style.width = '600px';
+        textarea.style.height = '400px';
+        textarea.style.padding = '10px';
+        textarea.style.fontSize = '13px';
+        textarea.style.fontFamily = 'monospace';
+        textarea.readOnly = true;
+        
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.zIndex = '20000';
+        modal.style.left = '0';
+        modal.style.top = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        
+        const content = document.createElement('div');
+        content.style.backgroundColor = '#fff';
+        content.style.borderRadius = '8px';
+        content.style.padding = '20px';
+        content.style.position = 'relative';
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '关闭';
+        closeBtn.style.marginTop = '10px';
+        closeBtn.style.padding = '8px 16px';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.onclick = () => document.body.removeChild(modal);
+        
+        content.appendChild(textarea);
+        content.appendChild(closeBtn);
+        modal.appendChild(content);
+        modal.onclick = (e) => {
+          if (e.target === modal) {
+            document.body.removeChild(modal);
+          }
+        };
+        
+        document.body.appendChild(modal);
+        textarea.select();
+      }
+    }
+
+    // 应用启动
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+
+    // 编辑信息弹窗相关函数
+    function openEditInfoModal() {
+      const modal = document.getElementById('editInfoModal');
+      modal.style.display = 'flex';
+      // 默认显示第一个tab（工单场景）
+      switchEditTab('scenario');
+    }
+
+    function closeEditInfoModal() {
+      const modal = document.getElementById('editInfoModal');
+      modal.style.display = 'none';
+    }
+
+    function switchEditTab(tabName) {
+      // 更新tab按钮状态
+      const tabButtons = document.querySelectorAll('.edit-tab-btn');
+      tabButtons.forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // 加载对应tab的内容
+      const fieldsContainer = document.getElementById('editTabContent');
+      let html = '';
+
+      if (tabName === 'scenario') {
+        // 工单场景
+        html = `
+          <div class="edit-field-group">
+            <label class="edit-field-label">场景：</label>
+            <select id="editScenarioField" class="edit-field-input">
+              <option value="售前咨询">售前咨询</option>
+              <option value="订单问题">订单问题</option>
+              <option value="产品问题">产品问题</option>
+              <option value="售后服务">售后服务</option>
+            </select>
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">子场景：</label>
+            <select id="editSubScenarioField" class="edit-field-input"></select>
+          </div>
+        `;
+        fieldsContainer.innerHTML = html;
+        // 设置当前值
+        setTimeout(() => {
+          const scenarioSelect = document.getElementById('editScenarioField');
+          const subScenarioSelect = document.getElementById('editSubScenarioField');
+          if (appState.scenario) {
+            scenarioSelect.value = appState.scenario;
+            updateSubScenarioOptions(scenarioSelect.value, subScenarioSelect);
+            if (appState.subScenario) {
+              subScenarioSelect.value = appState.subScenario;
+            }
+          }
+          scenarioSelect.addEventListener('change', function() {
+            updateSubScenarioOptions(this.value, subScenarioSelect);
+          });
+        }, 0);
+      } else if (tabName === 'order') {
+        // 订单信息
+        const orderInfo = appState.orderInfo || {};
+        html = `
+          <div class="edit-field-group">
+            <label class="edit-field-label">购买渠道：</label>
+            <input type="text" id="editChannelField" class="edit-field-input" value="${orderInfo.channel || ''}" placeholder="输入购买渠道">
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">订单号：</label>
+            <input type="text" id="editOrderNumberField" class="edit-field-input" value="${orderInfo.orderNumber || ''}" placeholder="输入订单号">
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">订单日期：</label>
+            <input type="date" id="editOrderDateField" class="edit-field-input" value="${orderInfo.orderDate || ''}">
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">订单产品：</label>
+            <input type="text" id="editOrderProductsField" class="edit-field-input" value="${(orderInfo.products || []).join(', ') || ''}" placeholder="输入订单产品，多个用逗号分隔">
+          </div>
+        `;
+        fieldsContainer.innerHTML = html;
+      } else if (tabName === 'product') {
+        // 产品信息
+        const products = appState.products || [];
+        const productModels = products.map(p => p.model).join(', ') || '';
+        html = `
+          <div class="edit-field-group">
+            <label class="edit-field-label">产品型号：</label>
+            <input type="text" id="editProductModelsField" class="edit-field-input" value="${productModels}" placeholder="输入产品型号，多个用逗号分隔">
+          </div>
+        `;
+        fieldsContainer.innerHTML = html;
+      } else if (tabName === 'logistics') {
+        // 物流信息
+        const logistics = appState.logistics || {};
+        html = `
+          <div class="edit-field-group">
+            <label class="edit-field-label">物流承运商：</label>
+            <input type="text" id="editLogisticsCarrierField" class="edit-field-input" value="${logistics.carrier || ''}" placeholder="输入物流承运商">
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">物流单号：</label>
+            <input type="text" id="editLogisticsNumberField" class="edit-field-input" value="${logistics.number || ''}" placeholder="输入物流单号">
+          </div>
+          <div class="edit-field-group">
+            <label class="edit-field-label">当前状态：</label>
+            <input type="text" id="editLogisticsStatusField" class="edit-field-input" value="${logistics.status || ''}" placeholder="输入当前状态">
+          </div>
+        `;
+        fieldsContainer.innerHTML = html;
+      }
+    }
+
+    function updateSubScenarioOptions(scenario, selectElement) {
+      const subScenarios = {
+        '售前咨询': ['产品功能咨询', '价格咨询', '配送咨询', '退换货政策咨询', '其他咨询'],
+        '订单问题': ['订单查询', '订单修改', '订单取消', '退款问题', '其他订单问题'],
+        '产品问题': ['产品质量问题', '产品功能故障', '产品使用问题', '配件问题', '其他产品问题'],
+        '售后服务': ['维修服务', '退换货服务', '技术支持', '其他服务']
+      };
+
+      selectElement.innerHTML = '';
+      const options = subScenarios[scenario] || [];
+      options.forEach(sub => {
+        const option = document.createElement('option');
+        option.value = sub;
+        option.textContent = sub;
+        selectElement.appendChild(option);
+      });
+    }
+
+    function saveEditInfo() {
+      // 获取当前激活的tab
+      const activeTabBtn = document.querySelector('.edit-tab-btn.active');
+      if (!activeTabBtn) {
+        alert('请先选择要编辑的内容类型');
+        return;
+      }
+      const contentType = activeTabBtn.dataset.tab;
+
+      try {
+        if (contentType === 'scenario') {
+          const scenario = document.getElementById('editScenarioField').value;
+          const subScenario = document.getElementById('editSubScenarioField').value;
+          appState.scenario = scenario;
+          appState.subScenario = subScenario;
+          updateScenarioDisplay(scenario, subScenario);
+          // 更新快捷回复页面的显示
+          document.getElementById('scenarioBadgeQuick').textContent = `${scenario} - ${subScenario}`;
+          // 重新识别流程节点
+          identifyProcessNode(scenario, subScenario, appState.ticketData).then(node => {
+            appState.processNode = node;
+            updateProcessNodeDisplay(node);
+            if (document.getElementById('processNodeQuick')) {
+              document.getElementById('processNodeQuick').textContent = node.name || '未识别';
+            }
+            // 更新动作网格
+            const config = scenarioConfig[scenario]?.[subScenario];
+            const hasProductInfo = appState.products && appState.products.length > 0;
+            const hasOrderInfo = appState.orderInfo && appState.orderInfo.orderNumber && appState.orderInfo.orderNumber !== '未识别';
+            updateActionsGrid(config, hasProductInfo, hasOrderInfo);
+          }).catch(err => {
+            console.error('识别流程节点失败：', err);
+          });
+        } else if (contentType === 'order') {
+          const channel = document.getElementById('editChannelField').value;
+          const orderNumber = document.getElementById('editOrderNumberField').value;
+          const orderDate = document.getElementById('editOrderDateField').value;
+          const products = document.getElementById('editOrderProductsField').value.split(',').map(p => p.trim()).filter(p => p);
+          
+          if (!appState.orderInfo) appState.orderInfo = {};
+          appState.orderInfo.channel = channel;
+          appState.orderInfo.orderNumber = orderNumber;
+          appState.orderInfo.orderDate = orderDate;
+          appState.orderInfo.products = products;
+          
+          updateOrderInfoDisplay();
+          // 更新快捷回复页面的显示
+          document.getElementById('extractedOrderNumber').textContent = orderNumber || '-';
+          document.getElementById('extractedChannel').textContent = channel || '-';
+          document.getElementById('extractedOrderDate').textContent = orderDate || '-';
+        } else if (contentType === 'product') {
+          const productModels = document.getElementById('editProductModelsField').value.split(',').map(p => p.trim()).filter(p => p);
+          appState.products = productModels.map(model => ({
+            model: model,
+            name: `产品 ${model}`,
+            image: ''
+          }));
+          if (!appState.orderInfo) appState.orderInfo = {};
+          appState.orderInfo.products = productModels;
+          
+          updateProductsDisplay();
+          // 更新快捷回复页面的显示
+          document.getElementById('extractedProduct').textContent = productModels.join(', ') || '-';
+        } else if (contentType === 'logistics') {
+          const carrier = document.getElementById('editLogisticsCarrierField').value;
+          const number = document.getElementById('editLogisticsNumberField').value;
+          const status = document.getElementById('editLogisticsStatusField').value;
+          
+          if (!appState.logistics) appState.logistics = {};
+          appState.logistics.carrier = carrier;
+          appState.logistics.number = number;
+          appState.logistics.status = status;
+          
+          // 更新物流信息显示（如果工单信息Tab中有显示）
+          if (document.getElementById('logisticsCarrierDisplay')) {
+            document.getElementById('logisticsCarrierDisplay').textContent = carrier || '-';
+            document.getElementById('logisticsNumberDisplay').textContent = number || '-';
+            document.getElementById('logisticsStatusDisplay').textContent = status || '-';
+          }
+        }
+
+        // 保存更新历史（手动编辑）
+        const currentData = getCurrentDataSnapshot();
+        const lastUpdate = appState.updateHistory.length > 0 ? appState.updateHistory[0] : null;
+        const updateLog = generateUpdateLog(lastUpdate, currentData, '手动编辑');
+        
+        // 只有在有实际更新时才保存（手动编辑只记录变化）
+        if (updateLog && updateLog !== '无' && updateLog !== null) {
+          const updateHistoryItem = {
+            id: Date.now(),
+            updateTime: new Date().toLocaleString('zh-CN'),
+            updateLog: updateLog,
+            updateType: '手动保存',
+            lastData: currentData // 保存当前数据快照，用于下次比较
+          };
+          
+          appState.updateHistory.unshift(updateHistoryItem); // 添加到开头，最新的在前面
+        }
+
+        closeEditInfoModal();
+      } catch (error) {
+        console.error('保存失败：', error);
+        alert('保存失败：' + error.message);
+      }
+    }
+
+    // 点击弹窗外部关闭
+    window.onclick = function(event) {
+      const modal = document.getElementById('editInfoModal');
+      if (event.target === modal) {
+        closeEditInfoModal();
+      }
+    }
+  </script>
+
+  <!-- 编辑信息弹窗 -->
+  <div id="editInfoModal" class="edit-info-modal" style="display: none;">
+    <div class="edit-info-modal-content">
+      <div class="edit-info-modal-header">
+        <h3>编辑工单信息</h3>
+        <span class="edit-info-modal-close" onclick="closeEditInfoModal()">&times;</span>
+      </div>
+      <div class="edit-info-modal-tabs">
+        <button class="edit-tab-btn active" data-tab="scenario" onclick="switchEditTab('scenario')">
+          <span class="tab-icon">📋</span>
+          <span>工单场景</span>
+        </button>
+        <button class="edit-tab-btn" data-tab="order" onclick="switchEditTab('order')">
+          <span class="tab-icon">🛒</span>
+          <span>订单信息</span>
+        </button>
+        <button class="edit-tab-btn" data-tab="product" onclick="switchEditTab('product')">
+          <span class="tab-icon">📦</span>
+          <span>产品信息</span>
+        </button>
+        <button class="edit-tab-btn" data-tab="logistics" onclick="switchEditTab('logistics')">
+          <span class="tab-icon">🚚</span>
+          <span>物流信息</span>
+        </button>
+      </div>
+      <div class="edit-info-modal-body">
+        <div id="editTabContent" class="edit-tab-content">
+          <!-- Tab内容将通过JavaScript动态加载 -->
+        </div>
+      </div>
+      <div class="edit-info-modal-footer">
+        <button class="btn btn-secondary" onclick="closeEditInfoModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveEditInfo()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 邮件历史弹窗 -->
+  <div id="emailHistoryModal" class="email-history-modal" onclick="if(event.target.id === 'emailHistoryModal') closeEmailHistoryModal()">
+    <div class="email-history-modal-content">
+      <div class="email-history-modal-header">
+        <h3>邮件历史</h3>
+        <span class="email-history-modal-close" onclick="closeEmailHistoryModal()">&times;</span>
+      </div>
+      <div class="email-history-modal-body">
+        <table class="email-history-table">
+          <thead>
+            <tr>
+              <th style="width: 150px;">生成/保存时间</th>
+              <th style="width: 100px;">来源</th>
+              <th style="width: 120px;">邮件动作</th>
+              <th style="width: 150px;">邮件场景</th>
+              <th style="width: 300px;">邮件内容</th>
+              <th style="width: 100px;">是否发送</th>
+              <th style="width: 100px;">是否复制</th>
+            </tr>
+          </thead>
+          <tbody id="emailHistoryTableBody">
+          </tbody>
+        </table>
+        <div id="emailHistoryEmpty" class="email-history-empty" style="display: none;">
+          暂无邮件历史
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 更新历史弹窗 -->
+  <div id="updateHistoryModal" class="email-history-modal" onclick="if(event.target.id === 'updateHistoryModal') closeUpdateHistoryModal()">
+    <div class="email-history-modal-content">
+      <div class="email-history-modal-header">
+        <h3>更新历史</h3>
+        <span class="email-history-modal-close" onclick="closeUpdateHistoryModal()">&times;</span>
+      </div>
+      <div class="email-history-modal-body">
+        <table class="email-history-table">
+          <thead>
+            <tr>
+              <th style="width: 180px;">更新时间</th>
+              <th style="width: 120px;">更新方式</th>
+              <th style="width: 600px;">更新信息日志</th>
+            </tr>
+          </thead>
+          <tbody id="updateHistoryTableBody">
+          </tbody>
+        </table>
+        <div id="updateHistoryEmpty" class="email-history-empty" style="display: none;">
+          暂无更新历史
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
