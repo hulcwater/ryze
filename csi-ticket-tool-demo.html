@@ -1094,63 +1094,71 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: #fff;
+      background: #f8fafc; /*稍微灰一点的背景，突出卡片感*/
       overflow-y: auto;
+      /* padding: 16px;  */
+      gap: 16px; /* 增加模块间距 */
     }
 
     /* 分析模块 */
     .analysis-module {
-      padding: 20px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 24px; /* 增加内边距 */
+      background: #fff;
+      border-radius: 12px; /* 圆角增加 */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
+      border: 1px solid #e5e7eb;
+      /* border-bottom: 1px solid #e5e7eb;  移除原来的底部边框，改用卡片样式 */
     }
 
     .module-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 20px; /* 增加标题下边距 */
     }
 
     .module-title {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px; /* 增大标题字号 */
+      font-weight: 700; /* 加粗 */
       color: #111827;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .analysis-btn {
-      padding: 8px 16px;
+      padding: 10px 20px; /* 增大按钮内边距 */
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 8px; /* 增大圆角 */
+      font-size: 15px; /* 增大字号 */
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3); /* 增加按钮阴影 */
     }
 
     .analysis-btn:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
+      opacity: 0.95;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);
     }
 
     .analysis-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.6;
       cursor: not-allowed;
       transform: none;
+      box-shadow: none;
     }
 
     .analysis-result {
-      /* background: #f9fafb; */
-      border-top: 1px solid #e5e7eb;
-      /* border-radius: 8px; */
-      padding-top: 16px;
-      margin-top: 8px;
+      /* border-top: 1px solid #f3f4f6; 
+      padding-top: 20px; */
+      margin-top: 12px;
     }
 
     .analysis-result.hidden {
@@ -1158,7 +1166,7 @@
     }
 
     .result-section {
-      margin-bottom: 16px;
+      margin-bottom: 24px; /* 增加段落间距 */
     }
 
     .result-section:last-child {
@@ -1166,45 +1174,66 @@
     }
 
     .result-label {
-      font-size: 13px;
+      font-size: 14px; /* 增大标签字号 */
       font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 6px;
+      color: #4b5563; /* 稍微深一点的灰色 */
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
+      gap: 6px;
+      justify-content: space-between;
+    }
+
+    .regenerate-btn {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 6px 10px; /* 增大按钮 */
+      cursor: pointer;
+      font-size: 14px;
+      color: #6b7280;
+      transition: all 0.2s;
+      display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+    }
+
+    .regenerate-btn:hover {
+      background: #f9fafb;
+      border-color: #6b7280;
+      color: #111827;
     }
 
     .result-value {
-      font-size: 14px;
-      color: #111827;
-      line-height: 1.5;
+      font-size: 15px; /* 增大内容字号 */
+      color: #1f2937;
+      line-height: 1.6;
     }
 
     .result-badge {
       display: inline-block;
-      padding: 4px 12px;
-      background: #dbeafe;
-      color: #1e40af;
-      border-radius: 12px;
+      padding: 6px 14px; /* 增大徽章内边距 */
+      background: #eff6ff;
+      color: #2563eb;
+      border-radius: 20px; /* 更圆润 */
       font-size: 13px;
-      font-weight: 500;
-      margin-right: 8px;
+      font-weight: 600;
+      margin-right: 10px;
     }
 
     .extracted-info-box {
-      background: #fff;
+      background: #f9fafb; /* 更淡的背景 */
       border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 12px;
-      margin-top: 8px;
+      border-radius: 8px;
+      padding: 0px 16px 0px 16px;
+      margin-top: 12px;
     }
 
     .info-item {
       display: flex;
-      padding: 6px 0;
-      border-bottom: 1px solid #f3f4f6;
+      padding: 10px 0; /* 增加行间距 */
+      border-bottom: 1px solid #e5e7eb;
+      align-items: baseline; /* 对齐方式 */
     }
 
     .info-item:last-child {
@@ -1212,34 +1241,37 @@
     }
 
     .info-item-label {
-      font-size: 13px;
+      font-size: 14px;
       color: #6b7280;
-      min-width: 90px;
+      min-width: 100px; /* 增加标签宽度 */
       font-weight: 500;
     }
 
     .info-item-value {
-      font-size: 13px;
+      font-size: 14px;
       color: #111827;
       flex: 1;
+      font-weight: 500;
     }
 
     .suggestion-box {
-      background: #fef3c7;
-      border: 1px solid #fbbf24;
-      border-radius: 6px;
-      padding: 12px;
-      margin-top: 12px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: 0 1px 2px rgba(251, 191, 36, 0.1);
     }
 
     .suggestion-box .result-label {
-      color: #92400e;
-      margin-bottom: 8px;
+      color: #b45309;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
 
     .suggestion-box .result-value {
-      color: #78350f;
-      font-size: 13px;
+      color: #92400e;
+      font-size: 14px;
     }
 
     /* 编辑信息弹窗样式 */
@@ -1254,21 +1286,22 @@
       background-color: rgba(0, 0, 0, 0.5);
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(2px);
     }
 
     .edit-info-modal-content {
       background-color: #fff;
-      border-radius: 8px;
+      border-radius: 12px;
       width: 90%;
       max-width: 600px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     .edit-info-modal-header {
-      padding: 20px;
+      padding: 24px;
       border-bottom: 1px solid #e5e7eb;
       display: flex;
       justify-content: space-between;
@@ -1277,7 +1310,7 @@
 
     .edit-info-modal-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 600;
       color: #111827;
     }
@@ -1285,10 +1318,11 @@
     .edit-info-modal-close {
       font-size: 28px;
       font-weight: bold;
-      color: #6b7280;
+      color: #9ca3af;
       cursor: pointer;
       line-height: 1;
       transition: color 0.2s;
+      padding: 4px;
     }
 
     .edit-info-modal-close:hover {
@@ -1304,12 +1338,12 @@
 
     .edit-tab-btn {
       flex: 1;
-      padding: 14px 16px;
+      padding: 16px;
       background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
       color: #6b7280;
       display: flex;
@@ -1328,10 +1362,11 @@
       color: #667eea;
       border-bottom-color: #667eea;
       background: #fff;
+      font-weight: 600;
     }
 
     .edit-info-modal-body {
-      padding: 20px;
+      padding: 24px;
       overflow-y: auto;
       flex: 1;
     }
@@ -1342,7 +1377,7 @@
     }
 
     .edit-field-group {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .edit-field-group:last-child {
@@ -1352,19 +1387,20 @@
     .edit-field-label {
       display: block;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       color: #374151;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .edit-field-input {
       width: 100%;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border: 1px solid #d1d5db;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 14px;
       font-family: inherit;
       box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     .edit-field-input:focus {
@@ -1374,28 +1410,47 @@
     }
 
     .edit-fields-container {
-      margin-top: 16px;
-      padding-top: 16px;
+      margin-top: 20px;
+      padding-top: 20px;
       border-top: 1px solid #e5e7eb;
     }
 
     .edit-info-modal-footer {
-      padding: 16px 20px;
+      padding: 20px 24px;
       border-top: 1px solid #e5e7eb;
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
+      gap: 12px;
     }
 
     .edit-info-btn {
       transition: all 0.2s;
       margin-bottom: 8px;
+      padding: 6px 12px !important;
+      font-size: 13px !important;
+      min-width: 90px;
+      text-align: center;
     }
 
     .edit-info-btn:hover {
       background: #5568d3 !important;
       transform: translateY(-1px);
       box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    }
+
+    .update-history-btn {
+      transition: all 0.2s;
+      margin-bottom: 8px;
+      padding: 6px 12px !important;
+      font-size: 13px !important;
+      min-width: 90px;
+      text-align: center;
+    }
+
+    .update-history-btn:hover {
+      background: #059669 !important;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
     }
 
     /* 邮件历史弹窗样式 */
@@ -1410,30 +1465,69 @@
       background-color: rgba(0, 0, 0, 0.5);
       align-items: center;
       justify-content: center;
+      backdrop-filter: blur(2px);
     }
 
     .email-history-modal-content {
       background-color: #fff;
-      border-radius: 8px;
+      border-radius: 12px;
       width: 90%;
-      max-width: 900px;
+      max-width: 1200px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     .email-history-modal-header {
-      padding: 20px;
+      padding: 24px;
       border-bottom: 1px solid #e5e7eb;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
+    
+    .email-history-filter {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+    
+    .email-history-filter > div {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .email-history-filter input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .email-history-filter select {
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+    }
+    
+    .email-history-feedback {
+      cursor: pointer;
+      color: #6366f1;
+      font-weight: 500;
+    }
+    
+    .email-history-feedback:hover {
+      text-decoration: underline;
+    }
 
     .email-history-modal-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 600;
       color: #111827;
     }
@@ -1441,10 +1535,11 @@
     .email-history-modal-close {
       font-size: 28px;
       font-weight: bold;
-      color: #6b7280;
+      color: #9ca3af;
       cursor: pointer;
       line-height: 1;
       transition: color 0.2s;
+      padding: 4px;
     }
 
     .email-history-modal-close:hover {
@@ -1452,7 +1547,7 @@
     }
 
     .email-history-modal-body {
-      padding: 20px;
+      padding: 0;
       overflow-y: auto;
       flex: 1;
     }
@@ -1460,22 +1555,23 @@
     .email-history-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .email-history-table th {
       background: #f9fafb;
-      padding: 12px;
+      padding: 16px;
       text-align: left;
       font-weight: 600;
       color: #374151;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
       position: sticky;
       top: 0;
+      z-index: 1;
     }
 
     .email-history-table td {
-      padding: 12px;
+      padding: 16px;
       border-bottom: 1px solid #e5e7eb;
       color: #374151;
       vertical-align: top;
@@ -1486,12 +1582,13 @@
     }
 
     .email-history-content {
-      max-width: 300px;
+      max-width: 350px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       cursor: pointer;
       color: #6366f1;
+      font-weight: 500;
     }
 
     .email-history-content:hover {
@@ -1500,10 +1597,10 @@
 
     .email-history-status {
       display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 20px;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .email-history-status.yes {
@@ -1518,9 +1615,9 @@
 
     .email-history-empty {
       text-align: center;
-      padding: 40px;
+      padding: 60px;
       color: #9ca3af;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     /* 更新历史样式 */
@@ -1551,46 +1648,104 @@
 
     /* 邮件回复模块 */
     .email-module {
-      padding: 20px;
+      padding: 24px; /* 增加内边距 */
+      background: #fff;
+      border-radius: 12px; /* 圆角增加 */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
+      border: 1px solid #e5e7eb;
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
     .actions-container {
-      margin-bottom: 16px;
+      /* margin-bottom: 24px; */
+    }
+
+    .action-group {
+      margin-bottom: 24px;
+    }
+
+    .action-group-title {
+      font-size: 15px; /* 增大字号 */
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+      /* padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb; */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .action-group-title.recommended {
+      color: #6366f1;
+      border-bottom-color: #6366f1;
+      cursor: default;
+    }
+
+    .action-group-title .toggle-icon {
+      font-size: 12px;
+      color: #6b7280;
+      transition: transform 0.2s;
+      margin-left: 8px;
+    }
+
+    .action-group-title:hover:not(.recommended) {
+      color: #6366f1;
+    }
+
+    .action-group.collapsed .actions-grid {
+      display: none;
+    }
+
+    .action-group.collapsed .toggle-icon {
+      transform: rotate(-90deg);
     }
 
     .actions-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 8px;
-      margin-top: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* 增大卡片最小宽度 */
+      gap: 12px; /* 增大间距 */
+      margin-top: 16px;
     }
 
     .action-card {
-      padding: 12px;
+      padding: 16px; /* 增大内边距 */
       background: #fff;
-      border: 2px solid #e5e7eb;
+      border: 1px solid #e5e7eb; /* 边框变细 */
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
       text-align: center;
-      font-size: 13px;
+      font-size: 14px; /* 增大字号 */
       color: #374151;
+      font-weight: 500;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .action-card:hover {
       border-color: #6366f1;
       background: #f5f3ff;
       transform: translateY(-2px);
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px rgba(99, 102, 241, 0.15); /* 增强阴影 */
     }
 
     .action-card.disabled {
       opacity: 0.5;
       cursor: not-allowed;
       pointer-events: none;
+      box-shadow: none;
+    }
+
+    .action-card.selected {
+      border-color: #6366f1;
+      background: #eef2ff;
+      box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+      color: #4f46e5;
+      font-weight: 600;
     }
 
     .email-preview-container {
@@ -1598,6 +1753,7 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      margin-top: 16px;
     }
 
     .email-preview-container.hidden {
@@ -1606,77 +1762,84 @@
 
     .email-preview {
       flex: 1;
-      background: #fff;
-      border: 1px solid #e5e7eb;
+      background: #f9fafb; /* 稍微灰一点的背景，模拟输入框 */
+      border: 1px solid #d1d5db;
       border-radius: 8px;
-      padding: 16px;
+      padding: 20px; /* 增大内边距 */
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 13px;
-      color: #374151;
+      font-size: 14px; /* 增大字号 */
+      color: #1f2937;
       overflow-y: auto;
       white-space: pre-wrap;
       line-height: 1.6;
       resize: vertical;
-      min-height: 200px;
+      min-height: 250px; /* 增大最小高度 */
     }
     
     .email-preview:focus {
       outline: none;
       border-color: #6366f1;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      background: #fff;
     }
 
     .email-actions {
       display: flex;
-      gap: 8px;
-      margin-top: 12px;
+      gap: 12px; /* 增大间距 */
+      margin-top: 20px;
     }
 
     .email-action-btn {
-      padding: 8px 16px;
+      padding: 10px 20px; /* 增大按钮 */
       background: #fff;
       border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 13px;
+      border-radius: 8px;
+      font-size: 14px; /* 增大字号 */
+      font-weight: 500;
       color: #374151;
       cursor: pointer;
       transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .email-action-btn:hover {
-      background: #f3f4f6;
+      background: #f9fafb;
       border-color: #9ca3af;
+      transform: translateY(-1px);
     }
 
     .email-action-btn.primary {
       background: #6366f1;
       color: white;
       border-color: #6366f1;
+      box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
     }
 
     .email-action-btn.primary:hover {
       background: #4f46e5;
+      box-shadow: 0 4px 6px rgba(99, 102, 241, 0.4);
     }
 
     .warning-box {
-      background: #fef3c7;
-      border: 1px solid #fbbf24;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      color: #78350f;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #92400e;
+      box-shadow: 0 1px 2px rgba(251, 191, 36, 0.1);
     }
 
     .warning-box .warning-title {
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .warning-box ul {
@@ -1715,7 +1878,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
     }
 
     .feedback-label {
@@ -2197,10 +2359,10 @@
                   </div>
 
                   <div style="display: none; margin-left: 8px;" id="analysisActionButtons">
-                    <button class="edit-info-btn" id="editInfoBtn" onclick="openEditInfoModal()" style="padding: 4px 8px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 8px;">
+                    <button class="edit-info-btn" id="editInfoBtn" onclick="openEditInfoModal()" style="background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 8px;">
                       ✏️ 编辑信息
                     </button>
-                    <button class="update-history-btn" id="updateHistoryBtn" onclick="showUpdateHistory()" style="padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    <button class="update-history-btn" id="updateHistoryBtn" onclick="showUpdateHistory()" style="background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
                       📜 更新历史
                     </button>
                   </div>
@@ -2208,7 +2370,7 @@
                     <!-- 工单信息提取 -->
                     <div class="result-section">
                       <div class="result-label">
-                        📋 工单信息
+                        工单信息
                         
                       </div>
                       <div class="result-value">
@@ -2236,12 +2398,6 @@
                       </div>
                     </div>
 
-                    <!-- 当前处理进度 -->
-                    <div class="result-section">
-                      <div class="result-label">📊 处理进度</div>
-                      <div class="result-value" id="processNodeQuick">-</div>
-                    </div>
-
                     <!-- 处理建议 -->
                     <div class="suggestion-box">
                       <div class="result-label">💡 处理建议</div>
@@ -2261,23 +2417,22 @@
 
                   <!-- 动作选择 -->
                   <div class="actions-container" id="actionsContainer">
-                    <div class="result-label">选择邮件动作</div>
-                    <div class="actions-grid" id="actionsGrid">
-                      <div class="action-card disabled">请先完成工单分析</div>
+                    <div class="action-group">
+                      <div class="actions-grid">
+                        <div class="action-card disabled">请先完成工单分析</div>
+                      </div>
                     </div>
                   </div>
 
                   <!-- 邮件预览 -->
                   <div class="email-preview-container hidden" id="emailPreviewContainer">
-                    <div class="result-label">邮件预览</div>
-                    
-                    <!-- 警告信息 -->
-                    <div class="warning-box hidden" id="emailWarning">
-                      <div class="warning-title">⚠️ 需要补充信息</div>
-                      <div>生成的邮件缺少以下内容，建议补充后重新生成：</div>
-                      <ul id="missingFieldsList"></ul>
+                    <div class="result-label">
+                      <span>邮件预览</span>
+                      <button class="regenerate-btn" onclick="regenerateEmail()" title="重新生成邮件">
+                        <span>🔄</span>
+                      </button>
                     </div>
-
+                    
                     <textarea class="email-preview" id="emailPreview"></textarea>
                     
                     <div class="email-actions">
@@ -2288,10 +2443,6 @@
                       <button class="email-action-btn" onclick="copyEmail()">
                         <span>📋</span>
                         <span>复制</span>
-                      </button>
-                      <button class="email-action-btn" onclick="saveEmail()">
-                        <span>💾</span>
-                        <span>保存</span>
                       </button>
                       <button class="email-action-btn" onclick="showEmailHistory()">
                         <span>📜</span>
@@ -2490,7 +2641,8 @@
       processNode: null,
       selectedAction: null,
       generatedEmail: null,
-      emailHistory: [], // 邮件历史（包括AI生成和手动保存）
+      actionEmails: {}, // 存储每个动作对应的邮件内容，key为action.id
+      emailHistory: [], // 邮件历史（包括AI生成和手动修改）
       currentHistoryId: undefined, // 当前邮件历史的ID
       updateHistory: [], // 更新历史（包括分析和手动编辑）
       orderInfo: {
@@ -3413,6 +3565,8 @@
           });
           option.classList.add('selected');
           appState.selectedAction = action;
+          // 重置邮件质量反馈组件状态
+          resetFeedbackState();
         });
         
         container.appendChild(option);
@@ -3593,19 +3747,24 @@
       // 根据当前节点过滤可用动作（简化逻辑）
       let availableActions = config.actions;
       
-      // 默认选择第一个动作
+      // 如果已有选中的动作且在可用动作列表中，保持选中；否则默认选择第一个动作
       if (availableActions.length > 0) {
-        appState.selectedAction = availableActions[0];
+        const existingSelectedAction = availableActions.find(action => action.id === appState.selectedAction?.id);
+        if (!existingSelectedAction) {
+          appState.selectedAction = availableActions[0];
+        }
       }
       
       availableActions.forEach((action, index) => {
         const option = document.createElement('div');
         option.className = 'action-item';
-        if (index === 0) {
+        // 如果当前动作是已选中的动作，则选中它
+        const isSelected = action.id === appState.selectedAction?.id;
+        if (isSelected) {
           option.classList.add('selected');
         }
         option.innerHTML = `
-          <input type="radio" name="action" id="action_${action.id}" value="${action.id}" ${index === 0 ? 'checked' : ''}>
+          <input type="radio" name="action" id="action_${action.id}" value="${action.id}" ${isSelected ? 'checked' : ''}>
           <label for="action_${action.id}">
             <span>${action.icon}</span>
             <span>${action.name}</span>
@@ -3619,6 +3778,8 @@
           });
           option.classList.add('selected');
           appState.selectedAction = action;
+          // 重置邮件质量反馈组件状态
+          resetFeedbackState();
         });
         
         container.appendChild(option);
@@ -3964,7 +4125,6 @@ Ticket #${ticketId}`;
     async function startNewAnalysis() {
       const analysisBtn = document.getElementById('analysisBtn');
       const analysisResult = document.getElementById('analysisResult');
-      const actionsGrid = document.getElementById('actionsGrid');
       const emailPreviewContainer = document.getElementById('emailPreviewContainer');
       
       // 禁用按钮并显示加载状态
@@ -4003,7 +4163,6 @@ Ticket #${ticketId}`;
         document.getElementById('extractedChannel').textContent = orderInfo.channel || '未识别';
         document.getElementById('extractedOrderDate').textContent = orderInfo.orderDate || '未识别';
         document.getElementById('extractedProduct').textContent = productNames;
-        document.getElementById('processNodeQuick').textContent = node.name || '未识别';
         
         // 生成智能建议
         let recommendation = '';
@@ -4164,8 +4323,10 @@ Ticket #${ticketId}`;
 
     // 更新动作网格
     function updateActionsGrid(config, hasProductInfo, hasOrderInfo) {
-      const actionsGrid = document.getElementById('actionsGrid');
-      actionsGrid.innerHTML = '';
+      const actionsContainer = document.getElementById('actionsContainer');
+      if (!actionsContainer) return;
+      
+      actionsContainer.innerHTML = '';
       
       // 如果信息不完整，优先显示补充信息选项
       const needInfo = (!hasProductInfo && appState.scenario === '产品问题') || 
@@ -4177,33 +4338,129 @@ Ticket #${ticketId}`;
         action.id === 'ask_info' || action.name.includes('询问')
       );
       
+      // 收集所有动作
+      const allActions = [];
+      
       // 如果信息不完整且场景配置中没有询问类动作，才添加通用的询问客户按钮
       if (needInfo && !hasAskAction) {
-        // 添加询问客户动作
-        const askCard = document.createElement('div');
-        askCard.className = 'action-card';
-        askCard.textContent = '❓ 询问客户';
-        askCard.onclick = () => selectAction({ id: 'ask_info', name: '询问客户' });
-        actionsGrid.appendChild(askCard);
+        allActions.push({ id: 'ask_info', name: '❓ 询问客户', isRecommended: false });
       }
       
-      // 添加场景推荐的动作
+      // 添加场景配置的动作
       if (config && config.actions) {
-        config.actions.forEach(action => {
-          const card = document.createElement('div');
-          card.className = 'action-card';
-          card.textContent = action.name;
-          card.onclick = () => selectAction(action);
-          actionsGrid.appendChild(card);
+        config.actions.forEach((action, index) => {
+          allActions.push({
+            ...action,
+            displayName: action.name,
+            isRecommended: false // 先都设为false，后面再确定推荐动作
+          });
         });
       }
       
+      // 确定推荐动作：仅保留一个推荐动作
+      // 优先选择有recommended字段且为true的动作，否则选择第一个动作
+      let recommendedAction = null;
+      if (allActions.length > 0) {
+        // 先查找明确标记为推荐的动作
+        recommendedAction = allActions.find(action => action.recommended === true);
+        // 如果没有明确标记的，则选择第一个动作
+        if (!recommendedAction) {
+          recommendedAction = allActions[0];
+        }
+        // 标记为推荐动作（确保只有一个）
+        recommendedAction.isRecommended = true;
+      }
+      
+      // 分离推荐动作和其他动作（推荐动作仅保留一个）
+      const recommendedActions = recommendedAction ? [recommendedAction] : [];
+      const otherActions = allActions.filter(action => action !== recommendedAction);
+      
+      // 创建推荐动作分组
+      if (recommendedActions.length > 0) {
+        const recommendedGroup = document.createElement('div');
+        recommendedGroup.className = 'action-group';
+        
+        const recommendedTitle = document.createElement('div');
+        recommendedTitle.className = 'action-group-title recommended';
+        const recommendedTitleText = document.createElement('span');
+        recommendedTitleText.textContent = '⭐ 推荐处理';
+        recommendedTitle.appendChild(recommendedTitleText);
+        recommendedGroup.appendChild(recommendedTitle);
+        
+        const recommendedGrid = document.createElement('div');
+        recommendedGrid.className = 'actions-grid';
+        
+        recommendedActions.forEach(action => {
+          const card = document.createElement('div');
+          card.className = 'action-card';
+          if (appState.selectedAction && action.id === appState.selectedAction.id) {
+            card.classList.add('selected');
+          }
+          card.textContent = action.displayName || action.name;
+          card.onclick = () => selectAction(action);
+          recommendedGrid.appendChild(card);
+        });
+        
+        recommendedGroup.appendChild(recommendedGrid);
+        actionsContainer.appendChild(recommendedGroup);
+      }
+      
+      // 创建其他动作分组（默认收起）
+      if (otherActions.length > 0) {
+        const otherGroup = document.createElement('div');
+        otherGroup.className = 'action-group collapsed'; // 默认添加collapsed类
+        
+        const otherTitle = document.createElement('div');
+        otherTitle.className = 'action-group-title';
+        const titleText = document.createElement('span');
+        titleText.textContent = `其他处理 (${otherActions.length})`;
+        otherTitle.appendChild(titleText);
+        
+        const toggleIcon = document.createElement('span');
+        toggleIcon.className = 'toggle-icon';
+        toggleIcon.textContent = '▼';
+        otherTitle.appendChild(toggleIcon);
+        
+        // 添加点击事件来切换展开/收起
+        otherTitle.onclick = () => {
+          otherGroup.classList.toggle('collapsed');
+        };
+        
+        otherGroup.appendChild(otherTitle);
+        
+        const otherGrid = document.createElement('div');
+        otherGrid.className = 'actions-grid';
+        
+        otherActions.forEach(action => {
+          const card = document.createElement('div');
+          card.className = 'action-card';
+          if (appState.selectedAction && action.id === appState.selectedAction.id) {
+            card.classList.add('selected');
+          }
+          card.textContent = action.displayName || action.name;
+          card.onclick = () => selectAction(action);
+          otherGrid.appendChild(card);
+        });
+        
+        otherGroup.appendChild(otherGrid);
+        actionsContainer.appendChild(otherGroup);
+      }
+      
       // 如果没有任何动作，显示提示
-      if (actionsGrid.children.length === 0) {
+      if (recommendedActions.length === 0 && otherActions.length === 0) {
+        const emptyGroup = document.createElement('div');
+        emptyGroup.className = 'action-group';
+        
+        const emptyGrid = document.createElement('div');
+        emptyGrid.className = 'actions-grid';
+        
         const emptyCard = document.createElement('div');
         emptyCard.className = 'action-card disabled';
         emptyCard.textContent = '暂无可用动作';
-        actionsGrid.appendChild(emptyCard);
+        emptyGrid.appendChild(emptyCard);
+        
+        emptyGroup.appendChild(emptyGrid);
+        actionsContainer.appendChild(emptyGroup);
       }
     }
 
@@ -4320,19 +4577,26 @@ Ticket #${ticketId}`;
       return missingFields;
     }
 
-    // 选择动作并生成邮件
-    async function selectAction(action) {
-      currentSelectedAction = action;
-      
+    // 生成并显示邮件（内部函数，供 selectAction 和 regenerateEmail 调用）
+    async function generateAndDisplayEmail(action, isRegenerate = false) {
       const emailPreviewContainer = document.getElementById('emailPreviewContainer');
       const emailPreview = document.getElementById('emailPreview');
-      const emailWarning = document.getElementById('emailWarning');
-      const missingFieldsList = document.getElementById('missingFieldsList');
       
       // 显示加载状态
       emailPreview.value = '正在生成邮件...';
       emailPreviewContainer.classList.remove('hidden');
-      emailWarning.classList.add('hidden');
+      
+      // 添加邮件内容变化监听器（如果还没有添加）
+      if (emailPreview && !emailPreview.hasAttribute('data-listener-added')) {
+        emailPreview.addEventListener('input', () => {
+          // 当用户修改邮件内容时，实时更新 actionEmails
+          if (appState.selectedAction) {
+            appState.actionEmails[appState.selectedAction.id] = emailPreview.value;
+            appState.generatedEmail = emailPreview.value;
+          }
+        });
+        emailPreview.setAttribute('data-listener-added', 'true');
+      }
       
       try {
         const email = await callAIGenerateEmail(
@@ -4346,20 +4610,11 @@ Ticket #${ticketId}`;
         );
         
         appState.generatedEmail = email;
-        
-        // 检查邮件内容是否完整
-        const missingFields = checkEmailCompleteness(email, appState.scenario, appState.subScenario, action);
+        // 保存该动作的邮件内容
+        appState.actionEmails[action.id] = email;
         
         // 显示邮件内容
         emailPreview.value = email;
-        
-        // 如果有缺失字段，显示警告
-        if (missingFields.length > 0) {
-          missingFieldsList.innerHTML = missingFields.map(f => `<li>${f}</li>`).join('');
-          emailWarning.classList.remove('hidden');
-        } else {
-          emailWarning.classList.add('hidden');
-        }
         
         // 记录邮件生成历史（AI生成）
         const historyItem = {
@@ -4394,6 +4649,79 @@ Ticket #${ticketId}`;
       }
     }
 
+    // 选择动作并生成邮件
+    async function selectAction(action) {
+      currentSelectedAction = action;
+      appState.selectedAction = action; // 保存选中的动作
+      
+      // 重置邮件质量反馈组件状态
+      resetFeedbackState();
+      
+      // 更新动作卡片的选中状态
+      const actionsContainer = document.getElementById('actionsContainer');
+      if (actionsContainer) {
+        // 移除所有卡片的选中状态
+        actionsContainer.querySelectorAll('.action-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        // 找到对应的动作卡片并添加选中状态
+        const cards = actionsContainer.querySelectorAll('.action-card');
+        cards.forEach(card => {
+          const cardText = card.textContent.trim();
+          const actionName = action.displayName || action.name;
+          // 匹配逻辑：优先匹配displayName或name，其次匹配id（对于询问客户等特殊动作）
+          if (cardText === actionName || 
+              cardText === action.name ||
+              (action.id === 'ask_info' && (cardText.includes('询问客户') || cardText.includes('询问')))) {
+            card.classList.add('selected');
+          }
+        });
+      }
+      
+      const emailPreviewContainer = document.getElementById('emailPreviewContainer');
+      const emailPreview = document.getElementById('emailPreview');
+      
+      // 检查该动作是否已经生成过邮件
+      if (appState.actionEmails[action.id]) {
+        // 如果已生成过，直接显示之前的邮件
+        const savedEmail = appState.actionEmails[action.id];
+        appState.generatedEmail = savedEmail;
+        emailPreview.value = savedEmail;
+        emailPreviewContainer.classList.remove('hidden');
+        
+        // 添加邮件内容变化监听器（如果还没有添加）
+        if (emailPreview && !emailPreview.hasAttribute('data-listener-added')) {
+          emailPreview.addEventListener('input', () => {
+            // 当用户修改邮件内容时，实时更新 actionEmails
+            if (appState.selectedAction) {
+              appState.actionEmails[appState.selectedAction.id] = emailPreview.value;
+              appState.generatedEmail = emailPreview.value;
+            }
+          });
+          emailPreview.setAttribute('data-listener-added', 'true');
+        }
+        
+        // 显示反馈区域
+        const feedbackContainer = document.getElementById('emailFeedbackContainer');
+        if (feedbackContainer) {
+          feedbackContainer.classList.remove('hidden');
+        }
+      } else {
+        // 如果未生成过，生成新邮件
+        await generateAndDisplayEmail(action);
+      }
+    }
+
+    // 重新生成当前动作的邮件
+    async function regenerateEmail() {
+      if (!appState.selectedAction) {
+        alert('请先选择一个邮件动作');
+        return;
+      }
+      
+      await generateAndDisplayEmail(appState.selectedAction, true);
+    }
+
     // 发送邮件
     function sendEmail() {
       const emailPreview = document.getElementById('emailPreview');
@@ -4416,12 +4744,43 @@ Ticket #${ticketId}`;
         // 更新当前邮件内容
         appState.generatedEmail = emailContent;
         
-        // 更新历史记录状态
+        // 更新当前动作的邮件内容（如果当前有选中的动作）
+        if (appState.selectedAction) {
+          appState.actionEmails[appState.selectedAction.id] = emailContent;
+        }
+        
+        // 检查邮件是否被修改过
+        let isModified = false;
         if (appState.currentHistoryId !== undefined) {
           const historyItem = appState.emailHistory.find(item => item.id === appState.currentHistoryId);
-          if (historyItem) {
-            historyItem.sent = true;
-            historyItem.content = emailContent; // 更新内容
+          if (historyItem && historyItem.content !== emailContent) {
+            isModified = true;
+          }
+        }
+        
+        // 如果邮件被修改过，添加一条手动修改的邮件历史
+        if (isModified) {
+          const currentAction = currentSelectedAction || { name: '未知动作' };
+          const historyItem = {
+            id: Date.now(),
+            generateTime: new Date().toLocaleString('zh-CN'),
+            updateType: '手动修改',
+            action: currentAction.name || '未知动作',
+            scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`,
+            content: emailContent,
+            sent: true,
+            copied: false
+          };
+          appState.emailHistory.unshift(historyItem); // 添加到开头，最新的在前面
+          appState.currentHistoryId = historyItem.id; // 更新当前历史记录的ID
+        } else {
+          // 更新历史记录状态
+          if (appState.currentHistoryId !== undefined) {
+            const historyItem = appState.emailHistory.find(item => item.id === appState.currentHistoryId);
+            if (historyItem) {
+              historyItem.sent = true;
+              historyItem.content = emailContent; // 更新内容
+            }
           }
         }
         
@@ -4449,11 +4808,28 @@ Ticket #${ticketId}`;
       }
       
       // 保存反馈状态
-      appState.emailFeedback = {
+      const feedback = {
         status: 'usable',
         feedback: '',
         timestamp: new Date().toLocaleString('zh-CN')
       };
+      
+      appState.emailFeedback = feedback;
+      
+      // 将反馈保存到当前动作下最新生成的AI邮件历史记录中
+      const currentAction = appState.selectedAction;
+      if (currentAction) {
+        // 找到当前动作下所有AI生成的邮件，按时间倒序排列，取最新的
+        const aiEmails = appState.emailHistory.filter(item => 
+          (item.updateType || 'AI生成') === 'AI生成' && 
+          item.action === currentAction.name
+        );
+        
+        if (aiEmails.length > 0) {
+          // emailHistory已经是按时间倒序排列的（最新的在前面），所以直接取第一个
+          aiEmails[0].feedback = feedback;
+        }
+      }
       
       // 这里可以添加发送反馈到服务器的逻辑
       console.log('邮件标记为可用', appState.emailFeedback);
@@ -4504,15 +4880,32 @@ Ticket #${ticketId}`;
       }
       
       // 保存反馈状态
-      appState.emailFeedback = {
+      const feedback = {
         status: 'unusable',
         feedback: feedbackText,
         timestamp: new Date().toLocaleString('zh-CN'),
         emailId: appState.currentHistoryId,
         emailContent: appState.generatedEmail,
-        action: currentSelectedAction ? currentSelectedAction.name : '未知动作',
+        action: appState.selectedAction ? appState.selectedAction.name : '未知动作',
         scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`
       };
+      
+      appState.emailFeedback = feedback;
+      
+      // 将反馈保存到当前动作下最新生成的AI邮件历史记录中
+      const currentAction = appState.selectedAction;
+      if (currentAction) {
+        // 找到当前动作下所有AI生成的邮件，按时间倒序排列，取最新的
+        const aiEmails = appState.emailHistory.filter(item => 
+          (item.updateType || 'AI生成') === 'AI生成' && 
+          item.action === currentAction.name
+        );
+        
+        if (aiEmails.length > 0) {
+          // emailHistory已经是按时间倒序排列的（最新的在前面），所以直接取第一个
+          aiEmails[0].feedback = feedback;
+        }
+      }
       
       // 这里可以添加发送反馈到服务器的逻辑
       console.log('提交反馈', appState.emailFeedback);
@@ -4592,36 +4985,6 @@ Ticket #${ticketId}`;
       }
     }
 
-    // 保存邮件
-    function saveEmail() {
-      const emailPreview = document.getElementById('emailPreview');
-      if (!emailPreview || !emailPreview.value.trim()) {
-        alert('邮件内容为空，无法保存');
-        return;
-      }
-      
-      const emailContent = emailPreview.value;
-      const currentAction = currentSelectedAction || { name: '未知动作' };
-      
-      // 记录邮件保存历史（手动保存）
-      const historyItem = {
-        id: Date.now(),
-        generateTime: new Date().toLocaleString('zh-CN'),
-        updateType: '手动保存',
-        action: currentAction.name || '未知动作',
-        scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`,
-        content: emailContent,
-        sent: false,
-        copied: false
-      };
-      
-      appState.emailHistory.unshift(historyItem); // 添加到开头，最新的在前面
-      appState.currentHistoryId = historyItem.id; // 保存当前历史记录的ID
-      appState.generatedEmail = emailContent; // 更新当前邮件内容
-      
-      alert('邮件已保存');
-    }
-
     // 显示更新历史
     function showUpdateHistory() {
       const modal = document.getElementById('updateHistoryModal');
@@ -4647,7 +5010,7 @@ Ticket #${ticketId}`;
               <td>${escapeHtml(item.updateTime)}</td>
               <td>
                 <span class="update-type-badge ${item.updateType === 'AI生成' ? 'ai-update' : 'manual-update'}">
-                  ${escapeHtml(item.updateType === 'AI更新' ? 'AI生成' : item.updateType === '手动更新' ? '手动保存' : item.updateType)}
+                  ${escapeHtml(item.updateType === 'AI更新' ? 'AI生成' : item.updateType === '手动更新' ? '手动修改' : item.updateType)}
                 </span>
               </td>
               <td>
@@ -4673,18 +5036,78 @@ Ticket #${ticketId}`;
       const tableBody = document.getElementById('emailHistoryTableBody');
       const emptyDiv = document.getElementById('emailHistoryEmpty');
       
-      if (appState.emailHistory.length === 0) {
+      // 转义HTML特殊字符
+      const escapeHtml = (text) => {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      };
+      
+      // 获取筛选条件
+      const searchInput = document.getElementById('emailHistorySearchInput');
+      const actionFilter = document.getElementById('emailHistoryActionFilter');
+      const scenarioFilter = document.getElementById('emailHistoryScenarioFilter');
+      const sourceFilter = document.getElementById('emailHistorySourceFilter');
+      
+      const searchText = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      const selectedAction = actionFilter ? actionFilter.value : '';
+      const selectedScenario = scenarioFilter ? scenarioFilter.value : '';
+      const selectedSource = sourceFilter ? sourceFilter.value : '';
+      
+      // 初始化筛选下拉框
+      if (actionFilter) {
+        const actions = [...new Set(appState.emailHistory.map(item => item.action))];
+        actionFilter.innerHTML = '<option value="">全部动作</option>' + 
+          actions.map(action => `<option value="${escapeHtml(action)}">${escapeHtml(action)}</option>`).join('');
+        if (selectedAction) {
+          actionFilter.value = selectedAction;
+        }
+      }
+      
+      if (scenarioFilter) {
+        const scenarios = [...new Set(appState.emailHistory.map(item => item.scenario || '').filter(s => s))];
+        scenarioFilter.innerHTML = '<option value="">全部场景</option>' + 
+          scenarios.map(scenario => `<option value="${escapeHtml(scenario)}">${escapeHtml(scenario)}</option>`).join('');
+        if (selectedScenario) {
+          scenarioFilter.value = selectedScenario;
+        }
+      }
+      
+      // 筛选邮件历史
+      const filteredHistory = appState.emailHistory.filter(item => {
+        // 搜索内容
+        if (searchText && !item.content.toLowerCase().includes(searchText)) {
+          return false;
+        }
+        // 筛选动作
+        if (selectedAction && item.action !== selectedAction) {
+          return false;
+        }
+        // 筛选场景
+        if (selectedScenario && item.scenario && !item.scenario.includes(selectedScenario)) {
+          return false;
+        }
+        // 筛选来源
+        if (selectedSource) {
+          const updateType = item.updateType || 'AI生成';
+          if (selectedSource === 'AI生成' && updateType !== 'AI生成') {
+            return false;
+          }
+          if (selectedSource === '手动修改' && updateType !== '手动修改') {
+            return false;
+          }
+        }
+        return true;
+      });
+      
+      if (filteredHistory.length === 0) {
         tableBody.innerHTML = '';
         emptyDiv.style.display = 'block';
       } else {
         emptyDiv.style.display = 'none';
-        tableBody.innerHTML = appState.emailHistory.map(item => {
-          // 转义HTML特殊字符
-          const escapeHtml = (text) => {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-          };
+        
+        tableBody.innerHTML = filteredHistory.map(item => {
           
           const contentPreview = item.content.length > 50 
             ? item.content.substring(0, 50) + '...' 
@@ -4717,9 +5140,12 @@ Ticket #${ticketId}`;
                 </span>
               </td>
               <td>
-                <span class="email-history-status ${item.copied ? 'yes' : 'no'}">
-                  ${item.copied ? '是' : '否'}
-                </span>
+                ${(item.updateType || 'AI生成') === 'AI生成' && item.feedback && item.feedback.status ? 
+                  `<span class="email-history-feedback" style="cursor: pointer; color: ${item.feedback.status === 'usable' ? '#065f46' : '#991b1b'};" onclick="showEmailFeedback(${item.id})" title="${escapeHtml(item.feedback.feedback || '点击查看质量反馈')}">
+                    ${item.feedback.status === 'usable' ? '可用' : '不可用'}${item.feedback.feedback && item.feedback.feedback.length > 0 ? ' - ' + escapeHtml(item.feedback.feedback.length > 20 ? item.feedback.feedback.substring(0, 20) + '...' : item.feedback.feedback) : ''}
+                  </span>` : 
+                  (item.updateType || 'AI生成') === 'AI生成' ? '-' : '-'
+                }
               </td>
             </tr>
           `;
@@ -4727,6 +5153,33 @@ Ticket #${ticketId}`;
       }
       
       modal.style.display = 'flex';
+      
+      // 绑定筛选事件
+      if (searchInput) {
+        searchInput.oninput = () => showEmailHistory();
+      }
+      if (actionFilter) {
+        actionFilter.onchange = () => showEmailHistory();
+      }
+      if (scenarioFilter) {
+        scenarioFilter.onchange = () => showEmailHistory();
+      }
+      if (sourceFilter) {
+        sourceFilter.onchange = () => showEmailHistory();
+      }
+    }
+    
+    // 显示邮件质量反馈详情
+    function showEmailFeedback(historyId) {
+      const historyItem = appState.emailHistory.find(item => item.id === historyId);
+      if (historyItem && historyItem.feedback) {
+        const feedback = historyItem.feedback;
+        const feedbackText = feedback.feedback || '无详细反馈';
+        const statusText = feedback.status === 'usable' ? '可用' : '不可用';
+        const statusColor = feedback.status === 'usable' ? '#065f46' : '#991b1b';
+        
+        alert(`质量反馈：${statusText}\n\n详细反馈：${feedbackText}\n\n反馈时间：${feedback.timestamp || '未知'}`);
+      }
     }
 
     // 关闭邮件历史弹窗
@@ -4948,9 +5401,6 @@ Ticket #${ticketId}`;
           identifyProcessNode(scenario, subScenario, appState.ticketData).then(node => {
             appState.processNode = node;
             updateProcessNodeDisplay(node);
-            if (document.getElementById('processNodeQuick')) {
-              document.getElementById('processNodeQuick').textContent = node.name || '未识别';
-            }
             // 更新动作网格
             const config = scenarioConfig[scenario]?.[subScenario];
             const hasProductInfo = appState.products && appState.products.length > 0;
@@ -5018,7 +5468,7 @@ Ticket #${ticketId}`;
             id: Date.now(),
             updateTime: new Date().toLocaleString('zh-CN'),
             updateLog: updateLog,
-            updateType: '手动保存',
+            updateType: '手动修改',
             lastData: currentData // 保存当前数据快照，用于下次比较
           };
           
@@ -5085,6 +5535,23 @@ Ticket #${ticketId}`;
         <h3>邮件历史</h3>
         <span class="email-history-modal-close" onclick="closeEmailHistoryModal()">&times;</span>
       </div>
+      <!-- 搜索和筛选区域 -->
+      <div class="email-history-filter" style="padding: 15px; border-bottom: 1px solid #e5e7eb;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <input type="text" id="emailHistorySearchInput" placeholder="搜索邮件内容..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+          <select id="emailHistoryActionFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
+            <option value="">全部动作</option>
+          </select>
+          <select id="emailHistoryScenarioFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
+            <option value="">全部场景</option>
+          </select>
+          <select id="emailHistorySourceFilter" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
+            <option value="">全部来源</option>
+            <option value="AI生成">AI生成</option>
+            <option value="手动修改">手动修改</option>
+          </select>
+        </div>
+      </div>
       <div class="email-history-modal-body">
         <table class="email-history-table">
           <thead>
@@ -5092,10 +5559,10 @@ Ticket #${ticketId}`;
               <th style="width: 150px;">生成/保存时间</th>
               <th style="width: 100px;">来源</th>
               <th style="width: 120px;">邮件动作</th>
-              <th style="width: 150px;">邮件场景</th>
-              <th style="width: 300px;">邮件内容</th>
+              <th style="width: 180px;">邮件场景</th>
+              <th style="width: 320px;">邮件内容</th>
               <th style="width: 100px;">是否发送</th>
-              <th style="width: 100px;">是否复制</th>
+              <th style="width: 100px;">质量反馈</th>
             </tr>
           </thead>
           <tbody id="emailHistoryTableBody">
