@@ -1155,6 +1155,38 @@
       box-shadow: none;
     }
 
+    /* 工单分析提示 */
+    .analysis-prompt {
+      margin-top: 12px;
+      padding: 20px;
+      /* background: #f0f9ff;
+      border: 1px solid #bae6fd; */
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .analysis-prompt.hidden {
+      display: none;
+    }
+
+    .analysis-prompt-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #999999;
+      font-size: 14px;
+    }
+
+    .analysis-prompt-icon {
+      font-size: 20px;
+    }
+
+    .analysis-prompt-text {
+      font-weight: 500;
+    }
+
     .analysis-result {
       /* border-top: 1px solid #f3f4f6; 
       padding-top: 20px; */
@@ -1658,8 +1690,14 @@
       flex-direction: column;
     }
 
-    .actions-container {
-      /* margin-bottom: 24px; */
+    /* 邮件回复标题右侧的邮件历史按钮 */
+    .email-history-header-btn {
+      display: flex;
+      align-items: center;
+    }
+
+    .email-history-header-btn.hidden {
+      display: none;
     }
 
     .action-group {
@@ -1698,6 +1736,10 @@
     }
 
     .action-group.collapsed .actions-grid {
+      display: none;
+    }
+
+    .action-group.collapsed .action-group-title {
       display: none;
     }
 
@@ -1746,6 +1788,69 @@
       box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
       color: #4f46e5;
       font-weight: 600;
+    }
+
+    .action-card.recommended {
+      /* border-color: #f59e0b; */
+      /* background: #fffbeb; */
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-card.recommended::before {
+      content: 'Recommended';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #f59e0b;
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-bottom-left-radius: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .action-card.recommended:hover {
+      border-color: #d97706;
+      background: #fef3c7;
+      box-shadow: 0 4px 6px rgba(245, 158, 11, 0.15);
+    }
+
+    .action-card.recommended.selected {
+      border-color: #f59e0b;
+      background: #fef3c7;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+      color: #92400e;
+    }
+
+    .expand-all-btn {
+      font-size: 13px;
+      color: #6366f1;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .expand-all-btn:hover {
+      background: #f3f4f6;
+      color: #4f46e5;
+    }
+
+    .expand-all-btn .expand-icon {
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+
+    .expand-all-btn.expanded .expand-icon {
+      transform: rotate(180deg);
     }
 
     .email-preview-container {
@@ -2349,7 +2454,6 @@
                 <div class="analysis-module">
                   <div class="module-header">
                     <div class="module-title">
-                      <span>🔍</span>
                       <span>工单分析</span>
                     </div>
                     <button class="analysis-btn" id="analysisBtn" onclick="startNewAnalysis()">
@@ -2365,6 +2469,12 @@
                     <button class="update-history-btn" id="updateHistoryBtn" onclick="showUpdateHistory()" style="background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
                       📜 更新历史
                     </button>
+                  </div>
+                  <!-- 未分析提示 -->
+                  <div class="analysis-prompt" id="analysisPrompt">
+                    <div class="analysis-prompt-content">
+                      <span class="analysis-prompt-text">请点击上方"一键分析"按钮完成分析</span>
+                    </div>
                   </div>
                   <div class="analysis-result hidden" id="analysisResult">
                     <!-- 工单信息提取 -->
@@ -2410,18 +2520,19 @@
                 <div class="email-module">
                   <div class="module-header">
                     <div class="module-title">
-                      <span>✉️</span>
                       <span>邮件回复</span>
+                    </div>
+                    <!-- 邮件历史按钮（固定显示在标题右侧） -->
+                    <div class="email-history-header-btn" id="emailHistoryHeaderBtn">
+                      <button class="email-action-btn" onclick="showEmailHistory()">
+                        <span>📜</span>
+                        <span>邮件历史</span>
+                      </button>
                     </div>
                   </div>
 
                   <!-- 动作选择 -->
                   <div class="actions-container" id="actionsContainer">
-                    <div class="action-group">
-                      <div class="actions-grid">
-                        <div class="action-card disabled">请先完成工单分析</div>
-                      </div>
-                    </div>
                   </div>
 
                   <!-- 邮件预览 -->
@@ -2443,10 +2554,6 @@
                       <button class="email-action-btn" onclick="copyEmail()">
                         <span>📋</span>
                         <span>复制</span>
-                      </button>
-                      <button class="email-action-btn" onclick="showEmailHistory()">
-                        <span>📜</span>
-                        <span>邮件历史</span>
                       </button>
                     </div>
 
@@ -4125,6 +4232,7 @@ Ticket #${ticketId}`;
     async function startNewAnalysis() {
       const analysisBtn = document.getElementById('analysisBtn');
       const analysisResult = document.getElementById('analysisResult');
+      const analysisPrompt = document.getElementById('analysisPrompt');
       const emailPreviewContainer = document.getElementById('emailPreviewContainer');
       
       // 禁用按钮并显示加载状态
@@ -4133,6 +4241,11 @@ Ticket #${ticketId}`;
       
       // 隐藏邮件预览
       emailPreviewContainer.classList.add('hidden');
+      
+      // 隐藏未分析提示
+      if (analysisPrompt) {
+        analysisPrompt.classList.add('hidden');
+      }
       
       try {
         // 调用原有的识别逻辑
@@ -4195,6 +4308,11 @@ Ticket #${ticketId}`;
         // 显示分析结果
         analysisResult.classList.remove('hidden');
         
+        // 确保未分析提示已隐藏
+        if (analysisPrompt) {
+          analysisPrompt.classList.add('hidden');
+        }
+        
         // 构建当前数据快照
         const currentData = {
           scenario: `${scenario.scenario}${scenario.subScenario ? ' - ' + scenario.subScenario : ''}`,
@@ -4235,6 +4353,12 @@ Ticket #${ticketId}`;
       } catch (error) {
         console.error(error);
         alert('分析失败，请重试：' + error.message);
+        
+        // 恢复未分析提示显示
+        const analysisPrompt = document.getElementById('analysisPrompt');
+        if (analysisPrompt) {
+          analysisPrompt.classList.remove('hidden');
+        }
       } finally {
         // 恢复按钮状态
         analysisBtn.disabled = false;
@@ -4375,57 +4499,39 @@ Ticket #${ticketId}`;
       const recommendedActions = recommendedAction ? [recommendedAction] : [];
       const otherActions = allActions.filter(action => action !== recommendedAction);
       
-      // 创建推荐动作分组
-      if (recommendedActions.length > 0) {
-        const recommendedGroup = document.createElement('div');
-        recommendedGroup.className = 'action-group';
-        
-        const recommendedTitle = document.createElement('div');
-        recommendedTitle.className = 'action-group-title recommended';
-        const recommendedTitleText = document.createElement('span');
-        recommendedTitleText.textContent = '⭐ 推荐处理';
-        recommendedTitle.appendChild(recommendedTitleText);
-        recommendedGroup.appendChild(recommendedTitle);
-        
-        const recommendedGrid = document.createElement('div');
-        recommendedGrid.className = 'actions-grid';
-        
-        recommendedActions.forEach(action => {
-          const card = document.createElement('div');
-          card.className = 'action-card';
-          if (appState.selectedAction && action.id === appState.selectedAction.id) {
-            card.classList.add('selected');
-          }
-          card.textContent = action.displayName || action.name;
-          card.onclick = () => selectAction(action);
-          recommendedGrid.appendChild(card);
-        });
-        
-        recommendedGroup.appendChild(recommendedGrid);
-        actionsContainer.appendChild(recommendedGroup);
-      }
+      // 创建统一的动作容器
+      const mainGroup = document.createElement('div');
+      mainGroup.className = 'action-group';
       
-      // 创建其他动作分组（默认收起）
+      // 创建统一的标题：选择邮件动作
+      const mainTitle = document.createElement('div');
+      mainTitle.className = 'action-group-title';
+      
+      const titleText = document.createElement('span');
+      titleText.textContent = '选择邮件动作';
+      mainTitle.appendChild(titleText);
+      
+      // 如果有其他动作，添加展开全部按钮
       if (otherActions.length > 0) {
-        const otherGroup = document.createElement('div');
-        otherGroup.className = 'action-group collapsed'; // 默认添加collapsed类
+        const expandAllBtn = document.createElement('span');
+        expandAllBtn.className = 'expand-all-btn';
+        expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他邮件动作';
         
+        // 创建其他动作分组（默认收起）
+        const otherGroup = document.createElement('div');
+        otherGroup.className = 'action-group collapsed';
+        otherGroup.id = 'otherActionsGroup';
+        
+        // 添加其他邮件动作小标题
         const otherTitle = document.createElement('div');
         otherTitle.className = 'action-group-title';
-        const titleText = document.createElement('span');
-        titleText.textContent = `其他处理 (${otherActions.length})`;
-        otherTitle.appendChild(titleText);
-        
-        const toggleIcon = document.createElement('span');
-        toggleIcon.className = 'toggle-icon';
-        toggleIcon.textContent = '▼';
-        otherTitle.appendChild(toggleIcon);
-        
-        // 添加点击事件来切换展开/收起
-        otherTitle.onclick = () => {
-          otherGroup.classList.toggle('collapsed');
-        };
-        
+        otherTitle.style.fontSize = '14px';
+        otherTitle.style.color = '#6b7280';
+        otherTitle.style.marginTop = '16px';
+        otherTitle.style.marginBottom = '8px';
+        const otherTitleText = document.createElement('span');
+        otherTitleText.textContent = '其他邮件动作';
+        otherTitle.appendChild(otherTitleText);
         otherGroup.appendChild(otherTitle);
         
         const otherGrid = document.createElement('div');
@@ -4443,13 +4549,83 @@ Ticket #${ticketId}`;
         });
         
         otherGroup.appendChild(otherGrid);
-        actionsContainer.appendChild(otherGroup);
+        
+        // 展开全部按钮的点击事件
+        expandAllBtn.onclick = (e) => {
+          e.stopPropagation();
+          const isExpanded = !otherGroup.classList.contains('collapsed');
+          if (isExpanded) {
+            otherGroup.classList.add('collapsed');
+            expandAllBtn.classList.remove('expanded');
+            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他邮件动作';
+          } else {
+            otherGroup.classList.remove('collapsed');
+            expandAllBtn.classList.add('expanded');
+            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>收起其他邮件动作';
+          }
+        };
+        
+        mainTitle.appendChild(expandAllBtn);
+        mainGroup.appendChild(mainTitle);
+        
+        // 创建推荐动作网格
+        if (recommendedActions.length > 0) {
+          const recommendedGrid = document.createElement('div');
+          recommendedGrid.className = 'actions-grid';
+          
+          recommendedActions.forEach(action => {
+            const card = document.createElement('div');
+            card.className = 'action-card recommended';
+            if (appState.selectedAction && action.id === appState.selectedAction.id) {
+              card.classList.add('selected');
+            }
+            card.textContent = action.displayName || action.name;
+            card.onclick = () => selectAction(action);
+            recommendedGrid.appendChild(card);
+          });
+          
+          mainGroup.appendChild(recommendedGrid);
+        }
+        
+        // 添加其他动作分组
+        mainGroup.appendChild(otherGroup);
+        actionsContainer.appendChild(mainGroup);
+      } else {
+        // 如果没有其他动作，只显示推荐动作
+        mainGroup.appendChild(mainTitle);
+        
+        if (recommendedActions.length > 0) {
+          const recommendedGrid = document.createElement('div');
+          recommendedGrid.className = 'actions-grid';
+          
+          recommendedActions.forEach(action => {
+            const card = document.createElement('div');
+            card.className = 'action-card recommended';
+            if (appState.selectedAction && action.id === appState.selectedAction.id) {
+              card.classList.add('selected');
+            }
+            card.textContent = action.displayName || action.name;
+            card.onclick = () => selectAction(action);
+            recommendedGrid.appendChild(card);
+          });
+          
+          mainGroup.appendChild(recommendedGrid);
+        }
+        
+        actionsContainer.appendChild(mainGroup);
       }
       
       // 如果没有任何动作，显示提示
       if (recommendedActions.length === 0 && otherActions.length === 0) {
         const emptyGroup = document.createElement('div');
         emptyGroup.className = 'action-group';
+        
+        const emptyTitle = document.createElement('div');
+        emptyTitle.className = 'action-group-title';
+        const emptyTitleText = document.createElement('span');
+        emptyTitleText.textContent = '选择邮件动作';
+        emptyTitle.appendChild(emptyTitleText);
+        emptyGroup.appendChild(emptyTitle);
         
         const emptyGrid = document.createElement('div');
         emptyGrid.className = 'actions-grid';
@@ -4638,6 +4814,12 @@ Ticket #${ticketId}`;
           resetFeedbackState();
         }
         
+        // 确保邮件历史按钮显示（生成邮件后）
+        const emailHistoryHeaderBtn = document.getElementById('emailHistoryHeaderBtn');
+        if (emailHistoryHeaderBtn) {
+          emailHistoryHeaderBtn.classList.remove('hidden');
+        }
+        
       } catch (error) {
         console.error(error);
         emailPreview.value = '生成邮件失败：' + error.message;
@@ -4705,6 +4887,12 @@ Ticket #${ticketId}`;
         const feedbackContainer = document.getElementById('emailFeedbackContainer');
         if (feedbackContainer) {
           feedbackContainer.classList.remove('hidden');
+        }
+        
+        // 确保邮件历史按钮显示（显示已生成的邮件时）
+        const emailHistoryHeaderBtn = document.getElementById('emailHistoryHeaderBtn');
+        if (emailHistoryHeaderBtn) {
+          emailHistoryHeaderBtn.classList.remove('hidden');
         }
       } else {
         // 如果未生成过，生成新邮件
@@ -4785,6 +4973,48 @@ Ticket #${ticketId}`;
         }
         
         alert('邮件已发送');
+        
+        // 恢复到分析完成且待生成邮件的状态
+        const emailPreviewContainer = document.getElementById('emailPreviewContainer');
+        const emailFeedbackContainer = document.getElementById('emailFeedbackContainer');
+        const actionsContainer = document.getElementById('actionsContainer');
+        
+        // 隐藏邮件预览容器
+        if (emailPreviewContainer) {
+          emailPreviewContainer.classList.add('hidden');
+        }
+        
+        // 隐藏邮件反馈容器
+        if (emailFeedbackContainer) {
+          emailFeedbackContainer.classList.add('hidden');
+        }
+        
+        // 清除选中的动作
+        appState.selectedAction = null;
+        currentSelectedAction = null;
+        
+        // 清除动作卡片的选中状态
+        if (actionsContainer) {
+          actionsContainer.querySelectorAll('.action-card').forEach(card => {
+            card.classList.remove('selected');
+          });
+        }
+        
+        // 重新显示推荐处理和其他处理模块
+        const config = scenarioConfig[appState.scenario]?.[appState.subScenario];
+        if (config) {
+          const orderInfo = appState.orderInfo || {};
+          const products = appState.products || [];
+          const hasProductInfo = products.length > 0 && products.some(p => p.model && p.model !== '未识别');
+          const hasOrderInfo = orderInfo.orderNumber && orderInfo.orderNumber !== '未识别';
+          updateActionsGrid(config, hasProductInfo, hasOrderInfo);
+        }
+        
+        // 确保邮件历史按钮显示
+        const emailHistoryHeaderBtn = document.getElementById('emailHistoryHeaderBtn');
+        if (emailHistoryHeaderBtn) {
+          emailHistoryHeaderBtn.classList.remove('hidden');
+        }
       }
     }
 
@@ -4852,6 +5082,36 @@ Ticket #${ticketId}`;
         unusableBtn.classList.add('active');
       }
       
+      // 立即保存"不可用"状态到邮件历史的质量反馈字段中（详细反馈为空）
+      const feedback = {
+        status: 'unusable',
+        feedback: '', // 详细反馈暂时为空，提交时会更新
+        timestamp: new Date().toLocaleString('zh-CN'),
+        emailId: appState.currentHistoryId,
+        emailContent: appState.generatedEmail,
+        action: appState.selectedAction ? appState.selectedAction.name : '未知动作',
+        scenario: `${appState.scenario || ''}${appState.subScenario ? ' - ' + appState.subScenario : ''}`
+      };
+      
+      appState.emailFeedback = feedback;
+      
+      // 将反馈保存到当前动作下最新生成的AI邮件历史记录中
+      const currentAction = appState.selectedAction;
+      if (currentAction) {
+        // 找到当前动作下所有AI生成的邮件，按时间倒序排列，取最新的
+        const aiEmails = appState.emailHistory.filter(item => 
+          (item.updateType || 'AI生成') === 'AI生成' && 
+          item.action === currentAction.name
+        );
+        
+        if (aiEmails.length > 0) {
+          // emailHistory已经是按时间倒序排列的（最新的在前面），所以直接取第一个
+          aiEmails[0].feedback = feedback;
+        }
+      }
+      
+      console.log('邮件标记为不可用（已记录到邮件历史）', appState.emailFeedback);
+      
       // 显示反馈输入框
       if (feedbackInputContainer) {
         feedbackInputContainer.classList.remove('hidden');
@@ -4879,11 +5139,11 @@ Ticket #${ticketId}`;
         return;
       }
       
-      // 保存反馈状态
+      // 更新反馈状态，添加详细反馈内容
       const feedback = {
         status: 'unusable',
-        feedback: feedbackText,
-        timestamp: new Date().toLocaleString('zh-CN'),
+        feedback: feedbackText, // 更新详细反馈
+        timestamp: appState.emailFeedback && appState.emailFeedback.timestamp ? appState.emailFeedback.timestamp : new Date().toLocaleString('zh-CN'), // 保持原有时间戳
         emailId: appState.currentHistoryId,
         emailContent: appState.generatedEmail,
         action: appState.selectedAction ? appState.selectedAction.name : '未知动作',
@@ -4892,7 +5152,7 @@ Ticket #${ticketId}`;
       
       appState.emailFeedback = feedback;
       
-      // 将反馈保存到当前动作下最新生成的AI邮件历史记录中
+      // 更新邮件历史记录中的反馈（添加详细反馈）
       const currentAction = appState.selectedAction;
       if (currentAction) {
         // 找到当前动作下所有AI生成的邮件，按时间倒序排列，取最新的
@@ -4903,12 +5163,13 @@ Ticket #${ticketId}`;
         
         if (aiEmails.length > 0) {
           // emailHistory已经是按时间倒序排列的（最新的在前面），所以直接取第一个
+          // 更新反馈，添加详细反馈内容
           aiEmails[0].feedback = feedback;
         }
       }
       
       // 这里可以添加发送反馈到服务器的逻辑
-      console.log('提交反馈', appState.emailFeedback);
+      console.log('提交详细反馈', appState.emailFeedback);
       
       // 显示成功提示
       alert('反馈已提交，感谢您的反馈！');
