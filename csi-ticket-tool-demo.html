@@ -2118,7 +2118,7 @@
   <!-- 顶部标签栏 -->
   <div class="top-tabs">
     <div class="tab-item active">
-      Device disconnected #262815
+      What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel? #262815
       <span class="close-icon">×</span>
     </div>
     <div class="add-tab">+</div>
@@ -2265,7 +2265,7 @@
       <div class="conversation-header">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div class="conversation-title" id="ticketTitle">Device disconnected due to unknown cause. Unable to connect WiFi</div>
+            <div class="conversation-title" id="ticketTitle">What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?</div>
             <div class="conversation-meta">
               <span>Via mobile SDK</span>
             </div>
@@ -2288,7 +2288,7 @@
               <span class="message-time">44 minutes ago</span>
             </div>
             <div class="message-bubble" id="ticketDescription">
-              Device disconnected due to unknown cause. Unable to connect WiFi
+              What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?
             </div>
           </div>
         </div>
@@ -2739,8 +2739,8 @@
       ticketId: '262815',
       ticketData: {
         id: '262815',
-        subject: 'Device disconnected due to unknown cause. Unable to connect WiFi',
-        description: 'Device disconnected due to unknown cause. Unable to connect WiFi',
+        subject: 'What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?',
+        description: 'What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?',
         requester: { name: 'Saqib' }
       },
       scenario: null,
@@ -2881,6 +2881,16 @@
             { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
             { id: 'refund_difference', name: '退差价', icon: '💰', template: 2 }
           ]
+        },
+        '要求退货': {
+          nodes: [
+            { id: 'ask_return_reason', name: '询问退货原因和订单信息', description: '询问退货原因、订单信息' },
+            { id: 'analyze_reason', name: '分析退货原因', description: '根据退货原因判断应跳转的产品问题流程' },
+            { id: 'route_to_scenario', name: '跳转到对应场景', description: '根据退货原因跳转到正确的产品问题流程' }
+          ],
+          actions: [
+            { id: 'ask_return_reason_order', name: '询问退货原因和订单信息', icon: '❓', template: 1 }
+          ]
         }
       },
       '售后服务': {
@@ -2949,15 +2959,23 @@
         },
         '配件质量问题': {
           nodes: [
-            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
-            { id: 'request_media', name: '请求媒体', description: '请求提供产品异常的照片或视频' },
-            { id: 'check_stock', name: '检查库存', description: '检查配件库存' },
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息，请求提供产品异常的照片或视频确认' },
+            { id: 'check_stock', name: '检查库存', description: '检查配件库存状态' },
+            { id: 'check_function_impact', name: '检查功能影响', description: '判断配件是否影响主要功能' },
             { id: 'process_accessory', name: '处理配件问题', description: '补发、部分退款或换货' }
           ],
           actions: [
             { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
             { id: 'send_accessory', name: '补发配件', icon: '📦', template: 2 },
-            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 5 }
+            { id: 'inform_logistics', name: '告知物流信息', icon: '🚚', template: 3 },
+            { id: 'ask_wait_restock', name: '询问是否愿意等待补货', icon: '⏳', template: 4 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 5 },
+            { id: 'offer_exchange', name: '提供换货（不愿意部分退款）', icon: '🔄', template: 6 },
+            { id: 'offer_exchange_main', name: '提供换货（影响主要功能）', icon: '🔄', template: 11 },
+            { id: 'send_return_label', name: '发送退货单', icon: '📋', template: 7 },
+            { id: 'inform_rma_logistics', name: '告知RMA物流信息', icon: '🚚', template: 8 },
+            { id: 'guide_platform_return', name: '引导平台退货', icon: '🔗', template: 9 },
+            { id: 'negotiate_return', name: '协商退货退款', icon: '💵', template: 10 }
           ]
         },
         '配件非质量问题': {
@@ -2971,6 +2989,37 @@
             { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
             { id: 'provide_link', name: '提供购买链接', icon: '🔗', template: 2 },
             { id: 'provide_coupon', name: '提供优惠券', icon: '🎫', template: 3 }
+          ]
+        },
+        '配件缺失': {
+          nodes: [
+            { id: 'check_order', name: '检查订单信息', description: '询问订单信息和产品信息' },
+            { id: 'check_stock', name: '检查库存', description: '检查配件库存状态' },
+            { id: 'check_function_impact', name: '检查功能影响', description: '判断配件是否影响主要功能' },
+            { id: 'process_missing', name: '处理配件缺失', description: '补发、部分退款或换货' }
+          ],
+          actions: [
+            { id: 'ask_order_info', name: '询问订单信息', icon: '❓', template: 1 },
+            { id: 'send_accessory', name: '补发配件', icon: '📦', template: 2 },
+            { id: 'inform_logistics', name: '告知物流信息', icon: '🚚', template: 3 },
+            { id: 'ask_wait_restock', name: '询问是否愿意等待补货', icon: '⏳', template: 4 },
+            { id: 'partial_refund', name: '部分退款', icon: '💰', template: 5 },
+            { id: 'offer_exchange', name: '提供换货（不愿意部分退款）', icon: '🔄', template: 6 },
+            { id: 'offer_exchange_main', name: '提供换货（影响主要功能）', icon: '🔄', template: 11 },
+            { id: 'send_return_label', name: '发送退货单', icon: '📋', template: 7 },
+            { id: 'inform_rma_logistics', name: '告知RMA物流信息', icon: '🚚', template: 8 },
+            { id: 'guide_platform_return', name: '引导平台退货', icon: '🔗', template: 9 },
+            { id: 'negotiate_return', name: '协商退货退款', icon: '💵', template: 10 }
+          ]
+        },
+        '用户需要新配件': {
+          nodes: [
+            { id: 'ask_accessory_info', name: '询问配件情况和更换原因', description: '询问订单信息和产品信息，询问配件情况和更换原因' },
+            { id: 'analyze_reason', name: '分析更换原因', description: '根据更换原因判断应跳转的配件问题流程' },
+            { id: 'route_to_scenario', name: '跳转到对应场景', description: '根据更换原因跳转到正确的配件问题流程' }
+          ],
+          actions: [
+            { id: 'ask_accessory_reason', name: '询问配件情况和更换原因', icon: '❓', template: 1 }
           ]
         },
         '安全问题': {
@@ -3735,6 +3784,11 @@
         return { scenario: '订单问题', subScenario: '咨询订单物流' };
       } else if (content.includes('便宜') || content.includes('cheap') || content.includes('price')) {
         return { scenario: '订单问题', subScenario: '购买后发现其他渠道更便宜' };
+      } else if ((content.includes('退货') || content.includes('return')) && 
+                 !content.includes('原因') && !content.includes('reason') &&
+                 !content.includes('政策') && !content.includes('policy')) {
+        // 直接要求退货，未说明原因的情况
+        return { scenario: '订单问题', subScenario: '要求退货' };
       } else if (content.includes('延保') || content.includes('warranty')) {
         return { scenario: '售后服务', subScenario: '延保时长不符' };
       } else if (content.includes('损坏') || content.includes('damage') || content.includes('broken')) {
@@ -3749,7 +3803,16 @@
                  content.includes('not working') || content.includes('not heating')) {
         return { scenario: '产品问题', subScenario: '产品功能品质问题' };
       } else if (content.includes('配件') || content.includes('accessory') || content.includes('遥控器')) {
-        if (content.includes('接触不良') || content.includes('按键失灵') || content.includes('malfunction')) {
+        // 优先识别"用户需要新配件"场景（入口场景）
+        if ((content.includes('需要') || content.includes('need') || content.includes('want')) && 
+            !content.includes('缺失') && !content.includes('缺少') && !content.includes('missing') &&
+            !content.includes('接触不良') && !content.includes('按键失灵') && !content.includes('malfunction') &&
+            !content.includes('损坏') && !content.includes('damage')) {
+          return { scenario: '产品问题', subScenario: '用户需要新配件' };
+        } else if (content.includes('缺失') || content.includes('缺少') || content.includes('missing') || 
+            content.includes('没有') || content.includes('没收到') || content.includes('not received')) {
+          return { scenario: '产品问题', subScenario: '配件缺失' };
+        } else if (content.includes('接触不良') || content.includes('按键失灵') || content.includes('malfunction')) {
           return { scenario: '产品问题', subScenario: '配件质量问题' };
         }
         return { scenario: '产品问题', subScenario: '配件非质量问题' };
@@ -3804,9 +3867,19 @@
           detailsText = '用户咨询服务政策，包括质保政策、退换货政策等，需要提供相关政策说明。';
         }
       } else if (scenario === '订单问题') {
-        detailsText = '用户咨询订单相关问题，需要根据订单状态和购买渠道进行处理。';
+        if (subScenario === '要求退货') {
+          detailsText = '用户直接要求退货但未说明原因，需要询问退货原因和订单信息，然后根据退货原因跳转到对应的产品问题流程。';
+        } else {
+          detailsText = '用户咨询订单相关问题，需要根据订单状态和购买渠道进行处理。';
+        }
       } else if (scenario === '产品问题') {
-        detailsText = '用户反馈产品问题，需要根据问题类型提供相应的解决方案。';
+        if (subScenario === '用户需要新配件') {
+          detailsText = '用户来信表达"我需要配件"，需要询问订单信息、产品信息和配件情况，根据更换原因跳转到对应的配件问题流程（配件质量问题、配件非质量问题、配件缺失）。';
+        } else if (subScenario === '配件缺失') {
+          detailsText = '用户反馈包裹中缺少配件（如遥控器等），需要询问订单信息确认，根据库存和功能影响情况提供补发、部分退款或换货方案。';
+        } else {
+          detailsText = '用户反馈产品问题，需要根据问题类型提供相应的解决方案。';
+        }
       } else if (scenario === '售后服务') {
         detailsText = '用户咨询售后服务相关问题，需要核实并处理。';
       }
@@ -4503,26 +4576,26 @@ Ticket #${ticketId}`;
       const mainGroup = document.createElement('div');
       mainGroup.className = 'action-group';
       
-      // 创建统一的标题：选择邮件动作
+      // 创建统一的标题：处理
       const mainTitle = document.createElement('div');
       mainTitle.className = 'action-group-title';
       
       const titleText = document.createElement('span');
-      titleText.textContent = '选择邮件动作';
+      titleText.textContent = '处理';
       mainTitle.appendChild(titleText);
       
       // 如果有其他动作，添加展开全部按钮
       if (otherActions.length > 0) {
         const expandAllBtn = document.createElement('span');
         expandAllBtn.className = 'expand-all-btn';
-        expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他邮件动作';
+        expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他处理';
         
         // 创建其他动作分组（默认收起）
         const otherGroup = document.createElement('div');
         otherGroup.className = 'action-group collapsed';
         otherGroup.id = 'otherActionsGroup';
         
-        // 添加其他邮件动作小标题
+        // 添加其他处理小标题
         const otherTitle = document.createElement('div');
         otherTitle.className = 'action-group-title';
         otherTitle.style.fontSize = '14px';
@@ -4530,7 +4603,7 @@ Ticket #${ticketId}`;
         otherTitle.style.marginTop = '16px';
         otherTitle.style.marginBottom = '8px';
         const otherTitleText = document.createElement('span');
-        otherTitleText.textContent = '其他邮件动作';
+        otherTitleText.textContent = '其他处理';
         otherTitle.appendChild(otherTitleText);
         otherGroup.appendChild(otherTitle);
         
@@ -4557,11 +4630,11 @@ Ticket #${ticketId}`;
           if (isExpanded) {
             otherGroup.classList.add('collapsed');
             expandAllBtn.classList.remove('expanded');
-            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他邮件动作';
+            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>展开其他处理';
           } else {
             otherGroup.classList.remove('collapsed');
             expandAllBtn.classList.add('expanded');
-            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>收起其他邮件动作';
+            expandAllBtn.innerHTML = '<span class="expand-icon">▼</span>收起其他处理';
           }
         };
         
@@ -4623,7 +4696,7 @@ Ticket #${ticketId}`;
         const emptyTitle = document.createElement('div');
         emptyTitle.className = 'action-group-title';
         const emptyTitleText = document.createElement('span');
-        emptyTitleText.textContent = '选择邮件动作';
+        emptyTitleText.textContent = '处理';
         emptyTitle.appendChild(emptyTitleText);
         emptyGroup.appendChild(emptyTitle);
         
