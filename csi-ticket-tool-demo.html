@@ -435,7 +435,7 @@
     .toolkit-content {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
+      /* padding: 20px; */
     }
 
     /* Tab内容 */
@@ -1094,20 +1094,1058 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      background: #f8fafc; /*稍微灰一点的背景，突出卡片感*/
+      background: #f8fafc;
+      overflow: hidden;
+    }
+
+    /* AI对话区域 */
+    .ai-conversation-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+    }
+
+    .start-analysis-btn {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+    }
+
+    .start-analysis-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 5px rgba(102, 126, 234, 0.4);
+    }
+
+    .start-analysis-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* 对话消息列表 */
+    .conversation-messages {
+      flex: 1;
       overflow-y: auto;
-      /* padding: 16px;  */
-      gap: 16px; /* 增加模块间距 */
+      padding: 24px;
+      background: #f8fafc;
+    }
+
+    .welcome-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .welcome-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .welcome-text {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    /* AI消息气泡 */
+    .ai-message {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 客服人员发送的消息（右对齐） */
+    .user-message {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 12px;
+      margin-bottom: 20px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .user-message-content {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #6ee7b7;
+      max-width: 80%;
+    }
+
+    .user-message-label {
+      font-size: 11px;
+      color: #059669;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .user-message-text {
+      font-size: 14px;
+      color: #065f46;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .ai-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .ai-message-content {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e5e7eb;
+    }
+
+    .ai-message-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .ai-typing {
+      display: flex;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .ai-typing span {
+      width: 8px;
+      height: 8px;
+      background: #9ca3af;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .ai-typing span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .ai-typing span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+      }
+      30% {
+        transform: translateY(-10px);
+        opacity: 1;
+      }
+    }
+
+    /* HITL交互界面 */
+    .hitl-interaction {
+      padding: 0 24px 24px 24px;
+      background: #f8fafc;
+    }
+
+    .hitl-question-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 2px solid #667eea;
+    }
+
+    .hitl-question-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hitl-question-title::before {
+      content: "❓";
+      font-size: 20px;
+    }
+
+    .hitl-question-content {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* HITL选项 */
+    .hitl-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .hitl-option {
+      padding: 12px 16px;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .hitl-option:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .hitl-option.selected {
+      background: #eff6ff;
+      border-color: #667eea;
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    /* HITL文本输入 */
+    .hitl-text-input {
+      margin-bottom: 16px;
+    }
+
+    .hitl-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .hitl-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* HITL操作按钮 */
+    .hitl-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 客服确认消息样式 */
+    .confirmation-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 2px solid #f59e0b;
+    }
+
+    .confirmation-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .confirmation-title::before {
+      content: "⚠️";
+      font-size: 20px;
+    }
+
+    .confirmation-question {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .confirmation-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .confirmation-option {
+      padding: 12px 16px;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .confirmation-option:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .confirmation-option.selected {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    .confirmation-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .confirmation-submit-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .confirmation-submit-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+    }
+
+    .confirmation-submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .hitl-submit-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hitl-submit-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    .hitl-submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 邮件确认卡片 */
+    .email-confirmation-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 2px solid #10b981;
+    }
+
+    .email-confirmation-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .email-confirmation-title::before {
+      content: "✉️";
+      font-size: 20px;
+    }
+
+    .email-generation-desc {
+      font-size: 13px;
+      color: #6b7280;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .email-preview-box {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .email-preview-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+    }
+
+    .email-preview-textarea {
+      width: 100%;
+      min-height: 250px;
+      max-height: 400px;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .email-preview-textarea:focus {
+      outline: none;
+      border-color: #10b981;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .email-preview-textarea:hover {
+      border-color: #d1d5db;
+    }
+
+    .email-confirmation-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .email-confirm-btn {
+      flex: 1;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .email-confirm-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    .email-reject-btn {
+      flex: 1;
+      padding: 12px 20px;
+      background: #fff;
+      color: #ef4444;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .email-reject-btn:hover {
+      background: #fef2f2;
+    }
+
+    /* 拒绝原因输入 */
+    .reject-reason-container {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      display: none;
+    }
+
+    .reject-reason-container.show {
+      display: block;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .reject-reason-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .reject-reason-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 12px;
+    }
+
+    .reject-reason-textarea:focus {
+      outline: none;
+      border-color: #ef4444;
+    }
+
+    .reject-submit-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .reject-submit-btn {
+      padding: 10px 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reject-submit-btn:hover {
+      background: #dc2626;
+    }
+
+    .reject-cancel-btn {
+      padding: 10px 20px;
+      background: #f3f4f6;
+      color: #374151;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reject-cancel-btn:hover {
+      background: #e5e7eb;
+    }
+
+    /* 场景选择界面 */
+    .scenario-selection-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 2px solid #667eea;
+    }
+
+    .scenario-selection-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scenario-selection-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    .scenario-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .scenario-option {
+      padding: 16px;
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .scenario-option:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .scenario-option.selected {
+      background: #eff6ff;
+      border-color: #667eea;
+    }
+
+    .scenario-option-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .scenario-option-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scenario-option-icon {
+      font-size: 16px;
+    }
+
+    .scenario-option-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .scenario-option.selected .scenario-option-name {
+      color: #667eea;
+    }
+
+    .scenario-option-confidence {
+      font-size: 13px;
+      font-weight: 600;
+      color: #10b981;
+      background: #d1fae5;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .scenario-option-description {
+      font-size: 13px;
+      color: #6b7280;
+      margin-left: 24px;
+    }
+
+    /* 问题区域 */
+    .scenario-questions {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .question-item {
+      margin-bottom: 16px;
+    }
+
+    .question-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .question-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 10px;
+    }
+
+    .question-options {
+      display: flex;
+      gap: 16px;
+    }
+
+    .question-radio {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .question-radio input[type="radio"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* 补充信息区域 */
+    .additional-info-section {
+      margin-bottom: 20px;
+    }
+
+    .question-supplement {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #e5e7eb;
+    }
+
+    .question-supplement-label {
+      display: block;
+      font-size: 12px;
+      color: #333333;
+      margin-bottom: 6px;
+    }
+
+    .question-supplement-textarea {
+      width: 100%;
+      min-height: 60px;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #374151;
+      resize: vertical;
+      box-sizing: border-box;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .question-supplement-textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+
+    .order-number-textarea {
+      width: 100%;
+      min-height: 70px;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #374151;
+      resize: vertical;
+      box-sizing: border-box;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+
+    .order-number-textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+
+    .order-number-textarea::placeholder {
+      color: #9ca3af;
+    }
+
+    .order-unknown-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 8px 14px;
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .order-unknown-option:hover {
+      background: #fde68a;
+      border-color: #f59e0b;
+    }
+
+    .order-unknown-option:has(.order-unknown-checkbox:checked) {
+      background: #fde68a;
+      border-color: #f59e0b;
+    }
+
+    .order-unknown-checkbox {
+      width: 15px;
+      height: 15px;
+      accent-color: #f59e0b;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .order-unknown-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: #92400e;
+    }
+
+    .additional-info-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .additional-info-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .additional-info-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    /* 场景确认按钮 */
+    .scenario-selection-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .scenario-confirm-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+    .scenario-confirm-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .scenario-confirm-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 最终邮件显示 */
+    .final-email-card {
+      background: #f0fdf4;
+      border: 2px solid #10b981;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+
+    .final-email-success {
+      font-size: 15px;
+      font-weight: 700;
+      color: #065f46;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #d1fae5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .final-email-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #065f46;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .final-email-content {
+      background: #fff;
+      border: 1px solid #d1fae5;
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .final-email-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+    }
+
+    /* 拒绝反馈卡片 */
+    .rejection-feedback-card {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+
+    .rejection-feedback-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .rejected-email-section {
+      background: #fff;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .rejected-email-header {
+      padding: 12px 16px;
+      background: #fffbeb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      user-select: none;
+    }
+
+    .rejected-email-header:hover {
+      background: #fef3c7;
+    }
+
+    .rejected-email-icon {
+      font-size: 16px;
+    }
+
+    .rejected-email-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: #92400e;
+    }
+
+    .toggle-icon {
+      font-size: 12px;
+      color: #92400e;
+      transition: transform 0.3s;
+    }
+
+    .rejected-email-content {
+      max-height: 300px;
+      overflow-y: auto;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      padding: 12px 16px;
+    }
+
+    .rejected-email-content.collapsed {
+      max-height: 0;
+      padding: 0 16px;
+      overflow: hidden;
+    }
+
+    .rejected-email-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+    }
+
+    .regenerating-hint {
+      font-size: 14px;
+      color: #92400e;
+      font-style: italic;
     }
 
     /* 分析模块 */
     .analysis-module {
-      padding: 24px; /* 增加内边距 */
+      padding: 24px;
       background: #fff;
-      border-radius: 12px; /* 圆角增加 */
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 添加轻微阴影 */
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       border: 1px solid #e5e7eb;
-      /* border-bottom: 1px solid #e5e7eb;  移除原来的底部边框，改用卡片样式 */
     }
 
     .module-header {
@@ -2303,392 +3341,53 @@
               <span>🔧</span>
               客服工单辅助回复工具
             </div>
-            <div class="toolkit-close" id="closeToolkitBtn">×</div>
-          </div>
-
-          <!-- Tab导航 -->
-          <div class="tab-nav">
-            <button class="tab-btn active" data-tab="quick-reply">
-              <span class="tab-icon">⚡</span>
-              <span>快捷处理</span>
-            </button>
-            <button class="tab-btn" data-tab="ticket-info">
-              <span class="tab-icon">📋</span>
-              <span>工单信息</span>
-            </button>
-            <button class="tab-btn" data-tab="customer-info">
-              <span class="tab-icon">👤</span>
-              <span>客户信息</span>
-            </button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button class="start-analysis-btn" id="startAnalysisBtn" onclick="startAIAnalysis()">
+                <span>✨</span>
+                <span>一键分析</span>
+              </button>
+              <div class="toolkit-close" id="closeToolkitBtn">×</div>
+            </div>
           </div>
 
           <div class="toolkit-content">
-            <!-- 工单信息 Tab -->
-            <div id="ticket-info-tab" class="tab-content">
-              <!-- 加载状态 -->
-              <div id="loadingState" class="loading-state">
-                <div class="spinner"></div>
-                <div class="loading-text">正在分析工单...</div>
-              </div>
-
-              <!-- 主要内容区域 -->
-              <div id="mainContent" class="main-content hidden">
-                <!-- 工单场景 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">📋</span>
-                    工单场景
-                    <button class="edit-btn" id="editScenarioBtn">编辑</button>
-                  </h3>
-                  <div id="scenarioInfo" class="info-card">
-                    <div class="scenario-badge" id="scenarioBadge">识别中...</div>
-                    <div class="scenario-desc" id="scenarioDetails"></div>
-                    <!-- 编辑状态 -->
-                    <div id="scenarioEditMode" class="edit-mode" style="display: none;">
-                      <div class="info-row">
-                        <span class="info-label">场景：</span>
-                        <select id="editScenario" class="info-input">
-                          <option value="售前咨询">售前咨询</option>
-                          <option value="订单问题">订单问题</option>
-                          <option value="产品问题">产品问题</option>
-                          <option value="售后服务">售后服务</option>
-                        </select>
-                      </div>
-                      <div class="info-row">
-                        <span class="info-label">子场景：</span>
-                        <select id="editSubScenario" class="info-input"></select>
-                      </div>
-                      <div class="edit-actions">
-                        <button class="btn btn-primary btn-small" id="saveScenarioBtn">保存</button>
-                        <button class="btn btn-secondary btn-small" id="cancelScenarioBtn">取消</button>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- 订单信息 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">📦</span>
-                    订单信息
-                    <button class="edit-btn" id="editOrderBtn">编辑</button>
-                  </h3>
-                  <div class="info-card">
-                    <div class="info-row">
-                      <span class="info-label">购买渠道：</span>
-                      <span id="orderChannel" class="info-value">-</span>
-                      <input type="text" id="editOrderChannel" class="info-input" style="display: none;" placeholder="输入购买渠道">
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">订单号：</span>
-                      <span id="orderNumber" class="info-value">-</span>
-                      <input type="text" id="editOrderNumber" class="info-input" style="display: none;" placeholder="输入订单号">
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">订单日期：</span>
-                      <span id="orderDate" class="info-value">-</span>
-                      <input type="date" id="editOrderDate" class="info-input" style="display: none;" placeholder="选择订单日期">
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">订单产品：</span>
-                      <div id="orderProducts" class="info-value">-</div>
-                      <input type="text" id="editOrderProducts" class="info-input" style="display: none;" placeholder="输入订单产品，多个用逗号分隔">
-                    </div>
-                    <!-- 编辑状态按钮 -->
-                    <div id="orderEditActions" class="edit-actions" style="display: none;">
-                      <button class="btn btn-primary btn-small" id="saveOrderBtn">保存</button>
-                      <button class="btn btn-secondary btn-small" id="cancelOrderBtn">取消</button>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- 产品信息 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">🛍️</span>
-                    产品信息
-                    <button class="edit-btn" id="editProductsBtn">编辑</button>
-                  </h3>
-                  <div id="productsList" class="info-card">
-                    <!-- 产品列表将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- 物流信息 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">🚚</span>
-                    物流信息
-                    <button class="edit-btn" id="editLogisticsBtn">编辑</button>
-                  </h3>
-                  <div class="info-card">
-                    <div class="info-row">
-                      <span class="info-label">物流承运商：</span>
-                      <span id="logisticsCarrierDisplay" class="info-value">-</span>
-                      <input type="text" id="logisticsCarrier" class="info-input" style="display: none;" placeholder="输入物流承运商">
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">物流单号：</span>
-                      <span id="logisticsNumberDisplay" class="info-value">-</span>
-                      <input type="text" id="logisticsNumber" class="info-input" style="display: none;" placeholder="输入物流单号">
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">当前状态：</span>
-                      <span id="logisticsStatusDisplay" class="info-value">-</span>
-                      <input type="text" id="logisticsStatus" class="info-input" style="display: none;" placeholder="输入当前状态">
-                    </div>
-                    <!-- 编辑状态按钮 -->
-                    <div id="logisticsEditActions" class="edit-actions" style="display: none;">
-                      <button class="btn btn-primary btn-small" id="saveLogisticsBtn">保存</button>
-                      <button class="btn btn-secondary btn-small" id="cancelLogisticsBtn">取消</button>
-                    </div>
-                  </div>
-                </section>
-              </div>
-            </div>
-
             <!-- 快捷处理 Tab -->
             <div id="quick-reply-tab" class="tab-content active">
               <div class="quick-process-container">
-                <!-- 分析模块 -->
-                <div class="analysis-module">
-                  <div class="module-header">
-                    <div class="module-title">
-                      <span>工单分析</span>
-                    </div>
-                    <button class="analysis-btn" id="analysisBtn" onclick="startNewAnalysis()">
-                      <span>✨</span>
-                      <span>一键分析</span>
-                    </button>
-                  </div>
-
-                  <div style="display: none; margin-left: 8px;" id="analysisActionButtons">
-                    <button class="edit-info-btn" id="editInfoBtn" onclick="openEditInfoModal()" style="background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 8px;">
-                      ✏️ 编辑信息
-                    </button>
-                    <button class="update-history-btn" id="updateHistoryBtn" onclick="showUpdateHistory()" style="background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      📜 更新历史
-                    </button>
-                  </div>
-                  <!-- 未分析提示 -->
-                  <div class="analysis-prompt" id="analysisPrompt">
-                    <div class="analysis-prompt-content">
-                      <span class="analysis-prompt-text">请点击上方"一键分析"按钮完成分析</span>
+                <!-- AI对话区域 -->
+                <div class="ai-conversation-area">
+                  <!-- 对话消息列表 -->
+                  <div class="conversation-messages" id="conversationMessages" style="padding-top: 24px;">
+                    <div class="welcome-message">
+                      <div class="welcome-icon">👋</div>
+                      <div class="welcome-text">点击"一键分析"按钮，AI助手将根据客户和客服的会话记录为您分析工单并生成回复邮件</div>
                     </div>
                   </div>
-                  <div class="analysis-result hidden" id="analysisResult">
-                    <!-- 工单信息提取 -->
-                    <div class="result-section">
-                      <div class="result-label">
-                        工单信息
-                        
-                      </div>
-                      <div class="result-value">
-                        <span class="result-badge" id="scenarioBadgeQuick">未分析</span>
-                        <span id="scenarioDetailsQuick"></span>
+                  
+                  <!-- HITL交互区域 (当AI需要更多信息时显示) -->
+                  <div class="hitl-interaction" id="hitlInteraction" style="display: none;">
+                    <div class="hitl-question-card">
+                      <div class="hitl-question-title" id="hitlQuestionTitle"></div>
+                      <div class="hitl-question-content" id="hitlQuestionContent"></div>
+                      
+                      <!-- 选项式回答 -->
+                      <div class="hitl-options" id="hitlOptions" style="display: none;"></div>
+                      
+                      <!-- 文本输入式回答 -->
+                      <div class="hitl-text-input" id="hitlTextInput" style="display: none;">
+                        <textarea class="hitl-textarea" id="hitlTextarea" placeholder="请输入您的回答..." rows="4"></textarea>
                       </div>
                       
-                      <div class="extracted-info-box">
-                        <div class="info-item">
-                          <div class="info-item-label">📦 订单号：</div>
-                          <div class="info-item-value" id="extractedOrderNumber">-</div>
-                        </div>
-                        <div class="info-item">
-                          <div class="info-item-label">🛒 购买渠道：</div>
-                          <div class="info-item-value" id="extractedChannel">-</div>
-                        </div>
-                        <div class="info-item">
-                          <div class="info-item-label">📅 订单日期：</div>
-                          <div class="info-item-value" id="extractedOrderDate">-</div>
-                        </div>
-                        <div class="info-item">
-                          <div class="info-item-label">🛍️ 产品型号：</div>
-                          <div class="info-item-value" id="extractedProduct">-</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- 处理建议 -->
-                    <div class="suggestion-box">
-                      <div class="result-label">💡 处理建议</div>
-                      <div class="result-value" id="suggestionText">-</div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 邮件回复模块 -->
-                <div class="email-module">
-                  <div class="module-header">
-                    <div class="module-title">
-                      <span>邮件回复</span>
-                    </div>
-                    <!-- 邮件历史按钮（固定显示在标题右侧） -->
-                    <div class="email-history-header-btn" id="emailHistoryHeaderBtn">
-                      <button class="email-action-btn" onclick="showEmailHistory()">
-                        <span>📜</span>
-                        <span>邮件历史</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- 动作选择 -->
-                  <div class="actions-container" id="actionsContainer">
-                  </div>
-
-                  <!-- 邮件预览 -->
-                  <div class="email-preview-container hidden" id="emailPreviewContainer">
-                    <div class="result-label">
-                      <span>邮件预览</span>
-                      <button class="regenerate-btn" onclick="regenerateEmail()" title="重新生成邮件">
-                        <span>🔄</span>
-                      </button>
-                    </div>
-                    
-                    <textarea class="email-preview" id="emailPreview"></textarea>
-                    
-                    <div class="email-actions">
-                      <button class="email-action-btn primary" onclick="sendEmail()">
-                        <span>📤</span>
-                        <span>发送</span>
-                      </button>
-                      <button class="email-action-btn" onclick="copyEmail()">
-                        <span>📋</span>
-                        <span>复制</span>
-                      </button>
-                    </div>
-
-                    <!-- 邮件反馈区域 -->
-                    <div class="email-feedback-container hidden" id="emailFeedbackContainer">
-                      <div class="feedback-header">
-                        <div class="feedback-label">邮件质量反馈</div>
-                        <div class="feedback-buttons">
-                          <button class="feedback-btn feedback-btn-usable" onclick="markEmailUsable()">
-                            <span>👍</span>
-                            <span>可用</span>
-                          </button>
-                          <button class="feedback-btn feedback-btn-unusable" onclick="markEmailUnusable()">
-                            <span>👎</span>
-                            <span>不可用</span>
-                          </button>
-                        </div>
-                      </div>
-                      <div class="feedback-input-container hidden" id="feedbackInputContainer">
-                        <label class="feedback-input-label">请填写详细反馈：</label>
-                        <textarea 
-                          class="feedback-input" 
-                          id="feedbackInput" 
-                          placeholder="请详细说明邮件不可用的原因，例如：内容不准确、语气不合适、缺少关键信息等..."
-                          rows="4"
-                        ></textarea>
-                        <div class="feedback-submit-buttons">
-                          <button class="feedback-submit-btn primary" onclick="submitFeedback()">
-                            <span>提交反馈</span>
-                          </button>
-                          <button class="feedback-submit-btn" onclick="cancelFeedback()">
-                            <span>取消</span>
-                          </button>
-                        </div>
+                      <!-- 提交按钮 -->
+                      <div class="hitl-actions">
+                        <button class="hitl-submit-btn" id="hitlSubmitBtn" onclick="submitHITLAnswer()">
+                          <span>✓</span>
+                          <span>提交</span>
+                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- 客户信息 Tab -->
-            <div id="customer-info-tab" class="tab-content">
-              <div class="customer-info-content">
-                <!-- 基本信息 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">👤</span>
-                    基本信息
-                  </h3>
-                  <div class="info-card">
-                    <div class="info-row">
-                      <span class="info-label">用户名：</span>
-                      <span id="customerName" class="info-value">-</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">邮箱：</span>
-                      <span id="customerEmail" class="info-value">-</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">DREO账号ID：</span>
-                      <span id="customerDreoId" class="info-value">-</span>
-                    </div>
-                    <div class="info-row">
-                      <span class="info-label">Customer ID：</span>
-                      <span id="customerId" class="info-value">-</span>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- 历史订单 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">📦</span>
-                    历史订单
-                  </h3>
-                  <div id="orderHistory" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- IoT设备 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">📱</span>
-                    IoT设备
-                  </h3>
-                  <div id="iotDevices" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- 历史工单 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">🎫</span>
-                    历史工单
-                  </h3>
-                  <div id="ticketHistory" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- 历史换货 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">🔄</span>
-                    历史换货
-                  </h3>
-                  <div id="exchangeHistory" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- 历史退款 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">💰</span>
-                    历史退款
-                  </h3>
-                  <div id="refundHistory" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
-
-                <!-- 质保信息 -->
-                <section class="info-section">
-                  <h3 class="section-title">
-                    <span class="icon">🛡️</span>
-                    质保信息
-                  </h3>
-                  <div id="warrantyInfo" class="table-container">
-                    <!-- 表格将通过JS动态生成 -->
-                  </div>
-                </section>
               </div>
             </div>
           </div>
@@ -3037,48 +3736,9 @@
     // 初始化应用
     function initApp() {
       bindEvents();
-      initTabs();
       loadCustomerInfo();
       extractOrderInfo();
       initLogisticsDisplay();
-      identifyScenarioAndNode();
-    }
-
-    // 初始化Tab切换
-    function initTabs() {
-      const tabButtons = document.querySelectorAll('.tab-btn');
-      tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tabName = btn.getAttribute('data-tab');
-          switchTab(tabName);
-        });
-      });
-    }
-
-    // 切换Tab
-    function switchTab(tabName) {
-      // 更新按钮状态
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-tab') === tabName) {
-          btn.classList.add('active');
-        }
-      });
-      
-      // 更新内容显示
-      document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-      });
-      
-      const targetTab = document.getElementById(`${tabName}-tab`);
-      if (targetTab) {
-        targetTab.classList.add('active');
-      }
-      
-      // 如果切换到快捷回复tab，更新动作选项
-      if (tabName === 'quick-reply') {
-        updateQuickReplyActions();
-      }
     }
 
     // 提取订单信息
@@ -4014,7 +4674,7 @@
     }
 
     // 调用AI生成邮件（模拟API调用）
-    async function callAIGenerateEmail(scenario, subScenario, node, action, ticketData, orderInfo, products) {
+    async function callAIGenerateEmail(scenario, subScenario, node, action, ticketData, orderInfo, products, hitlAnswer = null, confirmationValue = null) {
       // 模拟API延迟
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -4185,7 +4845,52 @@ Ticket #${ticketId}`;
           }
         }
       } else if (scenario === '订单问题') {
-        emailContent = `Dear ${customerName},
+        // 如果是取消订单场景，根据确认选项生成不同的邮件
+        if (subScenario === '取消订单' || subScenario === '需取消订单') {
+          if (confirmationValue === 'yes') {
+            // 订单已发货，协商保留
+            emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your request to cancel order #${orderNumber}, we understand your concern. However, we would like to inform you that your order has already been shipped.
+
+We would like to suggest the following options:
+
+1. **Keep the order**: You can receive the product and enjoy our quality service. If you are not satisfied with the product after receiving it, you can still return it within our return policy period.
+
+2. **Return after receipt**: If you still wish to cancel, you can return the product after receiving it, and we will process a full refund for you.
+
+We believe you will be satisfied with our product quality. If you have any questions or concerns, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else if (confirmationValue === 'no') {
+            // 订单未发货，协助取消订单
+            emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+We have received your request to cancel order #${orderNumber}. We are pleased to inform you that your order has not been shipped yet, and we can assist you with the cancellation.
+
+【Cancellation Process】
+- Order Number: ${orderNumber}
+- Cancellation Status: Approved
+- Refund Amount: Full refund
+- Refund Method: Original payment method
+- Processing Time: 3-5 business days
+
+The refund will be returned to your original payment account. Please check your account within 3-5 business days.
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+          } else {
+            // 默认邮件（如果没有确认选项）
+            emailContent = `Dear ${customerName},
 
 Thank you for contacting our customer service team.
 
@@ -4198,6 +4903,23 @@ If you have any questions, please feel free to contact us.
 Best regards,
 Customer Service Team
 Ticket #${ticketId}`;
+          }
+        } else {
+          // 其他订单问题场景
+          emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+Regarding your order inquiry (Order #${orderNumber}), we are processing your request.
+
+[Action-specific content based on selected action]
+
+If you have any questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+        }
       } else if (scenario === '产品问题') {
         emailContent = `Dear ${customerName},
 
@@ -4218,7 +4940,27 @@ Customer Service Team
 Ticket #${ticketId}`;
       }
       
-      return emailContent || '邮件回复失败，请重试。';
+      // 默认邮件模板（当没有匹配到具体场景时）
+      if (!emailContent) {
+        emailContent = `Dear ${customerName},
+
+Thank you for contacting our customer service team.
+
+We have received your inquiry regarding: ${ticketData.subject || '您的问题'}
+
+We are currently reviewing your request and will provide you with a detailed response shortly. 
+
+${orderInfo.orderNumber ? `Order Number: ${orderInfo.orderNumber}` : ''}
+${products.length > 0 ? `Product Model: ${productList}` : ''}
+
+If you have any additional information or questions, please feel free to contact us.
+
+Best regards,
+Customer Service Team
+Ticket #${ticketId}`;
+      }
+
+      return emailContent;
     }
 
     // 旧的邮件操作函数（已被下方的新版本覆盖）
@@ -4296,21 +5038,1087 @@ Ticket #${ticketId}`;
       return div.innerHTML;
     }
 
-    // --- 快捷处理（对话式 UI）逻辑 ---
+    // --- 对话式AI助手逻辑 ---
 
-    // 全局变量存储当前选择的动作
-    let currentSelectedAction = null;
+    // 对话状态管理
+    let conversationState = {
+      messages: [],
+      currentStep: 'init', // init, analyzing, hitl, email_confirmation, completed
+      hitlData: null,
+      generatedEmail: null,
+      rejectionReason: null
+    };
 
-    // 一键分析功能
-    async function startNewAnalysis() {
-      const analysisBtn = document.getElementById('analysisBtn');
-      const analysisResult = document.getElementById('analysisResult');
-      const analysisPrompt = document.getElementById('analysisPrompt');
-      const emailPreviewContainer = document.getElementById('emailPreviewContainer');
+    // 添加AI消息到对话中
+    function addAIMessage(text, type = 'text') {
+      const messagesContainer = document.getElementById('conversationMessages');
       
-      // 禁用按钮并显示加载状态
-      analysisBtn.disabled = true;
-      analysisBtn.innerHTML = '<span class="loading-spinner"></span><span>分析中...</span>';
+      // 移除欢迎消息
+      const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+      if (welcomeMessage) {
+        welcomeMessage.remove();
+      }
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'ai-message';
+      
+      messageDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="ai-message-text">${text}</div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      conversationState.messages.push({ role: 'ai', content: text, type });
+    }
+
+    // 添加客服人员操作消息（右对齐）
+    function addUserMessage(text) {
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'user-message';
+      
+      messageDiv.innerHTML = `
+        <div class="user-avatar">👤</div>
+        <div class="user-message-content">
+          <div class="user-message-label">客服确认</div>
+          <div class="user-message-text">${text}</div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(messageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      conversationState.messages.push({ role: 'user', content: text });
+    }
+
+    // 显示AI正在思考
+    function showAITyping() {
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'ai-message';
+      typingDiv.id = 'ai-typing-indicator';
+      
+      typingDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="ai-typing">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(typingDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 隐藏AI正在思考
+    function hideAITyping() {
+      const typingIndicator = document.getElementById('ai-typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    // 一键分析功能 - 新的对话式流程
+    async function startAIAnalysis() {
+      const startBtn = document.getElementById('startAnalysisBtn');
+      
+      // 禁用按钮
+      startBtn.disabled = true;
+      startBtn.innerHTML = '<span>⏳</span><span>分析中...</span>';
+      
+      // 重置对话状态（不清空消息历史）
+      conversationState = {
+        messages: conversationState.messages || [],
+        currentStep: 'analyzing',
+        hitlData: null,
+        generatedEmail: null,
+        rejectionReason: null,
+        selectedScenario: null,
+        additionalInfo: {}
+      };
+      
+      // 移除欢迎消息（如果存在）
+      const messagesContainer = document.getElementById('conversationMessages');
+      const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+      if (welcomeMessage) {
+        welcomeMessage.remove();
+      }
+      
+      showAITyping();
+      
+      try {
+        // 模拟分析过程（不显示过程）
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        hideAITyping();
+        
+        // 提取订单和产品信息
+        extractOrderInfo();
+        
+        // 分析工单场景，取最匹配的场景
+        const scenarios = await identifyTopScenarios(appState.ticketData);
+        const topScenario = scenarios[0];
+        
+        // 更新 appState
+        appState.scenario = topScenario.scenario;
+        appState.subScenario = topScenario.subScenario;
+        conversationState.selectedScenario = topScenario;
+        
+        // 显示工单分析结果消息
+        const products = appState.products || [];
+        const productModel = products.map(p => p.model).join(', ') || 'DR-HTF001S';
+        addAIMessage(`工单场景：${topScenario.scenario}-${topScenario.subScenario}\n产品Model：${productModel}`);
+        
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // 显示订单信息确认问题
+        showOrderQuestions();
+        
+        // 恢复按钮
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<span>✨</span><span>一键分析</span>';
+        
+      } catch (error) {
+        hideAITyping();
+        console.error('分析失败:', error);
+        addAIMessage('抱歉，分析过程中出现了错误，请稍后重试。');
+        startBtn.disabled = false;
+        startBtn.innerHTML = '<span>✨</span><span>一键分析</span>';
+      }
+    }
+
+    // 识别最匹配的3个场景
+    async function identifyTopScenarios(ticketData) {
+      // 模拟AI分析，返回3个最匹配的场景
+      // 实际应该调用后端AI API
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      return [
+        {
+          id: '订单问题-取消订单',
+          scenario: '订单问题',
+          subScenario: '取消订单',
+          confidence: 0.95,
+        },
+        {
+          id: '产品问题-产品使用问题',
+          scenario: '产品问题',
+          subScenario: '产品使用问题',
+          confidence: 0.72,
+        },
+        {
+          id: '售前咨询-服务政策咨询',
+          scenario: '售前咨询',
+          subScenario: '服务政策咨询',
+          confidence: 0.65,
+        }
+      ];
+    }
+
+    // 显示场景选择界面
+    function showScenarioSelection(scenarios) {
+      conversationState.currentStep = 'scenario_selection';
+      conversationState.scenarios = scenarios;
+      
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const selectionDiv = document.createElement('div');
+      selectionDiv.className = 'ai-message';
+      selectionDiv.id = 'scenarioSelectionContainer';
+      
+      selectionDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="scenario-selection-card">
+          <div class="scenario-selection-title">
+            <span class="icon">🎯</span>
+            <span>已识别的场景</span>
+          </div>
+          
+          <div class="scenario-options" id="scenarioOptions">
+            ${scenarios.map((sc, index) => `
+              <div class="scenario-option ${index === 0 ? 'selected' : ''}" data-scenario-id="${sc.id}" onclick="selectScenario('${sc.id}')">
+                <div class="scenario-option-header">
+                  <div class="scenario-option-badge">
+                    <span class="scenario-option-icon">${index === 0 ? '⭐' : '✓'}</span>
+                    <span class="scenario-option-name">${sc.scenario} - ${sc.subScenario}</span>
+                  </div>
+                  <div class="scenario-option-confidence">${Math.round(sc.confidence * 100)}%</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <!-- 问题区域 -->
+          <div class="scenario-questions" id="scenarioQuestions">
+            <div class="question-item">
+              <label class="question-label">是否已有订单号？</label>
+              <div class="question-options">
+                <label class="question-radio">
+                  <input type="radio" name="hasOrderNumber" value="yes" onchange="onOrderNumberChange(this)" ${appState.orderInfo.orderNumber ? 'checked' : ''}>
+                  <span>是</span>
+                </label>
+                <label class="question-radio">
+                  <input type="radio" name="hasOrderNumber" value="no" onchange="onOrderNumberChange(this)" ${!appState.orderInfo.orderNumber ? 'checked' : ''}>
+                  <span>否（生成询问邮件）</span>
+                </label>
+              </div>
+              <div id="orderNumberInputArea" style="display:${appState.orderInfo.orderNumber ? 'block' : 'none'}; margin-top:8px;">
+                <input type="text" id="orderNumberInput" placeholder="请输入订单号" value="${appState.orderInfo.orderNumber || ''}" style="width:100%; padding:8px 10px; border:1px solid #d1d5db; border-radius:6px; font-size:13px; box-sizing:border-box;">
+              </div>
+            </div>
+
+            <div class="question-item" id="shippedQuestionItem" style="display:${appState.orderInfo.orderNumber ? 'block' : 'none'};">
+              <label class="question-label">订单是否已发货？</label>
+              <div class="question-options">
+                <label class="question-radio">
+                  <input type="radio" name="orderShipped" value="yes">
+                  <span>是（协商保留）</span>
+                </label>
+                <label class="question-radio">
+                  <input type="radio" name="orderShipped" value="no">
+                  <span>否（协助取消订单）</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 补充信息输入 -->
+          <div class="additional-info-section">
+            <label class="additional-info-label">其他补充信息（选填）</label>
+            <textarea class="additional-info-textarea" id="additionalInfoTextarea" placeholder="请输入您认为对回复客户有帮助的其他信息..." rows="3"></textarea>
+          </div>
+          
+          <!-- 确定按钮 -->
+          <div class="scenario-selection-actions">
+            <button class="scenario-confirm-btn" onclick="confirmScenarioSelection()">
+              <span>✓</span>
+              <span>确定并生成邮件</span>
+            </button>
+          </div>
+        </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(selectionDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // 默认选中第一个场景
+      conversationState.selectedScenario = scenarios[0];
+    }
+
+    // 订单号问题选项变化时显示/隐藏子元素
+    function onOrderNumberChange(radio) {
+      const orderNumberInputArea = document.getElementById('orderNumberInputArea');
+      const shippedQuestionItem = document.getElementById('shippedQuestionItem');
+      if (radio.value === 'yes') {
+        orderNumberInputArea.style.display = 'block';
+        shippedQuestionItem.style.display = 'block';
+      } else {
+        orderNumberInputArea.style.display = 'none';
+        shippedQuestionItem.style.display = 'none';
+      }
+    }
+
+    // 选择场景
+    function selectScenario(scenarioId) {
+      const options = document.querySelectorAll('.scenario-option');
+      options.forEach(opt => {
+        if (opt.dataset.scenarioId === scenarioId) {
+          opt.classList.add('selected');
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
+      
+      // 更新选中的场景
+      const scenario = conversationState.scenarios.find(s => s.id === scenarioId);
+      conversationState.selectedScenario = scenario;
+      appState.scenario = scenario.scenario;
+      appState.subScenario = scenario.subScenario;
+    }
+
+    // 确认场景选择
+    async function confirmScenarioSelection() {
+      if (!conversationState.selectedScenario) {
+        alert('请选择一个场景');
+        return;
+      }
+      
+      // 获取问题答案
+      const hasOrderNumber = document.querySelector('input[name="hasOrderNumber"]:checked')?.value;
+      const orderNumberInput = document.getElementById('orderNumberInput')?.value.trim();
+      const orderShipped = document.querySelector('input[name="orderShipped"]:checked')?.value;
+      const additionalInfo = document.getElementById('additionalInfoTextarea').value.trim();
+      
+      conversationState.additionalInfo = {
+        hasOrderNumber,
+        orderNumber: orderNumberInput,
+        orderShipped,
+        additionalInfo
+      };
+      
+      // 更新appState
+      appState.scenario = conversationState.selectedScenario.scenario;
+      appState.subScenario = conversationState.selectedScenario.subScenario;
+      if (orderNumberInput) {
+        appState.orderInfo = appState.orderInfo || {};
+        appState.orderInfo.orderNumber = orderNumberInput;
+      }
+      
+      // 隐藏场景选择界面
+      const selectionContainer = document.getElementById('scenarioSelectionContainer');
+      if (selectionContainer) {
+        selectionContainer.remove();
+      }
+      
+      // 显示已选择的场景和选项信息
+      let selectionSummary = `已选择场景：${conversationState.selectedScenario.scenario} - ${conversationState.selectedScenario.subScenario}\n`;
+      if (hasOrderNumber === 'yes') {
+        selectionSummary += `是否已有订单号：是`;
+        if (orderNumberInput) selectionSummary += `（${orderNumberInput}）`;
+        selectionSummary += `\n`;
+        if (orderShipped === 'yes') {
+          selectionSummary += `订单是否已发货：是（协商保留）`;
+        } else if (orderShipped === 'no') {
+          selectionSummary += `订单是否已发货：否（协助取消订单）`;
+        } else {
+          selectionSummary += `订单是否已发货：未选择`;
+        }
+      } else {
+        selectionSummary += `是否已有订单号：否（生成询问邮件）`;
+      }
+      
+      if (additionalInfo) {
+        selectionSummary += `\n补充信息：${additionalInfo}`;
+      }
+      
+      addAIMessage(selectionSummary);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 检查是否需要客服确认（例如：订单是否已发货）
+      const needsConfirmation = await checkIfNeedsConfirmation(conversationState.selectedScenario);
+      
+      if (needsConfirmation) {
+        // 显示客服确认消息
+        await showConfirmationMessage(needsConfirmation);
+      } else {
+        // 直接生成邮件
+        await generateEmailResponse(additionalInfo);
+      }
+    }
+    
+    // 检查是否需要客服确认
+    async function checkIfNeedsConfirmation(scenario) {
+      // 如果是取消订单场景，需要确认订单是否已发货
+      if (scenario.subScenario === '取消订单' || scenario.subScenario === '需取消订单') {
+        return {
+          question: '订单是否已发货',
+          options: [
+            { label: '是（协商保留）', value: 'yes' },
+            { label: '否（协助取消订单）', value: 'no' }
+          ]
+        };
+      }
+      return null;
+    }
+    
+    // 第一步：显示问题一「请提供用户订单号」
+    function showOrderQuestions() {
+      conversationState.currentStep = 'order_questions';
+      const messagesContainer = document.getElementById('conversationMessages');
+
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'ai-message';
+      questionDiv.id = 'orderQuestionsContainer';
+
+      questionDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="scenario-questions" style="padding:16px; border-radius:10px;">
+            <div class="question-item">
+              <label class="question-label">请提供用户订单号</label>
+              <textarea id="orderNumberInput2" class="order-number-textarea" placeholder="请输入订单号，可补充额外信息" rows="3"></textarea>
+              <label class="order-unknown-option" for="orderUnknownCheckbox">
+                <input type="checkbox" id="orderUnknownCheckbox" class="order-unknown-checkbox">
+                <span class="order-unknown-text">未知（用户未提供且无法查询到订单号）</span>
+              </label>
+            </div>
+            <div style="margin-top:16px;">
+              <button class="scenario-confirm-btn" onclick="submitOrderQuestions()">
+                <span>✓</span>
+                <span>确认</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      messagesContainer.appendChild(questionDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 提交问题一，若勾选「未知」则生成询问邮件，否则展示问题二
+    async function submitOrderQuestions() {
+      const orderInput = document.getElementById('orderNumberInput2')?.value.trim();
+      const isUnknown = document.getElementById('orderUnknownCheckbox')?.checked;
+
+      // 禁用输入框并隐藏确认按钮防止重复提交
+      const questionDiv = document.getElementById('orderQuestionsContainer');
+      if (questionDiv) {
+        // 禁用输入框和复选框
+        questionDiv.querySelectorAll('input, textarea').forEach(el => {
+          el.disabled = true;
+          el.style.opacity = '0.7';
+        });
+        // 隐藏确认按钮
+        const confirmBtn = questionDiv.querySelector('.scenario-confirm-btn');
+        if (confirmBtn) {
+          confirmBtn.style.display = 'none';
+        }
+      }
+
+      if (isUnknown) {
+        // 勾选了"未知"，生成询问邮件
+        addUserMessage('未知（用户未提供且无法查询到订单号）');
+        await new Promise(resolve => setTimeout(resolve, 400));
+        await generateEmailResponse(null, 'inquiry');
+      } else {
+        // 提供了订单号（可能包含额外信息），继续问题二
+        if (!orderInput) {
+          alert('请输入订单号或勾选"未知（用户未提供且无法查询到订单号）"');
+          // 恢复按钮
+          if (questionDiv) {
+            questionDiv.querySelectorAll('input, textarea').forEach(el => {
+              el.disabled = false;
+              el.style.opacity = '1';
+            });
+            const confirmBtn = questionDiv.querySelector('.scenario-confirm-btn');
+            if (confirmBtn) confirmBtn.style.display = 'inline-flex';
+          }
+          return;
+        }
+        
+        // 保存订单信息
+        appState.orderInfo = appState.orderInfo || {};
+        appState.orderInfo.orderNumber = orderInput;
+        
+        addUserMessage(`订单号：${orderInput}`);
+        await new Promise(resolve => setTimeout(resolve, 400));
+        showOrderShippedQuestion();
+      }
+    }
+
+    // 第二步：显示问题二「订单是否已发货？」
+    function showOrderShippedQuestion() {
+      conversationState.currentStep = 'order_shipped_question';
+      const messagesContainer = document.getElementById('conversationMessages');
+
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'ai-message';
+      questionDiv.id = 'orderShippedContainer';
+
+      questionDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="scenario-questions" style="padding:16px; border-radius:10px;">
+            <div class="question-item">
+              <label class="question-label">订单是否已发货？</label>
+              <div class="question-options">
+                <label class="question-radio">
+                  <input type="radio" name="orderShipped2" value="yes">
+                  <span>是（协商保留）</span>
+                </label>
+                <label class="question-radio">
+                  <input type="radio" name="orderShipped2" value="no">
+                  <span>否（协助取消订单）</span>
+                </label>
+              </div>
+            </div>
+            <div class="question-supplement">
+              <label class="question-supplement-label">补充说明（选填）</label>
+              <textarea id="q2SupplementInput" class="question-supplement-textarea" placeholder="如有其他需要补充的信息，请在此输入..."></textarea>
+            </div>
+            <div style="margin-top:12px;">
+              <button class="scenario-confirm-btn" onclick="submitOrderShippedQuestion()">
+                <span>✓</span>
+                <span>确认</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      messagesContainer.appendChild(questionDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 提交问题二，根据发货状态生成对应邮件
+    async function submitOrderShippedQuestion() {
+      const orderShipped = document.querySelector('input[name="orderShipped2"]:checked')?.value;
+      const supplement = document.getElementById('q2SupplementInput')?.value.trim();
+
+      if (!orderShipped) {
+        alert('请选择一个选项');
+        return;
+      }
+
+      // 禁用输入框并隐藏确认按钮防止重复提交
+      const questionDiv = document.getElementById('orderShippedContainer');
+      if (questionDiv) {
+        // 禁用输入框和文本框
+        questionDiv.querySelectorAll('input, textarea').forEach(el => {
+          el.disabled = true;
+          el.style.opacity = '0.7';
+        });
+        // 隐藏确认按钮
+        const confirmBtn = questionDiv.querySelector('.scenario-confirm-btn');
+        if (confirmBtn) {
+          confirmBtn.style.display = 'none';
+        }
+      }
+
+      conversationState.additionalInfo = conversationState.additionalInfo || {};
+      if (supplement) conversationState.additionalInfo.q2Supplement = supplement;
+
+      const shippedLabel = orderShipped === 'yes' ? '是（协商保留）' : '否（协助取消订单）';
+      let msg = `订单是否已发货：${shippedLabel}`;
+      if (supplement) msg += `\n补充说明：${supplement}`;
+      addUserMessage(msg);
+      await new Promise(resolve => setTimeout(resolve, 400));
+      await generateEmailResponse(null, orderShipped);
+    }
+
+    // 显示客服确认消息
+    async function showConfirmationMessage(confirmationData) {
+      conversationState.currentStep = 'confirmation';
+      conversationState.confirmationData = confirmationData;
+      
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const confirmationDiv = document.createElement('div');
+      confirmationDiv.className = 'ai-message';
+      confirmationDiv.id = 'confirmation-message';
+      
+      confirmationDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="confirmation-card">
+            <div class="confirmation-question">${confirmationData.question}</div>
+            <div class="confirmation-options" id="confirmationOptions">
+              ${confirmationData.options.map(option => `
+                <div class="confirmation-option" data-value="${option.value}" onclick="selectConfirmationOption('${option.value}')">
+                  <span class="confirmation-option-label">${option.label}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="confirmation-actions">
+              <button class="confirmation-submit-btn" id="confirmationSubmitBtn" onclick="submitConfirmation()" disabled>
+                <span>✓</span>
+                <span>确认</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(confirmationDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // 选择确认选项
+    function selectConfirmationOption(value) {
+      const options = document.querySelectorAll('.confirmation-option');
+      options.forEach(opt => {
+        if (opt.dataset.value === value) {
+          opt.classList.add('selected');
+        } else {
+          opt.classList.remove('selected');
+        }
+      });
+      
+      conversationState.selectedConfirmation = value;
+      
+      // 启用提交按钮
+      const submitBtn = document.getElementById('confirmationSubmitBtn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // 提交确认
+    async function submitConfirmation() {
+      const confirmationData = conversationState.confirmationData;
+      const selectedValue = conversationState.selectedConfirmation;
+      
+      if (!selectedValue) {
+        alert('请选择一个选项');
+        return;
+      }
+      
+      // 禁用选项并隐藏确认按钮，防止重复提交
+      const confirmationDiv = document.getElementById('confirmation-message');
+      if (confirmationDiv) {
+        // 禁用选项
+        confirmationDiv.querySelectorAll('.confirmation-option').forEach(el => {
+          el.style.pointerEvents = 'none';
+          el.style.opacity = '0.6';
+        });
+        // 隐藏确认按钮
+        const confirmBtn = confirmationDiv.querySelector('.confirmation-submit-btn');
+        if (confirmBtn) {
+          confirmBtn.style.display = 'none';
+        }
+      }
+      
+      // 以客服气泡形式显示选择结果
+      const selectedOption = confirmationData.options.find(opt => opt.value === selectedValue);
+      addUserMessage(selectedOption.label);
+      
+      await new Promise(resolve => setTimeout(resolve, 400));
+      
+      // 根据选择生成不同的邮件
+      await generateEmailResponse(null, selectedValue);
+    }
+
+    // 检查是否需要更多信息
+    async function checkIfNeedsMoreInfo(scenario, orderInfo, products) {
+      // 这个函数现在不再使用，因为我们改用场景选择界面
+      return null;
+    }
+
+    // 处理HITL交互
+    async function handleHITL(hitlData) {
+      conversationState.currentStep = 'hitl';
+      conversationState.hitlData = hitlData;
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      addAIMessage(hitlData.question);
+      
+      // 显示HITL交互界面
+      const hitlContainer = document.getElementById('hitlInteraction');
+      const hitlQuestionTitle = document.getElementById('hitlQuestionTitle');
+      const hitlQuestionContent = document.getElementById('hitlQuestionContent');
+      const hitlOptions = document.getElementById('hitlOptions');
+      const hitlTextInput = document.getElementById('hitlTextInput');
+      
+      hitlQuestionTitle.textContent = '需要您的帮助';
+      hitlQuestionContent.textContent = hitlData.question;
+      
+      // 清空之前的内容
+      hitlOptions.innerHTML = '';
+      hitlOptions.style.display = 'none';
+      hitlTextInput.style.display = 'none';
+      
+      // 根据类型显示不同的输入方式
+      if (hitlData.type === 'options' || hitlData.type === 'mixed') {
+        hitlOptions.style.display = 'flex';
+        
+        hitlData.fields[0].options.forEach(option => {
+          const optionDiv = document.createElement('div');
+          optionDiv.className = 'hitl-option';
+          optionDiv.textContent = option.label;
+          optionDiv.dataset.id = option.id;
+          
+          optionDiv.onclick = function() {
+            document.querySelectorAll('.hitl-option').forEach(opt => {
+              opt.classList.remove('selected');
+            });
+            this.classList.add('selected');
+          };
+          
+          hitlOptions.appendChild(optionDiv);
+        });
+      }
+      
+      if (hitlData.type === 'text' || hitlData.type === 'mixed') {
+        hitlTextInput.style.display = 'block';
+      }
+      
+      hitlContainer.style.display = 'block';
+    }
+
+    // 提交HITL答案
+    async function submitHITLAnswer() {
+      const hitlData = conversationState.hitlData;
+      const hitlOptions = document.getElementById('hitlOptions');
+      const hitlTextarea = document.getElementById('hitlTextarea');
+      const hitlSubmitBtn = document.getElementById('hitlSubmitBtn');
+      
+      let answer = '';
+      
+      // 获取选项答案
+      if (hitlData.type === 'options' || hitlData.type === 'mixed') {
+        const selectedOption = hitlOptions.querySelector('.hitl-option.selected');
+        if (selectedOption) {
+          answer = selectedOption.textContent;
+        }
+      }
+      
+      // 获取文本答案
+      if (hitlData.type === 'text' || hitlData.type === 'mixed') {
+        const textAnswer = hitlTextarea.value.trim();
+        if (textAnswer) {
+          answer = answer ? answer + '\n' + textAnswer : textAnswer;
+        }
+      }
+      
+      if (!answer) {
+        alert('请提供您的答案');
+        return;
+      }
+      
+      // 禁用提交按钮
+      hitlSubmitBtn.disabled = true;
+      
+      // 隐藏HITL界面
+      document.getElementById('hitlInteraction').style.display = 'none';
+      
+      // 添加用户回答到对话中
+      addAIMessage(`您的回答：${answer}`);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      addAIMessage('感谢您的回答！让我基于这些信息生成回复邮件...');
+      
+      // 继续生成邮件
+      await generateEmailResponse(answer);
+    }
+
+    // 生成邮件回复
+    async function generateEmailResponse(hitlAnswer = null, confirmationValue = null) {
+      conversationState.currentStep = 'generating_email';
+      
+      showAITyping();
+      
+      try {
+        // 模拟邮件生成
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        hideAITyping();
+        
+        // 生成邮件内容
+        const email = await callAIGenerateEmail(
+          appState.scenario,
+          appState.subScenario,
+          appState.processNode,
+          { id: 'default', name: '回复客户' },
+          appState.ticketData,
+          appState.orderInfo,
+          appState.products,
+          hitlAnswer,
+          confirmationValue
+        );
+        
+        conversationState.generatedEmail = email;
+        appState.generatedEmail = email;
+
+        // 构建邮件生成说明
+        const emailDesc = buildEmailDescription(confirmationValue);
+
+        // 显示邮件确认界面
+        await new Promise(resolve => setTimeout(resolve, 500));
+        showEmailConfirmation(email, emailDesc);
+        
+      } catch (error) {
+        hideAITyping();
+        console.error('生成邮件失败:', error);
+        addAIMessage('抱歉，生成邮件时出现了错误，请稍后重试。');
+      }
+    }
+
+    // 根据当前状态生成邮件说明文字
+    function buildEmailDescription(confirmationValue) {
+      const scenario = appState.scenario || '';
+      const subScenario = appState.subScenario || '';
+      const orderInfo = appState.orderInfo || {};
+      const orderNumber = orderInfo.orderNumber;
+
+      if (confirmationValue === 'inquiry') {
+        return `基于客户未提供订单号的情况，生成询问订单信息的邮件`;
+      }
+      if (confirmationValue === 'yes') {
+        const orderPart = orderNumber ? `订单 ${orderNumber} ` : '';
+        return `基于${orderPart}已发货的情况，提供协商保留方案`;
+      }
+      if (confirmationValue === 'no') {
+        const orderPart = orderNumber ? `订单 ${orderNumber} ` : '';
+        return `基于${orderPart}未发货的情况，提供协助取消订单方案`;
+      }
+      if (scenario && subScenario) {
+        return `基于「${scenario} - ${subScenario}」场景，为客户生成回复邮件`;
+      }
+      return `已根据工单信息生成回复邮件`;
+    }
+
+    // 显示邮件确认界面
+    function showEmailConfirmation(email, emailDesc) {
+      conversationState.currentStep = 'email_confirmation';
+      
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const confirmDiv = document.createElement('div');
+      confirmDiv.className = 'ai-message';
+      confirmDiv.id = 'email-confirmation-message';
+      
+      confirmDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="email-confirmation-card">
+            <div class="email-confirmation-title">请确认回复邮件（可编辑）</div>
+            ${emailDesc ? `<div class="email-generation-desc">💡 ${emailDesc}</div>` : ''}
+            <textarea class="email-preview-textarea" id="emailPreviewTextarea" oninput="updateEmailContent()">${escapeHtml(email)}</textarea>
+            <div class="email-confirmation-actions">
+              <button class="email-confirm-btn" onclick="confirmEmail()">
+                <span>✓</span>
+                <span>确认并发送</span>
+              </button>
+              <button class="email-reject-btn" onclick="showRejectReason()">
+                <span>✗</span>
+                <span>拒绝</span>
+              </button>
+            </div>
+            <div class="reject-reason-container" id="rejectReasonContainer">
+              <label class="reject-reason-label">请说明拒绝原因或改进建议：</label>
+              <textarea class="reject-reason-textarea" id="rejectReasonTextarea" placeholder="例如：内容不够详细、语气不合适、缺少关键信息等..."></textarea>
+              <div class="reject-submit-actions">
+                <button class="reject-submit-btn" onclick="submitRejectAndRegenerate()">提交并重新生成</button>
+                <button class="reject-cancel-btn" onclick="hideRejectReason()">取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(confirmDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      // 恢复开始分析按钮
+      const startBtn = document.getElementById('startAnalysisBtn');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<span>✨</span><span>一键分析</span>';
+    }
+
+    // 更新邮件内容
+    function updateEmailContent() {
+      const textarea = document.getElementById('emailPreviewTextarea');
+      if (textarea) {
+        conversationState.generatedEmail = textarea.value;
+        appState.generatedEmail = textarea.value;
+      }
+    }
+
+    // 显示拒绝原因输入框
+    function showRejectReason() {
+      const container = document.getElementById('rejectReasonContainer');
+      container.classList.add('show');
+    }
+
+    // 隐藏拒绝原因输入框
+    function hideRejectReason() {
+      const container = document.getElementById('rejectReasonContainer');
+      container.classList.remove('show');
+      document.getElementById('rejectReasonTextarea').value = '';
+    }
+
+    // 提交拒绝原因并重新生成
+    async function submitRejectAndRegenerate() {
+      const reason = document.getElementById('rejectReasonTextarea').value.trim();
+      
+      if (!reason) {
+        alert('请提供拒绝原因或改进建议');
+        return;
+      }
+      
+      conversationState.rejectionReason = reason;
+      const rejectedEmail = conversationState.generatedEmail; // 保存被拒绝的邮件
+      
+      // 移除确认界面
+      const confirmMessage = document.getElementById('email-confirmation-message');
+      if (confirmMessage) {
+        confirmMessage.remove();
+      }
+      
+      // 显示反馈和被拒绝的邮件
+      showRejectionFeedback(reason, rejectedEmail);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 重新生成邮件
+      await generateEmailResponse(reason);
+    }
+
+    // 显示拒绝反馈和被拒绝的邮件
+    function showRejectionFeedback(reason, rejectedEmail) {
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const feedbackDiv = document.createElement('div');
+      feedbackDiv.className = 'ai-message';
+      
+      feedbackDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="rejection-feedback-card">
+            <div class="rejection-feedback-text">我理解了您的反馈：${escapeHtml(reason)}</div>
+            
+            <div class="rejected-email-section">
+              <div class="rejected-email-header" onclick="toggleRejectedEmail()">
+                <span class="rejected-email-icon">📧</span>
+                <span class="rejected-email-title">被拒绝的邮件</span>
+                <span class="toggle-icon" id="toggleIcon">▼</span>
+              </div>
+              <div class="rejected-email-content collapsed" id="rejectedEmailContent">
+                <pre class="rejected-email-text">${escapeHtml(rejectedEmail)}</pre>
+              </div>
+            </div>
+            
+            <div class="regenerating-hint">让我重新生成一个更好的回复...</div>
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(feedbackDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 切换被拒绝邮件的显示/隐藏
+    function toggleRejectedEmail() {
+      const content = document.getElementById('rejectedEmailContent');
+      const icon = document.getElementById('toggleIcon');
+      
+      if (content.classList.contains('collapsed')) {
+        content.classList.remove('collapsed');
+        icon.textContent = '▲';
+      } else {
+        content.classList.add('collapsed');
+        icon.textContent = '▼';
+      }
+    }
+
+    // 确认邮件并发送
+    async function confirmEmail() {
+      const email = conversationState.generatedEmail;
+      
+      // 移除确认界面
+      const confirmMessage = document.getElementById('email-confirmation-message');
+      if (confirmMessage) {
+        confirmMessage.remove();
+      }
+      
+      // 添加发送中的消息（带ID以便后续删除）
+      const messagesContainer = document.getElementById('conversationMessages');
+      const sendingMessageDiv = document.createElement('div');
+      sendingMessageDiv.className = 'ai-message';
+      sendingMessageDiv.id = 'sending-message';
+      sendingMessageDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="ai-message-text">正在发送邮件...</div>
+        </div>
+      `;
+      messagesContainer.appendChild(sendingMessageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      
+      showAITyping();
+      
+      try {
+        // 模拟发送邮件到Zendesk
+        await sendEmailToZendesk(email);
+        
+        hideAITyping();
+        
+        // 删除"正在发送..."的消息
+        const sendingMsg = document.getElementById('sending-message');
+        if (sendingMsg) {
+          sendingMsg.remove();
+        }
+        
+        // 显示发送成功消息和最终邮件内容（合并）
+        showFinalEmailContent(email);
+        
+        conversationState.currentStep = 'completed';
+        
+        // 保存到邮件历史
+        saveEmailToHistory(email);
+        
+      } catch (error) {
+        hideAITyping();
+        
+        // 删除"正在发送..."的消息
+        const sendingMsg = document.getElementById('sending-message');
+        if (sendingMsg) {
+          sendingMsg.remove();
+        }
+        
+        console.error('发送邮件失败:', error);
+        addAIMessage('❌ 发送邮件失败，请稍后重试。');
+      }
+    }
+
+    // 显示最终发送的邮件内容
+    function showFinalEmailContent(email) {
+      const messagesContainer = document.getElementById('conversationMessages');
+      
+      const emailDiv = document.createElement('div');
+      emailDiv.className = 'ai-message';
+      
+      emailDiv.innerHTML = `
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-message-content">
+          <div class="final-email-card">
+            <div class="final-email-success">✅ 邮件发送成功</div>
+            <div class="final-email-title">📧 最终发送的邮件</div>
+            <div class="final-email-content">
+              <pre class="final-email-text">${escapeHtml(email)}</pre>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      messagesContainer.appendChild(emailDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // 发送邮件到Zendesk
+    async function sendEmailToZendesk(email) {
+      // 模拟API调用
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // 这里应该调用实际的Zendesk API
+      console.log('发送邮件到Zendesk:', email);
+      
+      // 模拟成功
+      return true;
+    }
+
+    // 保存邮件到历史
+    function saveEmailToHistory(email) {
+      const historyItem = {
+        id: Date.now(),
+        generateTime: new Date().toLocaleString('zh-CN'),
+        action: '回复客户',
+        scenario: `${appState.scenario} - ${appState.subScenario}`,
+        content: email,
+        sent: true,
+        updateType: 'AI生成'
+      };
+      
+      appState.emailHistory.unshift(historyItem);
+    }
+
+    // 旧版本的分析功能（保留兼容性）
+    async function startNewAnalysis() {
+      // 重定向到新的对话式分析
+      return startAIAnalysis();
       
       // 隐藏邮件预览
       emailPreviewContainer.classList.add('hidden');
