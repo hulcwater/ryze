@@ -3156,7 +3156,7 @@
   <!-- 顶部标签栏 -->
   <div class="top-tabs">
     <div class="tab-item active">
-      What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel? #262815
+      I want to cancel my DR-HTF001 order. #262815
       <span class="close-icon">×</span>
     </div>
     <div class="add-tab">+</div>
@@ -3303,7 +3303,7 @@
       <div class="conversation-header">
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <div class="conversation-title" id="ticketTitle">What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?</div>
+            <div class="conversation-title" id="ticketTitle">I want to cancel my DR-HTF001 order.</div>
             <div class="conversation-meta">
               <span>Via mobile SDK</span>
             </div>
@@ -3326,7 +3326,7 @@
               <span class="message-time">44 minutes ago</span>
             </div>
             <div class="message-bubble" id="ticketDescription">
-              What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?
+              I want to cancel my DR-HTF001 order.
             </div>
           </div>
         </div>
@@ -3438,8 +3438,8 @@
       ticketId: '262815',
       ticketData: {
         id: '262815',
-        subject: 'What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?',
-        description: 'What is the highest speed setting for the DR-HTF001S fan, and how far can the airflow travel?',
+        subject: 'I want to cancel my DR-HTF001 order.',
+        description: 'I want to cancel my DR-HTF001 order.',
         requester: { name: 'Saqib' }
       },
       scenario: null,
@@ -5282,11 +5282,11 @@ Ticket #${ticketId}`;
               <div class="question-options">
                 <label class="question-radio">
                   <input type="radio" name="orderShipped" value="yes">
-                  <span>是（协商保留）</span>
+                  <span>是</span>
                 </label>
                 <label class="question-radio">
                   <input type="radio" name="orderShipped" value="no">
-                  <span>否（协助取消订单）</span>
+                  <span>否</span>
                 </label>
               </div>
             </div>
@@ -5388,9 +5388,9 @@ Ticket #${ticketId}`;
         if (orderNumberInput) selectionSummary += `（${orderNumberInput}）`;
         selectionSummary += `\n`;
         if (orderShipped === 'yes') {
-          selectionSummary += `订单是否已发货：是（协商保留）`;
+          selectionSummary += `订单是否已发货：是`;
         } else if (orderShipped === 'no') {
-          selectionSummary += `订单是否已发货：否（协助取消订单）`;
+          selectionSummary += `订单是否已发货：否`;
         } else {
           selectionSummary += `订单是否已发货：未选择`;
         }
@@ -5425,8 +5425,8 @@ Ticket #${ticketId}`;
         return {
           question: '订单是否已发货',
           options: [
-            { label: '是（协商保留）', value: 'yes' },
-            { label: '否（协助取消订单）', value: 'no' }
+            { label: '是', value: 'yes' },
+            { label: '否', value: 'no' }
           ]
         };
       }
@@ -5537,11 +5537,11 @@ Ticket #${ticketId}`;
               <div class="question-options">
                 <label class="question-radio">
                   <input type="radio" name="orderShipped2" value="yes">
-                  <span>是（协商保留）</span>
+                  <span>是</span>
                 </label>
                 <label class="question-radio">
                   <input type="radio" name="orderShipped2" value="no">
-                  <span>否（协助取消订单）</span>
+                  <span>否</span>
                 </label>
               </div>
             </div>
@@ -5591,7 +5591,7 @@ Ticket #${ticketId}`;
       conversationState.additionalInfo = conversationState.additionalInfo || {};
       if (supplement) conversationState.additionalInfo.q2Supplement = supplement;
 
-      const shippedLabel = orderShipped === 'yes' ? '是（协商保留）' : '否（协助取消订单）';
+      const shippedLabel = orderShipped === 'yes' ? '是' : '否';
       let msg = `订单是否已发货：${shippedLabel}`;
       if (supplement) msg += `\n补充说明：${supplement}`;
       addUserMessage(msg);
